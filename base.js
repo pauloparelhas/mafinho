@@ -172,8 +172,8 @@ const TTS = {
       speechSynthesis.cancel();
       const utt   = new SpeechSynthesisUtterance(text);
       utt.lang    = this.langCode;
-      utt.rate    = 0.72;
-      utt.pitch   = 1.35;
+      utt.rate    = 0.80;
+      utt.pitch   = 1.12;
       utt.volume  = 1.0;
       const voice = this.getBestVoice();
       if (voice) utt.voice = voice;
@@ -234,6 +234,23 @@ const SFX = {
         g.gain.setValueAtTime(0.28, t0);
         g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.28);
         o.start(t0); o.stop(t0 + 0.28);
+      });
+    } catch(e) {}
+  },
+
+  /* Sininho curto e discreto — sinaliza acerto sem palavras */
+  playChime() {
+    if (!MF._soundOn) return;
+    try {
+      const ctx = this._ac(), t = ctx.currentTime;
+      [[880, t, 0.18], [1175, t + 0.09, 0.24]].forEach(([freq, t0, dur]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.18, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+        o.start(t0); o.stop(t0 + dur);
       });
     } catch(e) {}
   },
