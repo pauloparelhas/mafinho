@@ -1,0 +1,14 @@
+# Configurações internas do Claude (agentes, prompts)
+.claude/
+
+# Credenciais e segredos
+.env
+*.key
+*.pem
+credentials*
+token*
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
