@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light" data-country="br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Números — Mafinho v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'"/>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — numbers.html (Fase 2)
+═══════════════════════════════════════════ */
+:root {
+  --c-red:#E53935; --c-blue:#1E88E5; --c-yellow:#F9A825;
+  --c-green:#43A047; --c-orange:#FB8C00; --c-purple:#8E24AA;
+  --c-pink:#F06292; --c-teal:#00897B;
+  --bg:#F8F9FA; --surface:#FFFFFF; --sur2:#F1F3F5;
+  --text:#212121; --muted:#757575; --border:#DEE2E6; --shadow:rgba(0,0,0,0.12);
+  --fs:1;
+  --sm:calc(1.2rem*var(--fs)); --md:calc(1.55rem*var(--fs));
+  --lg:calc(2.1rem*var(--fs)); --xl:calc(2.7rem*var(--fs)); --2xl:calc(3.4rem*var(--fs));
+  --btn-h:80px; --rad:18px; --radlg:26px;
+  --country-accent:#2E7D32; --country-light:#F1F8E9;
+}
+[data-theme="dark"] {
+  --bg:#0F0F1A; --surface:#1A1A2E; --sur2:#16213E;
+  --text:#F5F5F5; --muted:#9E9E9E; --border:#33335A; --shadow:rgba(0,0,0,0.5);
+  --country-light:#1a2a1a;
+}
+[data-country="br"] { --country-accent:#2E7D32; --country-light:#F1F8E9; }
+[data-country="ca"] { --country-accent:#C62828; --country-light:#FFEBEE; }
+[data-theme="dark"][data-country="ca"] { --country-light:#2E1B1B; }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body {
+  font-family:'Comic Sans MS','Chalkboard SE','Comic Neue','Nunito',cursive;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; display:flex; flex-direction:column;
+  transition:background .4s,color .3s;
+}
+
+/* ── Faixa e cantos temáticos ── */
+.theme-stripe { height:6px; background:var(--country-accent); flex-shrink:0; transition:background .5s; }
+.corner-deco  { position:fixed; font-size:5rem; opacity:0.07; pointer-events:none; z-index:0; user-select:none; line-height:1; }
+.corner-deco.tl { top:90px; left:6px; }
+.corner-deco.tr { top:90px; right:6px; }
+.corner-deco.bl { bottom:6px; left:6px; }
+.corner-deco.br { bottom:6px; right:6px; }
+
+/* ── Navbar ── */
+.navbar {
+  display:flex; align-items:center; gap:5px;
+  padding:8px 10px; background:var(--surface);
+  box-shadow:0 2px 10px var(--shadow);
+  position:sticky; top:0; z-index:100; min-height:80px;
+  border-bottom:4px solid var(--country-accent); transition:border-color .5s;
+}
+.nav-btn {
+  height:64px; min-width:56px; border:none; border-radius:var(--rad);
+  font-size:1.7rem; font-weight:900; cursor:pointer;
+  background:var(--sur2); color:var(--text);
+  transition:transform .12s; -webkit-tap-highlight-color:transparent;
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none; font-family:inherit; border:2px solid var(--border); flex-shrink:0;
+}
+.nav-btn:active{transform:scale(0.91);}
+.btn-home  { background:var(--country-accent); color:white; border-color:transparent; font-size:1.9rem; transition:background .5s; }
+.btn-theme { background:var(--c-yellow); color:#333; border-color:transparent; }
+.btn-sound { background:var(--c-blue); color:white; border-color:transparent; }
+.btn-lock  { background:var(--sur2); color:var(--text); }
+.nav-title { font-size:var(--md); font-weight:900; flex:1; padding-left:4px; overflow:hidden; white-space:nowrap; min-width:0; }
+.nav-lang-badge {
+  font-size:var(--sm); font-weight:800;
+  background:var(--country-light); color:var(--country-accent);
+  padding:6px 12px; border-radius:100px; cursor:pointer;
+  border:2px solid var(--country-accent); -webkit-tap-highlight-color:transparent;
+  transition:background .4s,color .4s,border-color .4s;
+  white-space:nowrap; font-family:inherit; flex-shrink:0; height:52px;
+  display:flex; align-items:center;
+}
+
+/* ── TELA A: Hub ── */
+#sHub { flex:1; display:flex; flex-direction:column; }
+.hub-hero { text-align:center; padding:28px 16px 20px; border-bottom:5px solid var(--c-blue); }
+.hub-hero-icon { font-size:4rem; display:block; margin-bottom:10px; }
+.hub-hero h1   { font-size:var(--2xl); font-weight:900; margin-bottom:6px; }
+.hub-hero p    { font-size:var(--md); color:var(--muted); font-weight:700; }
+.hub-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:20px; padding:24px 18px 48px; max-width:900px; margin:0 auto; width:100%;
+}
+.game-card {
+  background:var(--surface); border-radius:var(--radlg);
+  box-shadow:0 5px 20px var(--shadow); padding:28px 16px;
+  text-align:center; color:var(--text);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  border:4px solid var(--border); transition:transform .15s;
+  -webkit-tap-highlight-color:transparent; cursor:pointer; font-family:inherit;
+}
+.game-card:hover { transform:translateY(-5px); }
+.game-card:active { transform:scale(0.94); }
+.game-card.coming { opacity:0.52; cursor:default; pointer-events:none; }
+.game-card.ready  { border-color:var(--c-blue); }
+.g-icon  { font-size:3.5rem; line-height:1; }
+.g-title { font-size:var(--lg); font-weight:900; }
+.g-badge { font-size:var(--sm); font-weight:800; padding:5px 16px; border-radius:100px; }
+.badge-ready { background:var(--c-green); color:white; }
+.badge-soon  { background:var(--border); color:var(--muted); }
+
+/* ── TELA B: Idioma ── */
+#sLang {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:24px 18px 48px; gap:28px;
+}
+.lang-intro { text-align:center; }
+.lang-intro h1 { font-size:var(--xl); font-weight:900; margin-bottom:8px; }
+.lang-intro p  { font-size:var(--md); color:var(--muted); }
+.lang-cards    { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; max-width:520px; }
+.lang-card {
+  flex:1; min-width:200px; max-width:240px; border:none; border-radius:28px;
+  cursor:pointer; padding:32px 20px 28px;
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+  font-family:inherit; box-shadow:0 8px 28px rgba(0,0,0,0.18);
+  transition:transform .15s, box-shadow .15s; -webkit-tap-highlight-color:transparent;
+}
+.lang-card:hover  { transform:translateY(-6px); box-shadow:0 16px 40px rgba(0,0,0,0.22); }
+.lang-card:active { transform:scale(0.95); }
+.lang-card-br { background:linear-gradient(145deg,#2E7D32,#1B5E20); color:#FFDF00; }
+.lang-card-ca { background:linear-gradient(145deg,#C62828,#8B0000); color:#FFFFFF; }
+.lang-flag { font-size:6rem; line-height:1; }
+.lang-name { font-size:var(--xl); font-weight:900; }
+.lang-sub  { font-size:var(--sm); font-weight:700; opacity:0.8; }
+
+/* ── TELA C: Contar ── */
+#sCount {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:8px 12px 8px; gap:6px;
+}
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:var(--sm); font-weight:800; color:var(--muted);
+  text-decoration:none; padding:8px 18px;
+  border-radius:var(--rad); background:var(--sur2);
+  -webkit-tap-highlight-color:transparent;
+  align-self:flex-start; max-width:520px; width:100%;
+  border:none; cursor:pointer; font-family:inherit; min-height:80px;
+}
+
+/* Número grande */
+.num-digit-wrap {
+  display:flex; align-items:center; justify-content:center;
+}
+.num-digit {
+  width:90px; height:90px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:3.2rem; font-weight:900; color:white;
+  box-shadow:0 6px 24px rgba(0,0,0,0.25);
+  transition:transform .3s;
+}
+@keyframes digitPulse {
+  0%  { transform:scale(1); }
+  50% { transform:scale(1.15); }
+  100%{ transform:scale(1); }
+}
+.num-digit.pulse { animation:digitPulse .6s ease; }
+
+/* Grade de objetos */
+.num-objects {
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  gap:10px; max-width:340px; padding:8px;
+  flex:1; align-content:center;
+}
+.num-obj {
+  display:flex; align-items:center; justify-content:center;
+  opacity:0.25; transition:opacity .3s, transform .3s;
+  filter:grayscale(0.6);
+}
+.num-obj.lit {
+  opacity:1; filter:grayscale(0);
+}
+@keyframes objPop {
+  0%  { transform:scale(0.8); }
+  50% { transform:scale(1.25); }
+  100%{ transform:scale(1); }
+}
+.num-obj.pop { animation:objPop .35s ease-out; }
+
+/* Barra de controles inferior */
+.count-controls {
+  display:flex; align-items:center; gap:10px;
+  align-self:flex-start; padding:0 4px;
+}
+.ctrl-btn {
+  height:52px; min-width:52px; border:none; border-radius:14px;
+  font-size:1.5rem; cursor:pointer; font-family:inherit;
+  background:var(--sur2); color:var(--text); border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  -webkit-tap-highlight-color:transparent; transition:transform .12s;
+}
+.ctrl-btn:active { transform:scale(0.91); }
+.ctrl-btn.active { background:var(--country-accent); color:white; border-color:transparent; }
+
+/* Botão próximo */
+.count-next-wrap {
+  width:100%; max-width:420px; display:flex; justify-content:center;
+}
+.btn-count-next {
+  height:var(--btn-h); width:100%; max-width:420px; border:none; border-radius:var(--radlg);
+  font-size:var(--lg); font-weight:900; cursor:pointer;
+  background:var(--country-accent); color:white;
+  font-family:inherit; transition:transform .12s, background .5s;
+  -webkit-tap-highlight-color:transparent;
+  display:none;
+}
+.btn-count-next:active { transform:scale(0.93); }
+
+/* Badge de progresso */
+.count-progress { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
+/* ── TELA D: Celebração ── */
+#sCelebrate {
+  display:none; flex-direction:column; align-items:center;
+  justify-content:center; gap:22px; text-align:center; padding:36px 24px; flex:1;
+}
+#sCelebrate.show { display:flex; }
+.cel-emoji { font-size:7rem; animation:bounce .6s infinite alternate; }
+@keyframes bounce { from{transform:scale(1);}to{transform:scale(1.12);} }
+.cel-title { font-size:var(--xl); font-weight:900; }
+.cel-sub   { font-size:var(--md); color:var(--muted); font-weight:700; }
+.stars { font-size:2.5rem; letter-spacing:6px; animation:twinkle 1s infinite alternate; }
+@keyframes twinkle { from{opacity:1;}to{opacity:0.5;} }
+.btn-big {
+  height:var(--btn-h); padding:0 48px; border:none; border-radius:var(--radlg);
+  font-size:var(--lg); font-weight:900; cursor:pointer;
+  background:var(--country-accent); color:white;
+  font-family:inherit; transition:transform .12s, background .5s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-big:active { transform:scale(0.93); }
+.btn-mid {
+  height:64px; padding:0 32px; border:none; border-radius:var(--rad);
+  font-size:var(--md); font-weight:800; cursor:pointer;
+  background:var(--sur2); color:var(--text); font-family:inherit;
+  -webkit-tap-highlight-color:transparent; transition:transform .12s;
+}
+.btn-mid:active { transform:scale(0.93); }
+
+/* ── Toast encorajamento ── */
+.enc-toast {
+  position:fixed; top:90px; left:50%;
+  transform:translateX(-50%) translateY(-20px);
+  background:var(--country-accent); color:white;
+  padding:16px 32px; border-radius:100px;
+  font-size:var(--lg); font-weight:900; font-family:inherit;
+  box-shadow:0 8px 28px rgba(0,0,0,0.3);
+  z-index:300; white-space:nowrap; max-width:90vw; opacity:0;
+  transition:opacity .35s, transform .35s; pointer-events:none;
+}
+.enc-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── Banner ativar som ── */
+.sound-banner {
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  background:var(--c-blue); color:white; padding:14px 28px; border-radius:100px;
+  font-size:var(--md); font-weight:900; font-family:inherit;
+  box-shadow:0 6px 20px rgba(30,136,229,0.45); z-index:200;
+  cursor:pointer; display:flex; align-items:center; gap:10px;
+  white-space:nowrap; border:none; -webkit-tap-highlight-color:transparent;
+  animation:bannerBounce 1.4s ease-in-out infinite alternate;
+}
+.sound-banner.hidden { display:none; }
+@keyframes bannerBounce {
+  from{transform:translateX(-50%) translateY(0);}
+  to  {transform:translateX(-50%) translateY(-8px);}
+}
+
+/* ── Overlay lock / confirmHome ── */
+.mf-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7); z-index:9999;
+  align-items:center; justify-content:center;
+}
+.mf-overlay.show { display:flex; }
+.mf-modal {
+  background:var(--surface); border-radius:var(--radlg);
+  padding:36px 24px; text-align:center;
+  display:flex; flex-direction:column; gap:18px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.45); max-width:300px; width:90%;
+}
+.mf-modal-icon { font-size:4rem; }
+.mf-modal-msg  { font-size:var(--lg); font-weight:900; }
+.mf-modal-btns { display:flex; gap:12px; justify-content:center; }
+.mf-modal-btns button {
+  height:var(--btn-h); min-width:90px; border:none;
+  border-radius:var(--rad); font-size:var(--md); font-weight:900;
+  cursor:pointer; font-family:inherit; flex:1;
+}
+.mf-btn-yes { background:var(--c-green); color:white; }
+.mf-btn-no  { background:var(--c-red); color:white; }
+[data-locked="true"] .nav-btn:not(#btnLock) { pointer-events:none; opacity:.45; }
+</style>
+</head>
+<body>
+
+<div class="theme-stripe"></div>
+<span class="corner-deco tl" id="dc1">⭐</span>
+<span class="corner-deco tr" id="dc2">⭐</span>
+<span class="corner-deco bl" id="dc3">⭐</span>
+<span class="corner-deco br" id="dc4">⭐</span>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <a id="navLogo" href="#" class="nav-btn btn-home" onclick="MF.confirmHome(event)" title="Início">🏠</a>
+  <span class="nav-title">🔢 <span id="navTitle">Números</span></span>
+  <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
+  <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
+  <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
+  <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
+</nav>
+
+<!-- ═══ TELA A: Hub ═══ -->
+<div id="sHub">
+  <div class="hub-hero">
+    <span class="hub-hero-icon">🔢</span>
+    <h1>Números</h1>
+    <p id="hubSub">Aprenda a contar!</p>
+  </div>
+  <div class="hub-grid">
+    <div class="game-card ready" onclick="Nav.goLang('count')">
+      <span class="g-icon">🎵</span>
+      <span class="g-title" id="hubContar">Contar</span>
+      <span class="g-badge badge-ready" id="badgeContar">Disponível</span>
+    </div>
+    <div class="game-card coming">
+      <span class="g-icon">💡</span>
+      <span class="g-title" id="hubFlash">Flashcards</span>
+      <span class="g-badge badge-soon" id="badgeFlash">Em breve</span>
+    </div>
+    <div class="game-card coming">
+      <span class="g-icon">🎯</span>
+      <span class="g-title" id="hubClicar">Clicar</span>
+      <span class="g-badge badge-soon" id="badgeClicar">Em breve</span>
+    </div>
+    <div class="game-card coming">
+      <span class="g-icon">🤚</span>
+      <span class="g-title" id="hubArrastar">Arrastar</span>
+      <span class="g-badge badge-soon" id="badgeArrastar">Em breve</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TELA B: Idioma ═══ -->
+<div id="sLang">
+  <div class="lang-intro">
+    <h1>🔢 Mafinho Explora!</h1>
+    <p>Escolha o idioma · Choose the language</p>
+  </div>
+  <div class="lang-cards">
+    <button class="lang-card lang-card-br" onclick="Nav.startGame('pt')">
+      <span class="lang-flag">🇧🇷</span>
+      <span class="lang-name">Português</span>
+      <span class="lang-sub">Brasil</span>
+    </button>
+    <button class="lang-card lang-card-ca" onclick="Nav.startGame('en')">
+      <span class="lang-flag">🇨🇦</span>
+      <span class="lang-name">English</span>
+      <span class="lang-sub">Canada</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ TELA C: Contar ═══ -->
+<div id="sCount">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="countBackLabel">Números</span></button>
+  <p class="count-progress" id="countProgress"></p>
+  <div class="num-digit-wrap">
+    <div class="num-digit" id="numDigit">1</div>
+  </div>
+  <div class="num-objects" id="numObjects"></div>
+  <div class="count-controls">
+    <button class="ctrl-btn" id="speedBtn" onclick="CountGame.toggleSpeed()" title="Velocidade">🐇</button>
+    <button class="ctrl-btn" id="shuffleBtn" onclick="CountGame.toggleShuffle()" title="Embaralhar">🔀</button>
+  </div>
+  <div class="count-next-wrap">
+    <button class="btn-count-next" id="btnCountNext" onclick="CountGame.next()">▶</button>
+  </div>
+</div>
+
+<!-- ═══ TELA D: Celebração ═══ -->
+<div id="sCelebrate">
+  <div class="stars">⭐⭐⭐⭐⭐</div>
+  <div class="cel-emoji">🎉</div>
+  <div class="cel-title" id="celTitle">Muito bem!</div>
+  <div class="cel-sub" id="celSub">Você aprendeu a contar!</div>
+  <button class="btn-big" onclick="Nav.restartGame()" id="btnRestart">Recomeçar 🔄</button>
+  <button class="btn-mid" onclick="Nav.backToHub()" id="btnBackHub">← Números</button>
+</div>
+
+<!-- Toast encorajamento -->
+<div class="enc-toast" id="encToast">⭐ Muito bem!</div>
+
+<!-- Banner ativar som -->
+<button class="sound-banner" id="soundBanner" onclick="TTS.activate()">
+  🔊 Toque aqui para ativar o som!
+</button>
+
+<!-- Overlay: travar tela -->
+<div class="mf-overlay" id="lockOverlay">
+  <div class="mf-modal">
+    <div class="mf-modal-icon">🔒</div>
+    <div class="mf-modal-msg">Desbloquear tela?</div>
+    <div class="mf-modal-btns">
+      <button class="mf-btn-yes" onclick="MF._unlock()">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('lockOverlay').classList.remove('show')">❌ Não</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay: confirmar saída -->
+<div class="mf-overlay" id="homeOverlay">
+  <div class="mf-modal">
+    <div class="mf-modal-icon">🏠</div>
+    <div class="mf-modal-msg">Sair do jogo?</div>
+    <div class="mf-modal-btns">
+      <button class="mf-btn-yes" onclick="window.location.href='index.html'">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('homeOverlay').classList.remove('show')">❌ Ficar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   DADOS — NÚMEROS
+═══════════════════════════════════════════════ */
+const NUM_COLORS = [
+  '#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA',
+  '#00897B','#F06292','#F9A825','#E53935','#1E88E5'
+];
+
+const THEMES = ['⚽','🚀','✈️','🦖','🚗','🚁','⛵','🦸‍♂️','🏀','🚲','🤖','🦁','🏎️','🏍️'];
+
+/* ═══════════════════════════════════════════════
+   TEXTOS PT / EN
+═══════════════════════════════════════════════ */
+const LANG = {
+  pt: {
+    country:'br', tts:'pt-BR',
+    navTitle:'Números', navBadge:'🇧🇷 PT', corners:'⭐',
+    hubSub:'Aprenda a contar!',
+    hubContar:'Contar', badgeContar:'Disponível',
+    hubFlash:'Flashcards', hubClicar:'Clicar', hubArrastar:'Arrastar',
+    badgeSoon:'Em breve', backLabel:'Números',
+    numWords:['Um','Dois','Três','Quatro','Cinco','Seis','Sete','Oito','Nove','Dez'],
+    whatNumber:'Que número é esse?',
+    itsNumber:'É o {n}!',
+    celTitle:'Muito bem!', celSub:'Você aprendeu a contar!',
+    celSpoken:'Parabéns! Você aprendeu a contar! Que criança esperta!',
+    restart:'Recomeçar 🔄', backHub:'← Números',
+    nextLabel:'▶', speedSlow:'🐢', speedNormal:'🐇',
+    encourage:[
+      {text:'Isso! Muito bem! ⭐',   spoken:'Isso! Muito bem!'},
+      {text:'Parabéns! 🌟',          spoken:'Parabéns!'},
+      {text:'Uau! Que esperto! 🎉',  spoken:'Uau! Que esperto!'},
+      {text:'Eba! Acertou! ⭐',      spoken:'Eba! Acertou!'},
+      {text:'Que inteligente! 🌟',   spoken:'Que inteligente!'},
+      {text:'Muito bem! 🎉',         spoken:'Muito bem!'},
+      {text:'Boa! Boa! Boa! ⭐',     spoken:'Boa! Boa! Boa!'},
+      {text:'Que criança boa! 🌟',   spoken:'Que criança boa!'},
+      {text:'Eba! Que legal! 🎉',    spoken:'Eba! Que legal!'},
+      {text:'Que maravilha! 🌟',     spoken:'Que maravilha!'},
+    ],
+  },
+  en: {
+    country:'ca', tts:'en-US',
+    navTitle:'Numbers', navBadge:'🇨🇦 EN', corners:'🍁',
+    hubSub:'Learn to count!',
+    hubContar:'Count', badgeContar:'Available',
+    hubFlash:'Flashcards', hubClicar:'Click', hubArrastar:'Drag',
+    badgeSoon:'Coming soon', backLabel:'Numbers',
+    numWords:['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'],
+    whatNumber:'What number is this?',
+    itsNumber:"It's {n}!",
+    celTitle:'Well done!', celSub:'You learned to count!',
+    celSpoken:'Hooray! You learned to count! What a smart child!',
+    restart:'Restart 🔄', backHub:'← Numbers',
+    nextLabel:'▶', speedSlow:'🐢', speedNormal:'🐇',
+    encourage:[
+      {text:'Good job! ⭐',        spoken:'Good job!'},
+      {text:'Well done! 🌟',       spoken:'Well done!'},
+      {text:'Yay! You did it! 🎉', spoken:'Yay! You did it!'},
+      {text:'Wonderful! ⭐',       spoken:'Wonderful!'},
+      {text:'Hooray! 🌟',          spoken:'Hooray!'},
+      {text:'So smart! 🎉',        spoken:'So smart!'},
+      {text:'Amazing! ⭐',         spoken:'Amazing!'},
+      {text:'You got it! 🎉',      spoken:'You got it!'},
+      {text:'Superstar! ⭐',       spoken:'Superstar!'},
+      {text:'Awesome! 🎉',         spoken:'Awesome!'},
+    ],
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   NAV — gerencia telas
+═══════════════════════════════════════════════ */
+const SCREENS = ['sHub','sLang','sCount','sCelebrate'];
+
+const Nav = {
+  currentGame: null,
+
+  _show(id) {
+    SCREENS.forEach(s => {
+      const el = document.getElementById(s);
+      if (!el) return;
+      el.style.display       = (s === id) ? 'flex' : 'none';
+      el.style.flexDirection = 'column';
+    });
+    if (id === 'sCelebrate') document.getElementById('sCelebrate').classList.add('show');
+  },
+
+  goLang(game) {
+    this.currentGame = game;
+    this._show('sLang');
+    document.getElementById('navLangBadge').style.display = 'none';
+  },
+
+  startGame(lang) {
+    this._applyLang(lang);
+    document.getElementById('navLangBadge').style.display = '';
+    this._show('sCount');
+    CountGame.start(lang);
+  },
+
+  restartGame() {
+    document.getElementById('sCelebrate').classList.remove('show');
+    this._show('sCount');
+    CountGame.start(CountGame.lang);
+  },
+
+  backToHub() {
+    CountGame.abort();
+    speechSynthesis && speechSynthesis.cancel();
+    document.getElementById('sCelebrate').classList.remove('show');
+    document.getElementById('navLangBadge').style.display = 'none';
+    this._show('sHub');
+    document.documentElement.dataset.country = 'br';
+    this._setCorners('⭐');
+  },
+
+  backToLang() {
+    CountGame.abort();
+    speechSynthesis && speechSynthesis.cancel();
+    document.getElementById('sCelebrate').classList.remove('show');
+    this._show('sLang');
+    document.getElementById('navLangBadge').style.display = 'none';
+    document.documentElement.dataset.country = 'br';
+    this._setCorners('⭐');
+  },
+
+  _applyLang(lang) {
+    const L = LANG[lang];
+    document.documentElement.dataset.country = L.country;
+    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+    document.getElementById('navTitle').textContent      = L.navTitle;
+    document.getElementById('navLangBadge').textContent  = L.navBadge;
+    document.getElementById('hubSub').textContent        = L.hubSub;
+    document.getElementById('hubContar').textContent     = L.hubContar;
+    document.getElementById('badgeContar').textContent   = L.badgeContar;
+    document.getElementById('hubFlash').textContent      = L.hubFlash;
+    document.getElementById('hubClicar').textContent     = L.hubClicar;
+    document.getElementById('hubArrastar').textContent   = L.hubArrastar;
+    document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
+    document.getElementById('countBackLabel').textContent = L.backLabel;
+    document.getElementById('btnRestart').textContent    = L.restart;
+    document.getElementById('btnBackHub').textContent    = L.backHub;
+    this._setCorners(L.corners);
+    TTS.setLang(L.tts);
+  },
+
+  _setCorners(ch) {
+    ['dc1','dc2','dc3','dc4'].forEach(id =>
+      document.getElementById(id).textContent = ch
+    );
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   TTS — Web Speech API
+═══════════════════════════════════════════════ */
+const TTS = {
+  supported: !!window.speechSynthesis,
+  unlocked:  false,
+  langCode:  'pt-BR',
+
+  init() {
+    if (!this.supported) {
+      document.getElementById('soundBanner').classList.add('hidden');
+      return;
+    }
+    speechSynthesis.getVoices();
+    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
+    document.addEventListener('pointerdown', () => this.activate(), {once:true});
+  },
+
+  setLang(code) { this.langCode = code; },
+
+  getBestVoice() {
+    const voices = speechSynthesis.getVoices();
+    const lang   = this.langCode;
+    const tests  = [
+      v => v.lang === lang && (v.name.includes('Natural') || v.name.includes('Online')),
+      v => v.lang === lang,
+      v => v.lang.startsWith(lang.split('-')[0]),
+    ];
+    for (const fn of tests) { const f = voices.find(fn); if (f) return f; }
+    return null;
+  },
+
+  speak(text) {
+    if (!this.supported || !this.unlocked || !MF._soundOn) return;
+    speechSynthesis.cancel();
+    const utt   = new SpeechSynthesisUtterance(text);
+    utt.lang    = this.langCode;
+    utt.rate    = 0.85;
+    const voice = this.getBestVoice();
+    if (voice) utt.voice = voice;
+    speechSynthesis.speak(utt);
+  },
+
+  /* Fala e retorna Promise que resolve ao terminar */
+  speakAndWait(text) {
+    return new Promise(resolve => {
+      if (!this.supported || !this.unlocked || !MF._soundOn) {
+        setTimeout(resolve, Math.max(400, text.length * 80));
+        return;
+      }
+      const utt   = new SpeechSynthesisUtterance(text);
+      utt.lang    = this.langCode;
+      utt.rate    = 0.85;
+      const voice = this.getBestVoice();
+      if (voice) utt.voice = voice;
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      utt.onend   = finish;
+      utt.onerror = finish;
+      setTimeout(finish, 4000); /* safety */
+      speechSynthesis.speak(utt);
+    });
+  },
+
+  activate() {
+    if (this.unlocked) return;
+    if (!this.supported) return;
+    const s = new SpeechSynthesisUtterance(' ');
+    s.volume = 0.01;
+    s.onend  = () => {
+      this.unlocked = true;
+      document.getElementById('soundBanner').classList.add('hidden');
+    };
+    speechSynthesis.speak(s);
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   SFX — Web Audio (acerto festivo)
+═══════════════════════════════════════════════ */
+const SFX = {
+  _ctx: null,
+  _ac() {
+    if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return this._ctx;
+  },
+  playCorrect() {
+    if (!MF._soundOn) return;
+    try {
+      const ctx = this._ac(), t = ctx.currentTime;
+      [[523, t], [659, t + 0.13], [784, t + 0.26]].forEach(([freq, t0]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.28, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.28);
+        o.start(t0); o.stop(t0 + 0.28);
+      });
+    } catch(e) {}
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   COUNT GAME — Aprender a contar
+   Sincronização: TTS fala → objeto destaca → próximo
+═══════════════════════════════════════════════ */
+const CountGame = {
+  lang:'pt', sequence:[], step:0,
+  speed:'normal', shuffled:false,
+  _aborted:false, _themeOffset:0,
+
+  start(lang) {
+    this.lang        = lang;
+    this.step        = 0;
+    this._aborted    = false;
+    this._themeOffset = Math.floor(Math.random() * THEMES.length);
+    this._buildSequence();
+    TTS.init();
+    this._render();
+  },
+
+  abort() { this._aborted = true; },
+
+  _buildSequence() {
+    const base = [1,2,3,4,5];
+    this.sequence = this.shuffled ? this._shuffle([...base]) : [...base];
+  },
+
+  toggleSpeed() {
+    this.speed = this.speed === 'normal' ? 'slow' : 'normal';
+    document.getElementById('speedBtn').textContent =
+      this.speed === 'slow' ? '🐢' : '🐇';
+  },
+
+  toggleShuffle() {
+    this.shuffled = !this.shuffled;
+    const btn = document.getElementById('shuffleBtn');
+    btn.classList.toggle('active', this.shuffled);
+  },
+
+  _render() {
+    const num   = this.sequence[this.step];
+    const color = NUM_COLORS[num - 1];
+    const theme = THEMES[(num - 1 + this._themeOffset) % THEMES.length];
+
+    /* Progresso */
+    document.getElementById('countProgress').textContent =
+      (this.step + 1) + ' / ' + this.sequence.length;
+
+    /* Dígito */
+    const digit = document.getElementById('numDigit');
+    digit.textContent      = num;
+    digit.style.background = color;
+    digit.classList.remove('pulse');
+
+    /* Tamanho dos objetos */
+    const objSize = num <= 3 ? '3.8rem' : num <= 6 ? '3rem' : '2.4rem';
+
+    /* Grade de objetos */
+    const objEl = document.getElementById('numObjects');
+    objEl.innerHTML = '';
+    for (let i = 0; i < num; i++) {
+      const span = document.createElement('span');
+      span.className = 'num-obj';
+      span.textContent = theme;
+      span.style.fontSize = objSize;
+      objEl.appendChild(span);
+    }
+
+    /* Esconde botão próximo */
+    document.getElementById('btnCountNext').style.display = 'none';
+
+    /* Inicia contagem sincronizada */
+    this._countAnimation(num);
+  },
+
+  async _countAnimation(num) {
+    const L     = LANG[this.lang];
+    const gap   = this.speed === 'slow' ? 350 : 100;
+    const objs  = document.querySelectorAll('#numObjects .num-obj');
+
+    /* Pequena pausa antes de começar */
+    await this._delay(400);
+
+    /* Contagem: objeto destaca + TTS fala o número */
+    for (let i = 0; i < num; i++) {
+      if (this._aborted) return;
+      objs[i].classList.add('lit', 'pop');
+      await TTS.speakAndWait(L.numWords[i]);
+      if (i < num - 1) await this._delay(gap);
+    }
+
+    if (this._aborted) return;
+
+    /* Celebração do número */
+    SFX.playCorrect();
+    const digit = document.getElementById('numDigit');
+    digit.classList.add('pulse');
+    await this._delay(600);
+
+    if (this._aborted) return;
+
+    /* Pergunta retórica: "Que número é esse?" */
+    await TTS.speakAndWait(L.whatNumber);
+    await this._delay(2000);
+
+    if (this._aborted) return;
+
+    /* Resposta: "É o três!" */
+    const answer = L.itsNumber.replace('{n}', L.numWords[num - 1]);
+    await TTS.speakAndWait(answer);
+
+    if (this._aborted) return;
+
+    /* Encorajamento */
+    const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+    const t   = document.getElementById('encToast');
+    t.textContent = enc.text;
+    t.classList.add('show');
+    await TTS.speakAndWait(enc.spoken);
+    setTimeout(() => t.classList.remove('show'), 1500);
+
+    if (this._aborted) return;
+
+    /* Mostra botão próximo */
+    document.getElementById('btnCountNext').style.display = '';
+  },
+
+  next() {
+    this.step++;
+    if (this.step >= this.sequence.length) {
+      this._celebrate();
+    } else {
+      this._render();
+    }
+  },
+
+  _celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.celSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.celSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('numbers_progresso', JSON.stringify({
+      completed:true, phase:1, date:new Date().toISOString()
+    }));
+    Nav._show('sCelebrate');
+  },
+
+  _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
+
+  _shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   MF — tema, fonte, som, lock, confirmHome
+═══════════════════════════════════════════════ */
+const MF = {
+  _soundOn: true,
+  _locked:  false,
+
+  init() {
+    this.applyTheme(localStorage.getItem('mf-theme') || 'light');
+    this.applyFont(parseFloat(localStorage.getItem('mf-font') || '1'));
+    this._soundOn = (localStorage.getItem('mf-sound') || 'on') === 'on';
+    this._updateSoundBtn();
+  },
+
+  applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    const b = document.getElementById('btnTheme');
+    if (b) b.textContent = t === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('mf-theme', t);
+  },
+  toggleTheme() { this.applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); },
+
+  applyFont(s) {
+    document.documentElement.style.setProperty('--fs', s);
+    localStorage.setItem('mf-font', s);
+  },
+
+  toggleSound() {
+    this._soundOn = !this._soundOn;
+    localStorage.setItem('mf-sound', this._soundOn ? 'on' : 'off');
+    this._updateSoundBtn();
+    if (!this._soundOn) speechSynthesis && speechSynthesis.cancel();
+  },
+  _updateSoundBtn() {
+    const b = document.getElementById('btnSound');
+    if (b) b.textContent = this._soundOn ? '🔊' : '🔇';
+  },
+
+  handleLock() {
+    if (!this._locked) {
+      this._locked = true;
+      document.body.dataset.locked = 'true';
+      document.getElementById('btnLock').textContent = '🔓';
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.getElementById('lockOverlay').classList.add('show');
+    }
+  },
+  _unlock() {
+    this._locked = false;
+    document.body.dataset.locked = 'false';
+    document.getElementById('btnLock').textContent = '🔒';
+    document.getElementById('lockOverlay').classList.remove('show');
+    document.exitFullscreen?.().catch(() => {});
+  },
+
+  confirmHome(e) {
+    e && e.preventDefault();
+    document.getElementById('homeOverlay').classList.add('show');
+  }
+};
+
+/* ── INIT ── */
+MF.init();
+SCREENS.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+});
+document.getElementById('sHub').style.display = 'flex';
+</script>
+</body>
+</html>
