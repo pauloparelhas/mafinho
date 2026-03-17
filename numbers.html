@@ -595,7 +595,7 @@ const PaintGame = {
   _totalMaskPx:0, _bound:false,
 
   BRUSH:72,
-  THRESHOLD:0.60,
+  THRESHOLD:0.88,
   PALETTE:['#E53935','#1E88E5','#43A047','#F9A825','#8E24AA'],
 
   start(lang) {
@@ -737,16 +737,16 @@ const PaintGame = {
     this._mCtx.fillStyle = '#FFFFFF';
     this._drawNum(this._mCtx, num, cx, cy);
 
-    /* Calcular total de pixels do mask */
-    const md = this._mCtx.getImageData(0, 0, w * this._dpr, h * this._dpr).data;
-    let total_px = 0;
+    /* Cachear dados do mask para comparação proporcional em _calcFill */
+    const pw = w * this._dpr, ph = h * this._dpr;
+    this._maskData = this._mCtx.getImageData(0, 0, pw, ph).data;
+    this._maskTotal = 0;
     const step = 4;
-    for (let y = 0; y < h * this._dpr; y += step) {
-      for (let x = 0; x < w * this._dpr; x += step) {
-        if (md[(y * w * this._dpr + x) * 4 + 3] > 128) total_px++;
+    for (let y = 0; y < ph; y += step) {
+      for (let x = 0; x < pw; x += step) {
+        if (this._maskData[(y * pw + x) * 4 + 3] > 80) this._maskTotal++;
       }
     }
-    this._totalMaskPx = total_px;
 
     /* Redraw paint canvas (vazio) */
     this._redraw();
@@ -829,20 +829,26 @@ const PaintGame = {
   },
 
   _calcFill() {
-    /* Ler o canvas VISÍVEL (após clipping destination-in).
-       Isso é EXATAMENTE o que a criança vê na tela.
-       Elimina qualquer discrepância visual vs detecção. */
+    /*  Comparação PROPORCIONAL — corrige distorção do destination-in.
+        destination-in produz: paint_alpha = stroke_alpha × mask_alpha / 255
+        Nas bordas anti-aliadas, mask_alpha é parcial (ex: 150), então
+        paint_alpha nunca atinge 255 mesmo com stroke cobrindo 100%.
+        Threshold fixo sub-conta esses pixels sistematicamente.
+        SOLUÇÃO: pixel conta como pintado se paint_alpha > mask_alpha × 0.3
+        Isso respeita a proporção real do compositing. */
     this._redraw();
-    const w = this._w * this._dpr, h = this._h * this._dpr;
-    const paintData = this._pCtx.getImageData(0, 0, w, h).data;
+    const pw = this._w * this._dpr, ph = this._h * this._dpr;
+    const paintData = this._pCtx.getImageData(0, 0, pw, ph).data;
     let painted = 0;
     const step = 4;
-    for (let y = 0; y < h; y += step) {
-      for (let x = 0; x < w; x += step) {
-        if (paintData[(y * w + x) * 4 + 3] > 48) painted++;
+    for (let y = 0; y < ph; y += step) {
+      for (let x = 0; x < pw; x += step) {
+        const i = (y * pw + x) * 4 + 3;
+        const ma = this._maskData[i];
+        if (ma > 80 && paintData[i] > ma * 0.3) painted++;
       }
     }
-    return this._totalMaskPx > 0 ? painted / this._totalMaskPx : 0;
+    return this._maskTotal > 0 ? painted / this._maskTotal : 0;
   },
 
   /* Preenche automaticamente as bordas restantes do número
@@ -867,19 +873,18 @@ const PaintGame = {
     if (fill >= this.THRESHOLD && !this._completed) {
       this._completed = true;
 
-      /* PRIMEIRO: preencher bordas restantes para visual 100% */
+      /* Polimento cosmético: preenche ~12% de bordas anti-aliadas
+         que o pincel grosso não alcança. A criança JÁ pintou 88%. */
       this._autoFill();
       this._redraw();
       document.getElementById('paintBar').style.width = '100%';
 
-      /* Sininho discreto — sinaliza conclusão */
       SFX.playChime();
 
       const L = LANG[this.lang];
       const isMilestone = (this.step + 1) % 3 === 0 && this.step + 1 < this.sequence.length;
 
       if (isMilestone) {
-        /* A cada 3 números: frase de encorajamento falada */
         const ms = L.paintMilestones[Math.floor(Math.random() * L.paintMilestones.length)];
         const t = document.getElementById('encToast');
         t.textContent = '🌟 ' + ms;
@@ -893,7 +898,6 @@ const PaintGame = {
           else this._setupNumber();
         }, 4500);
       } else {
-        /* Por número: sininho + avança */
         setTimeout(() => {
           if (this._aborted) return;
           this.step++;
