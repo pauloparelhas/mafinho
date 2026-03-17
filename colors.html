@@ -257,18 +257,27 @@ body {
   align-items:center; padding:12px 12px 8px; gap:10px;
 }
 #sClick .back-link { margin-bottom:0; }
-.click-target {
-  width:150px; height:150px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:4rem; flex-shrink:0;
-  box-shadow:0 8px 32px rgba(0,0,0,0.25);
+.click-instruction {
+  font-size:var(--xl); font-weight:900; text-align:center;
+  line-height:1.4; padding:12px 16px;
 }
-@keyframes clickPulse {
-  0%  { transform:scale(1); }
-  40% { transform:scale(1.14); }
-  100%{ transform:scale(1); }
+.click-color-word {
+  display:inline-block; padding:4px 18px; border-radius:14px;
+  background:rgba(0,0,0,0.1);
+  text-shadow:
+    -1px -1px 0 rgba(255,255,255,0.7),
+     1px -1px 0 rgba(255,255,255,0.7),
+    -1px  1px 0 rgba(255,255,255,0.7),
+     1px  1px 0 rgba(255,255,255,0.7);
 }
-.click-target.pulse { animation:clickPulse .55s ease-out; }
+[data-theme="dark"] .click-color-word {
+  background:rgba(255,255,255,0.12);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.6),
+     1px -1px 0 rgba(0,0,0,0.6),
+    -1px  1px 0 rgba(0,0,0,0.6),
+     1px  1px 0 rgba(0,0,0,0.6);
+}
 .click-options {
   display:flex; flex-direction:column; gap:14px;
   width:100%; max-width:420px;
@@ -501,7 +510,7 @@ body {
 <div id="sClick">
   <button class="back-link" onclick="Nav.backToHub()">← <span id="clickBackLabel">Cores</span></button>
   <p class="click-round" id="clickRoundBadge"></p>
-  <div class="click-target" id="clickTarget">🔴</div>
+  <p class="click-instruction" id="clickInstruction"></p>
   <div class="click-options" id="clickOptions"></div>
 </div>
 
@@ -629,6 +638,7 @@ const LANG = {
     badgeFlash:'Disponível', hubArrastar:'Arrastar', badgeArrastar:'Disponível',
     hubClicar:'Clicar', badgeClicar:'Disponível', hubSeparar:'Separar',
     badgeSoon:'Em breve', backLabel:'Cores', clickBackLabel:'Cores',
+    clickCmd:'Aperte na cor',
     tapHint:'Toque para descobrir!', nextHint:'▶ próxima cor',
     question:'Qual cor é esta?',
     dragInstruction:'Arraste para a cor certa! 🤚',
@@ -661,6 +671,7 @@ const LANG = {
     badgeFlash:'Available', hubArrastar:'Drag', badgeArrastar:'Available',
     hubClicar:'Click', badgeClicar:'Available', hubSeparar:'Sort',
     badgeSoon:'Coming soon', backLabel:'Colors', clickBackLabel:'Colors',
+    clickCmd:'Tap the color',
     tapHint:'Tap to find out!', nextHint:'▶ next color',
     question:'What color is this?',
     dragInstruction:'Drag to the right color! 🤚',
@@ -1224,20 +1235,20 @@ const ClickGame = {
   _render() {
     const colorIdx = this.sequence[this.step];
     const color    = COLORS[colorIdx];
+    const L        = LANG[this.lang];
+    const name     = this.lang === 'pt' ? color.pt : color.en;
 
     /* Badge */
     document.getElementById('clickRoundBadge').textContent =
       (this.step + 1) + ' / ' + this.totalSteps;
 
-    /* Círculo alvo */
-    const target = document.getElementById('clickTarget');
-    target.style.background = color.bg;
-    target.style.color      = color.text;
-    target.style.border     = color.border || 'none';
-    target.textContent      = color.icon;
-    target.classList.remove('pulse');
+    /* Enunciado: "Aperte na cor Amarela!" com nome na cor real */
+    const inst = document.getElementById('clickInstruction');
+    inst.innerHTML = L.clickCmd +
+      ' <span class="click-color-word" style="color:' + color.bg + '">' +
+      name + '</span>!';
 
-    /* 3 opções: 1 correta + 2 erradas */
+    /* 3 opções: 1 correta + 2 erradas — posições sempre embaralhadas */
     const pool  = [...Array(COLORS.length).keys()].filter(i => i !== colorIdx);
     const opts  = this._shuffle([colorIdx, ...this._shuffle(pool).slice(0, 2)]);
 
@@ -1269,14 +1280,9 @@ const ClickGame = {
       optionsEl.appendChild(btn);
     });
 
-    /* TTS automático + pulsação */
-    const name = this.lang === 'pt' ? color.pt : color.en;
-    setTimeout(() => {
-      TTS.speak(name);
-      target.classList.remove('pulse');
-      void target.offsetWidth; /* force reflow para reiniciar animação */
-      target.classList.add('pulse');
-    }, 350);
+    /* TTS automático — fala o comando completo */
+    const spoken = L.clickCmd + ' ' + name;
+    setTimeout(() => TTS.speak(spoken), 250);
   },
 
   _onCorrect(colorIdx) {
@@ -1289,13 +1295,13 @@ const ClickGame = {
     t.textContent = enc.text;
     t.classList.add('show');
     setTimeout(() => TTS.speak(name + '! ' + enc.spoken), 200);
-    setTimeout(() => t.classList.remove('show'), 2600);
+    setTimeout(() => t.classList.remove('show'), 3800);
     setTimeout(() => {
       this._locked = false;
       this.step++;
       if (this.step >= this.totalSteps) this._celebrate();
       else                              this._render();
-    }, 1500);
+    }, 3500);
   },
 
   _onWrong(btn) {

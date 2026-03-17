@@ -142,9 +142,12 @@
     }
     .topic-card:hover  { transform: translateY(-6px); box-shadow: 0 14px 36px var(--shadow); }
     .topic-card:active { transform: scale(0.94); }
+    .topic-card.coming { opacity: 0.45; pointer-events: none; cursor: default; }
+    .topic-card.coming:hover { transform: none; box-shadow: 0 6px 24px var(--shadow); }
     .t-icon  { font-size: 3.8rem; line-height: 1; }
     .t-label { font-size: var(--lg); font-weight: 900; }
     .t-en    { font-size: var(--sm); color: var(--muted); font-weight: 700; }
+    .t-badge { font-size: calc(0.9rem * var(--fs)); font-weight: 800; padding: 4px 14px; border-radius: 100px; background: var(--border); color: var(--muted); }
 
     /* Bordas coloridas por tópico */
     .acc-red    { border-color: var(--c-red); }
@@ -177,36 +180,36 @@
     </div>
 
     <div class="grid">
-      <a href="cores.html" class="topic-card acc-red">
+      <a href="colors.html" class="topic-card acc-red">
         <span class="t-icon">🎨</span>
         <span class="t-label" data-pt="Cores"             data-en="Colors">Cores</span>
         <span class="t-en"    data-pt="Colors"            data-en="Cores">Colors</span>
       </a>
-      <a href="numeros.html" class="topic-card acc-blue">
+      <div class="topic-card acc-blue coming">
         <span class="t-icon">🔢</span>
         <span class="t-label" data-pt="Números"           data-en="Numbers">Números</span>
-        <span class="t-en"    data-pt="Numbers"           data-en="Números">Numbers</span>
-      </a>
-      <a href="animais.html" class="topic-card acc-green">
+        <span class="t-badge" data-pt="Em breve"          data-en="Coming soon">Em breve</span>
+      </div>
+      <div class="topic-card acc-green coming">
         <span class="t-icon">🐾</span>
         <span class="t-label" data-pt="Animais"           data-en="Animals">Animais</span>
-        <span class="t-en"    data-pt="Animals"           data-en="Animais">Animals</span>
-      </a>
-      <a href="formas.html" class="topic-card acc-purple">
+        <span class="t-badge" data-pt="Em breve"          data-en="Coming soon">Em breve</span>
+      </div>
+      <div class="topic-card acc-purple coming">
         <span class="t-icon">🔷</span>
         <span class="t-label" data-pt="Formas"            data-en="Shapes">Formas</span>
-        <span class="t-en"    data-pt="Shapes"            data-en="Formas">Shapes</span>
-      </a>
-      <a href="objetos.html" class="topic-card acc-orange">
+        <span class="t-badge" data-pt="Em breve"          data-en="Coming soon">Em breve</span>
+      </div>
+      <div class="topic-card acc-orange coming">
         <span class="t-icon">🧸</span>
         <span class="t-label" data-pt="Objetos"           data-en="Objects">Objetos</span>
-        <span class="t-en"    data-pt="Objects"           data-en="Objetos">Objects</span>
-      </a>
-      <a href="dias_semana.html" class="topic-card acc-yellow">
+        <span class="t-badge" data-pt="Em breve"          data-en="Coming soon">Em breve</span>
+      </div>
+      <div class="topic-card acc-yellow coming">
         <span class="t-icon">📅</span>
         <span class="t-label" data-pt="Dias da Semana"    data-en="Days of the Week">Dias da Semana</span>
-        <span class="t-en"    data-pt="Days of the Week"  data-en="Dias da Semana">Days of the Week</span>
-      </a>
+        <span class="t-badge" data-pt="Em breve"          data-en="Coming soon">Em breve</span>
+      </div>
     </div>
   </main>
 
