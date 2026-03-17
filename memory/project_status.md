@@ -27,17 +27,19 @@ type: project
 ### Backlog (ordenado por prioridade)
 | # | Arquivo | Tipo | Tópico | Status |
 |---|---------|------|--------|--------|
-| 1 | numbers.html | Flashcard, Clicar, Arrastar | Números — jogos | pendente |
-| 2 | colors.html | Separar | Cores — nível 4 | pendente |
-| 3 | animals.html | hub + jogos | Animais | pendente |
-| 4 | shapes.html | hub + jogos | Formas | pendente |
-| 5 | objects.html | hub + jogos | Objetos | pendente |
-| 6 | days.html | hub + jogos | Dias da Semana | pendente |
+| 1 | numbers.html | Pintar — QA/ajustes | Testar e ajustar jogo Pintar | a validar |
+| 2 | numbers.html | Flashcard, Clicar, Arrastar | Números — jogos | pendente |
+| 3 | colors.html | Separar | Cores — nível 4 | pendente |
+| 4 | animals.html | hub + jogos | Animais | pendente |
+| 5 | shapes.html | hub + jogos | Formas | pendente |
+| 6 | objects.html | hub + jogos | Objetos | pendente |
+| 7 | days.html | hub + jogos | Dias da Semana | pendente |
 
 ### Detalhes do design — Números
 - **Contar (1-10):** contagem sincronizada (TTS fala + objeto destaca), 2 velocidades (🐢/🐇), shuffle, pergunta retórica "Que número é esse?" → resposta empolgada após 0.8s com answerPop
 - **Resposta:** apenas o nome do número ("Três!") com voz empolgada (rate 0.72, pitch 1.35) + animação de ampliação no dígito
 - **Objetos:** temática masculina (⚽🚀✈️🦖🚗🚁⛵🦸‍♂️🏀🚲🤖🦁🏎️🏍️)
+- **Pintar (1-10):** dual canvas (outline + paint), globalCompositeOperation source-atop, 5 cores na paleta (#E53935,#1E88E5,#43A047,#F9A825,#8E24AA), brush 56px, threshold 65%, TTS fala o número ao iniciar, voz empolgada ao completar, celebração padrão
 - **Flashcard/Clicar/Arrastar:** serão mais memorização, sem contagem animada
 
 ### Detalhes do design — Cores (Clicar)
