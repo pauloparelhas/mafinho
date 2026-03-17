@@ -141,7 +141,6 @@
 /* ── Trace mode (caligrafia) ── */
 #sPaint.trace-mode .paint-palette { display:none; }
 #sPaint.trace-mode .paint-area { border-color:var(--c-blue); }
-#sPaint.trace-mode #paintCanvas { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='%23333' opacity='.5'/%3E%3C/svg%3E") 12 12, crosshair; }
 </style>
 </head>
 <body>
@@ -626,7 +625,7 @@ const PaintGame = {
   start(lang, mode) {
     this.mode      = mode || 'paint';
     this.BRUSH     = this.mode === 'trace' ? 24 : 72;
-    this.THRESHOLD = this.mode === 'trace' ? 0.80 : 0.95;
+    this.THRESHOLD = this.mode === 'trace' ? 0.75 : 0.95;
     this.lang      = lang;
     this.step      = 0;
     this._aborted  = false;
@@ -727,6 +726,15 @@ const PaintGame = {
     }
   },
 
+  /* Desenha número como traço FINO (Nunito 400) — caligrafia.
+     Resultado: linha única fina, não forma grossa para preencher. */
+  _drawTraceNum(ctx, num, cx, cy) {
+    ctx.font = '400 ' + this._getFontSize(num) + 'px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(num), cx, cy);
+  },
+
   _setupNumber() {
     this._completed = false;
     this._painting  = false;
@@ -748,34 +756,35 @@ const PaintGame = {
     this._oCtx.clearRect(0, 0, w, h);
     this._oCtx.save();
     if (this.mode === 'trace') {
-      /* Trace: preenchimento mais visível + contorno grosso colorido */
-      this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)';
-      this._drawNum(this._oCtx, num, cx, cy);
-      this._oCtx.strokeStyle = isDark ? '#5C7AEA' : '#90CAF9';
-      this._oCtx.lineWidth = 4;
-      this._oCtx.setLineDash([10, 6]);
+      /* Trace: número fino (Nunito 400) como rascunho de lápis.
+         Traço ÚNICO — a criança escreve por cima. */
+      this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.18)';
+      this._drawTraceNum(this._oCtx, num, cx, cy);
     } else {
       /* Paint: preenchimento sutil + borda sólida fina */
       this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)';
       this._drawNum(this._oCtx, num, cx, cy);
       this._oCtx.strokeStyle = isDark ? '#444' : '#CCC';
       this._oCtx.lineWidth = 2;
+      if (num === 4) {
+        this._oCtx.stroke(this._fourPath(cx, cy, this._getFontSize(num)));
+      } else {
+        this._oCtx.font = this._getFont(num);
+        this._oCtx.textAlign = 'center';
+        this._oCtx.textBaseline = 'middle';
+        this._oCtx.strokeText(String(num), cx, cy);
+      }
     }
-    if (num === 4) {
-      this._oCtx.stroke(this._fourPath(cx, cy, this._getFontSize(num)));
-    } else {
-      this._oCtx.font = this._getFont(num);
-      this._oCtx.textAlign = 'center';
-      this._oCtx.textBaseline = 'middle';
-      this._oCtx.strokeText(String(num), cx, cy);
-    }
-    this._oCtx.setLineDash([]);
     this._oCtx.restore();
 
-    /* Mask canvas: número preenchido em branco (para compositing) */
+    /* Mask canvas: forma de referência em branco (para compositing/detecção) */
     this._mCtx.clearRect(0, 0, w, h);
     this._mCtx.fillStyle = '#FFFFFF';
-    this._drawNum(this._mCtx, num, cx, cy);
+    if (this.mode === 'trace') {
+      this._drawTraceNum(this._mCtx, num, cx, cy);
+    } else {
+      this._drawNum(this._mCtx, num, cx, cy);
+    }
 
     /* Cachear dados do mask para detecção de cobertura em _calcFill.
        Amostragem a cada 2 pixels (1/4 do total) — preciso e rápido. */
@@ -801,13 +810,15 @@ const PaintGame = {
     const ctx = this._pCtx;
     const w = this._w, h = this._h;
     ctx.clearRect(0, 0, w, h);
-    /* Pinceladas a toda opacidade */
     ctx.globalCompositeOperation = 'source-over';
     ctx.drawImage(this._strokeCanvas, 0, 0, w, h);
-    /* Recortar: manter apenas dentro do número */
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.drawImage(this._maskCanvas, 0, 0, w, h);
-    ctx.globalCompositeOperation = 'source-over';
+    if (this.mode !== 'trace') {
+      /* Paint: recortar pinceladas dentro do número */
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(this._maskCanvas, 0, 0, w, h);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    /* Trace: sem clipping — traços visíveis por inteiro (caligrafia real) */
   },
 
   _buildPalette() {
@@ -917,7 +928,11 @@ const PaintGame = {
     this._sCtx.save();
     this._sCtx.globalCompositeOperation = 'destination-over';
     this._sCtx.fillStyle = this.currentColor;
-    this._drawNum(this._sCtx, num, cx, cy);
+    if (this.mode === 'trace') {
+      this._drawTraceNum(this._sCtx, num, cx, cy);
+    } else {
+      this._drawNum(this._sCtx, num, cx, cy);
+    }
     this._sCtx.restore();
   },
 
