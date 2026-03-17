@@ -99,7 +99,7 @@
 .paint-area {
   position:relative;
   width:100%; max-width:340px;
-  height:290px;
+  height:320px;
   border-radius:var(--radlg);
   background:var(--surface);
   border:3px solid var(--border);
@@ -134,6 +134,10 @@
 #sPaint .card-nav { max-width:340px; }
 #sPaint .progress-bar-wrap { max-width:340px; }
 .paint-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
+.enc-toast.paint-pos {
+  top:auto; bottom:150px;
+  font-size:var(--md);
+}
 </style>
 </head>
 <body>
@@ -237,6 +241,7 @@
   <div class="paint-palette" id="paintPalette"></div>
   <div class="card-nav">
     <button class="btn-nav btn-prev" id="paintPrev" onclick="PaintGame.prev()">◀</button>
+    <button class="ctrl-btn" id="paintShuffleBtn" onclick="PaintGame.toggleShuffle()" title="Embaralhar">🔀</button>
     <button class="btn-nav btn-next" id="paintNext" onclick="PaintGame.next()">▶</button>
   </div>
   <div class="paint-progress" id="paintProgress">1 / 10</div>
@@ -313,6 +318,7 @@ const LANG = {
     hubPintar:'Pintar', badgePintar:'Disponível', paintBackLabel:'Números',
     paintCelSub:'Você pintou todos os números!',
     paintCelSpoken:'Parabéns! Você pintou todos os números! Que artista!',
+    paintMilestones:['Que artista incrível!','Pintando super bem!','Que talento!','Mandou bem demais!'],
     numWords:['Um','Dois','Três','Quatro','Cinco','Seis','Sete','Oito','Nove','Dez'],
     whatNumber:'Que número é esse?',
     itsNumber:'{n}!',
@@ -342,6 +348,7 @@ const LANG = {
     hubPintar:'Paint', badgePintar:'Available', paintBackLabel:'Numbers',
     paintCelSub:'You painted all the numbers!',
     paintCelSpoken:'Hooray! You painted all the numbers! What an artist!',
+    paintMilestones:['Amazing artist!','Painting so well!','What talent!','So awesome!'],
     numWords:['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'],
     whatNumber:'What number is this?',
     itsNumber:'{n}!',
@@ -577,7 +584,7 @@ const CountGame = {
 ═══════════════════════════════════════════════ */
 const PaintGame = {
   lang:'pt', sequence:[], step:0,
-  currentColor:'#E53935',
+  currentColor:'#E53935', shuffled:false,
   _aborted:false, _completed:false,
   _painting:false, _lastX:0, _lastY:0,
   _w:0, _h:0, _dpr:1,
@@ -595,7 +602,8 @@ const PaintGame = {
     this.lang      = lang;
     this.step      = 0;
     this._aborted  = false;
-    this.sequence  = [1,2,3,4,5,6,7,8,9,10];
+    const base = [1,2,3,4,5,6,7,8,9,10];
+    this.sequence  = this.shuffled ? shuffle([...base]) : [...base];
     this._initCanvases();
     this._buildPalette();
     TTS.init();
@@ -603,6 +611,11 @@ const PaintGame = {
   },
 
   abort() { this._aborted = true; this._painting = false; },
+
+  toggleShuffle() {
+    this.shuffled = !this.shuffled;
+    document.getElementById('paintShuffleBtn').classList.toggle('active', this.shuffled);
+  },
 
   _initCanvases() {
     const area = document.getElementById('paintArea');
@@ -647,8 +660,39 @@ const PaintGame = {
     }
   },
 
-  _getFont(num) {
-    return num >= 10 ? '900 190px Nunito, sans-serif' : '900 260px Nunito, sans-serif';
+  _getFontSize(num) { return num >= 10 ? 220 : 300; },
+  _getFont(num) { return '900 ' + this._getFontSize(num) + 'px Nunito, sans-serif'; },
+
+  /* Path fechado do 4 angular (arestas retas, sem diagonal) */
+  _fourPath(cx, cy, fontSize) {
+    const h = fontSize * 0.72, w = fontSize * 0.50, t = fontSize * 0.15;
+    const crossAt = h * 0.58;
+    const x0 = cx - w / 2, y0 = cy - h / 2;
+    const p = new Path2D();
+    p.moveTo(x0, y0);
+    p.lineTo(x0 + t, y0);
+    p.lineTo(x0 + t, y0 + crossAt - t / 2);
+    p.lineTo(x0 + w - t, y0 + crossAt - t / 2);
+    p.lineTo(x0 + w - t, y0);
+    p.lineTo(x0 + w, y0);
+    p.lineTo(x0 + w, y0 + h);
+    p.lineTo(x0 + w - t, y0 + h);
+    p.lineTo(x0 + w - t, y0 + crossAt + t / 2);
+    p.lineTo(x0, y0 + crossAt + t / 2);
+    p.closePath();
+    return p;
+  },
+
+  /* Desenha número preenchido (usa path customizado para o 4) */
+  _drawNum(ctx, num, cx, cy) {
+    if (num === 4) {
+      ctx.fill(this._fourPath(cx, cy, this._getFontSize(num)));
+    } else {
+      ctx.font = this._getFont(num);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(String(num), cx, cy);
+    }
   },
 
   _setupNumber() {
@@ -659,8 +703,6 @@ const PaintGame = {
     const i     = this.step + 1;
     const w = this._w, h = this._h;
     const cx = w / 2, cy = h / 2;
-    const font = this._getFont(num);
-    const digit = String(num);
     const isDark = document.documentElement.dataset.theme === 'dark';
 
     document.getElementById('paintProgress').textContent = i + ' / ' + total;
@@ -670,32 +712,27 @@ const PaintGame = {
     /* Limpar stroke canvas */
     this._sCtx.clearRect(0, 0, w, h);
 
-    /* Outline canvas: contorno tracejado do número */
+    /* Outline canvas: preenchimento sutil + borda sólida (sem pontilhado) */
     this._oCtx.clearRect(0, 0, w, h);
     this._oCtx.save();
-    this._oCtx.font = font;
-    this._oCtx.textAlign = 'center';
-    this._oCtx.textBaseline = 'middle';
-    /* Preenchimento leve para indicar a área */
-    this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
-    this._oCtx.fillText(digit, cx, cy);
-    /* Contorno tracejado */
-    this._oCtx.strokeStyle = isDark ? '#555' : '#BBB';
-    this._oCtx.lineWidth = 3;
-    this._oCtx.setLineDash([10, 8]);
-    this._oCtx.strokeText(digit, cx, cy);
-    this._oCtx.setLineDash([]);
+    this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)';
+    this._drawNum(this._oCtx, num, cx, cy);
+    this._oCtx.strokeStyle = isDark ? '#444' : '#CCC';
+    this._oCtx.lineWidth = 2;
+    if (num === 4) {
+      this._oCtx.stroke(this._fourPath(cx, cy, this._getFontSize(num)));
+    } else {
+      this._oCtx.font = this._getFont(num);
+      this._oCtx.textAlign = 'center';
+      this._oCtx.textBaseline = 'middle';
+      this._oCtx.strokeText(String(num), cx, cy);
+    }
     this._oCtx.restore();
 
-    /* Mask canvas: número preenchido em branco (para hit-test e compositing) */
+    /* Mask canvas: número preenchido em branco (para compositing) */
     this._mCtx.clearRect(0, 0, w, h);
-    this._mCtx.save();
-    this._mCtx.font = font;
-    this._mCtx.textAlign = 'center';
-    this._mCtx.textBaseline = 'middle';
     this._mCtx.fillStyle = '#FFFFFF';
-    this._mCtx.fillText(digit, cx, cy);
-    this._mCtx.restore();
+    this._drawNum(this._mCtx, num, cx, cy);
 
     /* Calcular total de pixels do mask */
     const md = this._mCtx.getImageData(0, 0, w * this._dpr, h * this._dpr).data;
@@ -719,27 +756,14 @@ const PaintGame = {
   _redraw() {
     const ctx = this._pCtx;
     const w = this._w, h = this._h;
-    const cx = w / 2, cy = h / 2;
-    const font = this._getFont(this.sequence[this.step]);
-    const digit = String(this.sequence[this.step]);
-
-    ctx.save();
     ctx.clearRect(0, 0, w, h);
-
-    /* Desenhar forma do número como destino (semi-transparente) */
+    /* Pinceladas a toda opacidade */
     ctx.globalCompositeOperation = 'source-over';
-    ctx.font = font;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(200,200,200,0.08)';
-    ctx.fillText(digit, cx, cy);
-
-    /* source-atop: pinceladas aparecem só dentro do número */
-    ctx.globalCompositeOperation = 'source-atop';
     ctx.drawImage(this._strokeCanvas, 0, 0, w, h);
-
+    /* Recortar: manter apenas dentro do número */
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(this._maskCanvas, 0, 0, w, h);
     ctx.globalCompositeOperation = 'source-over';
-    ctx.restore();
   },
 
   _buildPalette() {
@@ -828,19 +852,24 @@ const PaintGame = {
       const num  = this.sequence[this.step];
       const name = L.numWords[num - 1];
       const enc  = L.encourage[Math.floor(Math.random() * L.encourage.length)];
-      const t    = document.getElementById('encToast');
-      t.textContent = enc.text;
-      t.classList.add('show');
+      const isMilestone = (this.step + 1) % 3 === 0 && this.step + 1 < this.sequence.length;
+      const spokenMsg = isMilestone
+        ? L.paintMilestones[Math.floor(Math.random() * L.paintMilestones.length)]
+        : enc.spoken;
+      const t = document.getElementById('encToast');
+      t.textContent = isMilestone ? '🌟 ' + spokenMsg : enc.text;
+      t.classList.add('show', 'paint-pos');
       TTS.speakExcitedAndWait(name).then(() => {
-        setTimeout(() => TTS.speak(enc.spoken), 200);
+        return TTS.speakAndWait(spokenMsg);
       });
-      setTimeout(() => t.classList.remove('show'), 3000);
+      const advanceMs = isMilestone ? 4500 : 3200;
+      setTimeout(() => t.classList.remove('show', 'paint-pos'), advanceMs - 200);
       setTimeout(() => {
         if (this._aborted) return;
         this.step++;
         if (this.step >= this.sequence.length) this._celebrate();
         else this._setupNumber();
-      }, 3200);
+      }, advanceMs);
     }
   },
 
