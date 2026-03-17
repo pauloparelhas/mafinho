@@ -393,22 +393,24 @@ Nav.restartGame = function() {
 
 Nav._applyLang = function(lang) {
   const L = LANG[lang];
+  const $ = id => document.getElementById(id);
   document.documentElement.dataset.country = L.country;
   document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
-  document.getElementById('navTitle').textContent      = L.navTitle;
-  document.getElementById('navLangBadge').textContent  = L.navBadge;
-  document.getElementById('hubSub').textContent        = L.hubSub;
-  document.getElementById('hubContar').textContent     = L.hubContar;
-  document.getElementById('badgeContar').textContent   = L.badgeContar;
-  document.getElementById('hubFlash').textContent      = L.hubFlash;
-  document.getElementById('hubClicar').textContent     = L.hubClicar;
+  const set = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
+  set('navTitle',       L.navTitle);
+  set('navLangBadge',   L.navBadge);
+  set('hubSub',         L.hubSub);
+  set('hubContar',      L.hubContar);
+  set('badgeContar',    L.badgeContar);
+  set('hubFlash',       L.hubFlash);
+  set('hubClicar',      L.hubClicar);
+  set('hubPintar',      L.hubPintar);
+  set('badgePintar',    L.badgePintar);
+  set('countBackLabel', L.backLabel);
+  set('paintBackLabel', L.paintBackLabel);
+  set('btnRestart',     L.restart);
+  set('btnBackHub',     L.backHub);
   document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
-  document.getElementById('countBackLabel').textContent  = L.backLabel;
-  document.getElementById('paintBackLabel').textContent  = L.paintBackLabel;
-  document.getElementById('hubPintar').textContent       = L.hubPintar;
-  document.getElementById('badgePintar').textContent     = L.badgePintar;
-  document.getElementById('btnRestart').textContent      = L.restart;
-  document.getElementById('btnBackHub').textContent      = L.backHub;
   this._setCorners(L.corners);
   TTS.setLang(L.tts);
 };
