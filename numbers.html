@@ -147,10 +147,25 @@ body {
   border:none; cursor:pointer; font-family:inherit; min-height:80px;
 }
 
-/* Número grande */
+/* Número grande + botão som */
 .num-digit-wrap {
+  display:flex; align-items:center; justify-content:center; gap:14px;
+}
+.btn-speak-side {
+  width:80px; height:80px; flex-shrink:0; border-radius:50%; border:none;
+  font-size:2.2rem; cursor:pointer; font-family:inherit; font-weight:900;
+  transition:transform .12s, box-shadow .2s, background .4s;
+  -webkit-tap-highlight-color:transparent;
+  background:var(--country-accent); color:white;
+  box-shadow:0 4px 14px rgba(0,0,0,0.25);
   display:flex; align-items:center; justify-content:center;
 }
+.btn-speak-side:active { transform:scale(0.91); }
+.btn-speak-side.speaking {
+  animation:speakPulse .7s infinite alternate;
+  box-shadow:0 0 0 8px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.3);
+}
+@keyframes speakPulse { from{transform:scale(1);}to{transform:scale(1.1);} }
 .num-digit {
   width:90px; height:90px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
@@ -201,22 +216,32 @@ body {
 .ctrl-btn:active { transform:scale(0.91); }
 .ctrl-btn.active { background:var(--country-accent); color:white; border-color:transparent; }
 
-/* Botão próximo */
-.count-next-wrap {
-  width:100%; max-width:420px; display:flex; justify-content:center;
+/* Navegação ◀ ▶ */
+.card-nav {
+  display:flex; gap:16px; justify-content:center; align-items:center;
+  width:100%; max-width:420px;
 }
-.btn-count-next {
-  height:var(--btn-h); width:100%; max-width:420px; border:none; border-radius:var(--radlg);
-  font-size:var(--lg); font-weight:900; cursor:pointer;
-  background:var(--country-accent); color:white;
-  font-family:inherit; transition:transform .12s, background .5s;
-  -webkit-tap-highlight-color:transparent;
-  display:none;
+.btn-nav {
+  height:80px; min-width:80px; border:none; border-radius:20px;
+  font-size:2rem; cursor:pointer; font-weight:900;
+  transition:transform .12s; -webkit-tap-highlight-color:transparent;
+  flex:1; font-family:inherit;
 }
-.btn-count-next:active { transform:scale(0.93); }
+.btn-nav:active  { transform:scale(0.91); }
+.btn-nav:disabled{ opacity:0.35; cursor:default; }
+.btn-prev { background:var(--sur2); color:var(--text); border:3px solid var(--border); }
+.btn-next { background:var(--country-accent); color:white; transition:background .5s; }
 
-/* Badge de progresso */
-.count-progress { font-size:var(--sm); font-weight:800; color:var(--muted); }
+/* Progresso */
+.count-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
+.progress-bar-wrap {
+  width:100%; max-width:420px; height:12px;
+  background:var(--border); border-radius:100px; overflow:hidden;
+}
+.progress-bar {
+  height:100%; background:var(--country-accent);
+  border-radius:100px; transition:width .35s ease, background .5s;
+}
 
 /* ── TELA D: Celebração ── */
 #sCelebrate {
@@ -373,17 +398,22 @@ body {
 <!-- ═══ TELA C: Contar ═══ -->
 <div id="sCount">
   <button class="back-link" onclick="Nav.backToHub()">← <span id="countBackLabel">Números</span></button>
-  <p class="count-progress" id="countProgress"></p>
   <div class="num-digit-wrap">
     <div class="num-digit" id="numDigit">1</div>
+    <button class="btn-speak-side" id="btnSpeak" onclick="CountGame.replay()">🔊</button>
   </div>
   <div class="num-objects" id="numObjects"></div>
   <div class="count-controls">
     <button class="ctrl-btn" id="speedBtn" onclick="CountGame.toggleSpeed()" title="Velocidade">🐇</button>
     <button class="ctrl-btn" id="shuffleBtn" onclick="CountGame.toggleShuffle()" title="Embaralhar">🔀</button>
   </div>
-  <div class="count-next-wrap">
-    <button class="btn-count-next" id="btnCountNext" onclick="CountGame.next()">▶</button>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="CountGame.prev()">◀</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="CountGame.next()">▶</button>
+  </div>
+  <div class="count-progress" id="countProgress">1 / 5</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar" style="width:20%"></div>
   </div>
 </div>
 
@@ -713,6 +743,12 @@ const CountGame = {
     this.sequence = this.shuffled ? this._shuffle([...base]) : [...base];
   },
 
+  replay() {
+    const num  = this.sequence[this.step];
+    const name = LANG[this.lang].numWords[num - 1];
+    TTS.speak(name);
+  },
+
   toggleSpeed() {
     this.speed = this.speed === 'normal' ? 'slow' : 'normal';
     document.getElementById('speedBtn').textContent =
@@ -726,13 +762,20 @@ const CountGame = {
   },
 
   _render() {
+    this._aborted = false;
+    speechSynthesis && speechSynthesis.cancel();
     const num   = this.sequence[this.step];
     const color = NUM_COLORS[num - 1];
     const theme = THEMES[(num - 1 + this._themeOffset) % THEMES.length];
+    const total = this.sequence.length;
+    const i     = this.step + 1;
 
     /* Progresso */
-    document.getElementById('countProgress').textContent =
-      (this.step + 1) + ' / ' + this.sequence.length;
+    document.getElementById('countProgress').textContent = i + ' / ' + total;
+    document.getElementById('progressBar').style.width   = ((i / total) * 100) + '%';
+
+    /* Botões ◀ ▶ */
+    document.getElementById('btnPrev').disabled = this.step === 0;
 
     /* Dígito */
     const digit = document.getElementById('numDigit');
@@ -746,16 +789,13 @@ const CountGame = {
     /* Grade de objetos */
     const objEl = document.getElementById('numObjects');
     objEl.innerHTML = '';
-    for (let i = 0; i < num; i++) {
+    for (let j = 0; j < num; j++) {
       const span = document.createElement('span');
       span.className = 'num-obj';
       span.textContent = theme;
       span.style.fontSize = objSize;
       objEl.appendChild(span);
     }
-
-    /* Esconde botão próximo */
-    document.getElementById('btnCountNext').style.display = 'none';
 
     /* Inicia contagem sincronizada */
     this._countAnimation(num);
@@ -809,11 +849,19 @@ const CountGame = {
 
     if (this._aborted) return;
 
-    /* Mostra botão próximo */
-    document.getElementById('btnCountNext').style.display = '';
+  },
+
+  prev() {
+    if (this.step <= 0) return;
+    this._aborted = true;
+    speechSynthesis && speechSynthesis.cancel();
+    this.step--;
+    this._render();
   },
 
   next() {
+    this._aborted = true;
+    speechSynthesis && speechSynthesis.cancel();
     this.step++;
     if (this.step >= this.sequence.length) {
       this._celebrate();
