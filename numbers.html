@@ -89,6 +89,51 @@
 
 /* Progresso */
 .count-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
+
+/* ── TELA E: Pintar ── */
+#sPaint {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:4px 12px 4px; gap:4px;
+}
+#sPaint .back-link { min-height:52px; margin-bottom:0; }
+.paint-area {
+  position:relative;
+  width:100%; max-width:340px;
+  height:290px;
+  border-radius:var(--radlg);
+  background:var(--surface);
+  border:3px solid var(--border);
+  box-shadow:0 4px 16px var(--shadow);
+  overflow:hidden;
+  touch-action:none;
+}
+.paint-area canvas {
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+}
+#outlineCanvas { z-index:1; }
+#paintCanvas   { z-index:2; cursor:crosshair; }
+.paint-palette {
+  display:flex; gap:8px; justify-content:center;
+  padding:4px 0;
+}
+.paint-swatch {
+  width:64px; height:64px; border-radius:50%;
+  border:4px solid transparent;
+  cursor:pointer; margin:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s, border-color .15s;
+  box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+.paint-swatch:active { transform:scale(0.91); }
+.paint-swatch.active {
+  border-color:white;
+  box-shadow:0 0 0 3px var(--text), 0 4px 14px rgba(0,0,0,0.35);
+  transform:scale(1.15);
+}
+#sPaint .card-nav { max-width:340px; }
+#sPaint .progress-bar-wrap { max-width:340px; }
+.paint-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
 </style>
 </head>
 <body>
@@ -122,6 +167,11 @@
       <span class="g-title" id="hubContar">Contar</span>
       <span class="g-badge badge-ready" id="badgeContar">Disponível</span>
     </div>
+    <div class="game-card ready" onclick="Nav.goLang('paint')">
+      <span class="g-icon">🎨</span>
+      <span class="g-title" id="hubPintar">Pintar</span>
+      <span class="g-badge badge-ready" id="badgePintar">Disponível</span>
+    </div>
     <div class="game-card coming">
       <span class="g-icon">💡</span>
       <span class="g-title" id="hubFlash">Flashcards</span>
@@ -131,11 +181,6 @@
       <span class="g-icon">🎯</span>
       <span class="g-title" id="hubClicar">Clicar</span>
       <span class="g-badge badge-soon" id="badgeClicar">Em breve</span>
-    </div>
-    <div class="game-card coming">
-      <span class="g-icon">🤚</span>
-      <span class="g-title" id="hubArrastar">Arrastar</span>
-      <span class="g-badge badge-soon" id="badgeArrastar">Em breve</span>
     </div>
   </div>
 </div>
@@ -179,6 +224,24 @@
   <div class="count-progress" id="countProgress">1 / 10</div>
   <div class="progress-bar-wrap">
     <div class="progress-bar" id="progressBar" style="width:10%"></div>
+  </div>
+</div>
+
+<!-- ═══ TELA E: Pintar ═══ -->
+<div id="sPaint">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="paintBackLabel">Números</span></button>
+  <div class="paint-area" id="paintArea">
+    <canvas id="outlineCanvas"></canvas>
+    <canvas id="paintCanvas"></canvas>
+  </div>
+  <div class="paint-palette" id="paintPalette"></div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="paintPrev" onclick="PaintGame.prev()">◀</button>
+    <button class="btn-nav btn-next" id="paintNext" onclick="PaintGame.next()">▶</button>
+  </div>
+  <div class="paint-progress" id="paintProgress">1 / 10</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="paintBar" style="width:10%"></div>
   </div>
 </div>
 
@@ -247,6 +310,9 @@ const LANG = {
     hubContar:'Contar', badgeContar:'Disponível',
     hubFlash:'Flashcards', hubClicar:'Clicar', hubArrastar:'Arrastar',
     badgeSoon:'Em breve', backLabel:'Números',
+    hubPintar:'Pintar', badgePintar:'Disponível', paintBackLabel:'Números',
+    paintCelSub:'Você pintou todos os números!',
+    paintCelSpoken:'Parabéns! Você pintou todos os números! Que artista!',
     numWords:['Um','Dois','Três','Quatro','Cinco','Seis','Sete','Oito','Nove','Dez'],
     whatNumber:'Que número é esse?',
     itsNumber:'{n}!',
@@ -273,6 +339,9 @@ const LANG = {
     hubContar:'Count', badgeContar:'Available',
     hubFlash:'Flashcards', hubClicar:'Click', hubArrastar:'Drag',
     badgeSoon:'Coming soon', backLabel:'Numbers',
+    hubPintar:'Paint', badgePintar:'Available', paintBackLabel:'Numbers',
+    paintCelSub:'You painted all the numbers!',
+    paintCelSpoken:'Hooray! You painted all the numbers! What an artist!',
     numWords:['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'],
     whatNumber:'What number is this?',
     itsNumber:'{n}!',
@@ -297,19 +366,29 @@ const LANG = {
 /* ═══════════════════════════════════════════════
    NAV — overrides específicos de Números
 ═══════════════════════════════════════════════ */
-Nav._onLeave = function() { CountGame.abort(); };
+Nav._onLeave = function() { CountGame.abort(); PaintGame.abort(); };
 
 Nav.startGame = function(lang) {
   this._applyLang(lang);
   document.getElementById('navLangBadge').style.display = '';
-  this._show('sCount');
-  CountGame.start(lang);
+  if (this.currentGame === 'paint') {
+    this._show('sPaint');
+    PaintGame.start(lang);
+  } else {
+    this._show('sCount');
+    CountGame.start(lang);
+  }
 };
 
 Nav.restartGame = function() {
   document.getElementById('sCelebrate').classList.remove('show');
-  this._show('sCount');
-  CountGame.start(CountGame.lang);
+  if (this.currentGame === 'paint') {
+    this._show('sPaint');
+    PaintGame.start(PaintGame.lang);
+  } else {
+    this._show('sCount');
+    CountGame.start(CountGame.lang);
+  }
 };
 
 Nav._applyLang = function(lang) {
@@ -325,9 +404,12 @@ Nav._applyLang = function(lang) {
   document.getElementById('hubClicar').textContent     = L.hubClicar;
   document.getElementById('hubArrastar').textContent   = L.hubArrastar;
   document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
-  document.getElementById('countBackLabel').textContent = L.backLabel;
-  document.getElementById('btnRestart').textContent    = L.restart;
-  document.getElementById('btnBackHub').textContent    = L.backHub;
+  document.getElementById('countBackLabel').textContent  = L.backLabel;
+  document.getElementById('paintBackLabel').textContent  = L.paintBackLabel;
+  document.getElementById('hubPintar').textContent       = L.hubPintar;
+  document.getElementById('badgePintar').textContent     = L.badgePintar;
+  document.getElementById('btnRestart').textContent      = L.restart;
+  document.getElementById('btnBackHub').textContent      = L.backHub;
   this._setCorners(L.corners);
   TTS.setLang(L.tts);
 };
@@ -486,8 +568,319 @@ const CountGame = {
   },
 };
 
+/* ═══════════════════════════════════════════════
+   PAINT GAME — Pintar os números
+   Dual canvas + offscreen stroke accumulator.
+   globalCompositeOperation source-atop para mascarar
+   pinceladas dentro do contorno do número.
+═══════════════════════════════════════════════ */
+const PaintGame = {
+  lang:'pt', sequence:[], step:0,
+  currentColor:'#E53935',
+  _aborted:false, _completed:false,
+  _painting:false, _lastX:0, _lastY:0,
+  _w:0, _h:0, _dpr:1,
+  _oCanvas:null, _pCanvas:null,
+  _oCtx:null, _pCtx:null,
+  _strokeCanvas:null, _sCtx:null,
+  _maskCanvas:null, _mCtx:null,
+  _totalMaskPx:0, _bound:false,
+
+  BRUSH:56,
+  THRESHOLD:0.65,
+  PALETTE:['#E53935','#1E88E5','#43A047','#F9A825','#8E24AA'],
+
+  start(lang) {
+    this.lang      = lang;
+    this.step      = 0;
+    this._aborted  = false;
+    this.sequence  = [1,2,3,4,5,6,7,8,9,10];
+    this._initCanvases();
+    this._buildPalette();
+    TTS.init();
+    this._setupNumber();
+  },
+
+  abort() { this._aborted = true; this._painting = false; },
+
+  _initCanvases() {
+    const area = document.getElementById('paintArea');
+    const w = area.clientWidth;
+    const h = area.clientHeight;
+    this._dpr = window.devicePixelRatio || 1;
+    this._w = w; this._h = h;
+
+    this._oCanvas = document.getElementById('outlineCanvas');
+    this._pCanvas = document.getElementById('paintCanvas');
+
+    [this._oCanvas, this._pCanvas].forEach(c => {
+      c.width  = w * this._dpr;
+      c.height = h * this._dpr;
+      c.style.width  = w + 'px';
+      c.style.height = h + 'px';
+    });
+    this._oCtx = this._oCanvas.getContext('2d');
+    this._oCtx.scale(this._dpr, this._dpr);
+    this._pCtx = this._pCanvas.getContext('2d');
+    this._pCtx.scale(this._dpr, this._dpr);
+
+    this._strokeCanvas = document.createElement('canvas');
+    this._strokeCanvas.width  = w * this._dpr;
+    this._strokeCanvas.height = h * this._dpr;
+    this._sCtx = this._strokeCanvas.getContext('2d');
+    this._sCtx.scale(this._dpr, this._dpr);
+
+    this._maskCanvas = document.createElement('canvas');
+    this._maskCanvas.width  = w * this._dpr;
+    this._maskCanvas.height = h * this._dpr;
+    this._mCtx = this._maskCanvas.getContext('2d');
+    this._mCtx.scale(this._dpr, this._dpr);
+
+    if (!this._bound) {
+      this._bound = true;
+      const pc = this._pCanvas;
+      pc.addEventListener('pointerdown',  e => this._onDown(e));
+      pc.addEventListener('pointermove',  e => this._onMove(e));
+      pc.addEventListener('pointerup',    e => this._onUp(e));
+      pc.addEventListener('pointercancel',() => { this._painting = false; });
+    }
+  },
+
+  _getFont(num) {
+    return num >= 10 ? '900 190px Nunito, sans-serif' : '900 260px Nunito, sans-serif';
+  },
+
+  _setupNumber() {
+    this._completed = false;
+    this._painting  = false;
+    const num   = this.sequence[this.step];
+    const total = this.sequence.length;
+    const i     = this.step + 1;
+    const w = this._w, h = this._h;
+    const cx = w / 2, cy = h / 2;
+    const font = this._getFont(num);
+    const digit = String(num);
+    const isDark = document.documentElement.dataset.theme === 'dark';
+
+    document.getElementById('paintProgress').textContent = i + ' / ' + total;
+    document.getElementById('paintBar').style.width = '0%';
+    document.getElementById('paintPrev').disabled = this.step === 0;
+
+    /* Limpar stroke canvas */
+    this._sCtx.clearRect(0, 0, w, h);
+
+    /* Outline canvas: contorno tracejado do número */
+    this._oCtx.clearRect(0, 0, w, h);
+    this._oCtx.save();
+    this._oCtx.font = font;
+    this._oCtx.textAlign = 'center';
+    this._oCtx.textBaseline = 'middle';
+    /* Preenchimento leve para indicar a área */
+    this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
+    this._oCtx.fillText(digit, cx, cy);
+    /* Contorno tracejado */
+    this._oCtx.strokeStyle = isDark ? '#555' : '#BBB';
+    this._oCtx.lineWidth = 3;
+    this._oCtx.setLineDash([10, 8]);
+    this._oCtx.strokeText(digit, cx, cy);
+    this._oCtx.setLineDash([]);
+    this._oCtx.restore();
+
+    /* Mask canvas: número preenchido em branco (para hit-test e compositing) */
+    this._mCtx.clearRect(0, 0, w, h);
+    this._mCtx.save();
+    this._mCtx.font = font;
+    this._mCtx.textAlign = 'center';
+    this._mCtx.textBaseline = 'middle';
+    this._mCtx.fillStyle = '#FFFFFF';
+    this._mCtx.fillText(digit, cx, cy);
+    this._mCtx.restore();
+
+    /* Calcular total de pixels do mask */
+    const md = this._mCtx.getImageData(0, 0, w * this._dpr, h * this._dpr).data;
+    let total_px = 0;
+    const step = 4;
+    for (let y = 0; y < h * this._dpr; y += step) {
+      for (let x = 0; x < w * this._dpr; x += step) {
+        if (md[(y * w * this._dpr + x) * 4 + 3] > 128) total_px++;
+      }
+    }
+    this._totalMaskPx = total_px;
+
+    /* Redraw paint canvas (vazio) */
+    this._redraw();
+
+    /* TTS: fala o número */
+    const name = LANG[this.lang].numWords[num - 1];
+    setTimeout(() => TTS.speak(name), 300);
+  },
+
+  _redraw() {
+    const ctx = this._pCtx;
+    const w = this._w, h = this._h;
+    const cx = w / 2, cy = h / 2;
+    const font = this._getFont(this.sequence[this.step]);
+    const digit = String(this.sequence[this.step]);
+
+    ctx.save();
+    ctx.clearRect(0, 0, w, h);
+
+    /* Desenhar forma do número como destino (semi-transparente) */
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(200,200,200,0.08)';
+    ctx.fillText(digit, cx, cy);
+
+    /* source-atop: pinceladas aparecem só dentro do número */
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.drawImage(this._strokeCanvas, 0, 0, w, h);
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.restore();
+  },
+
+  _buildPalette() {
+    const el = document.getElementById('paintPalette');
+    el.innerHTML = '';
+    this.PALETTE.forEach((color, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'paint-swatch' + (i === 0 ? ' active' : '');
+      btn.style.background = color;
+      btn.dataset.color = color;
+      btn.addEventListener('click', () => {
+        this.currentColor = color;
+        el.querySelectorAll('.paint-swatch').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      el.appendChild(btn);
+    });
+    this.currentColor = this.PALETTE[0];
+  },
+
+  _onDown(e) {
+    if (this._completed || this._aborted) return;
+    e.preventDefault();
+    this._painting = true;
+    this._pCanvas.setPointerCapture(e.pointerId);
+    const rect = this._pCanvas.getBoundingClientRect();
+    this._lastX = e.clientX - rect.left;
+    this._lastY = e.clientY - rect.top;
+    /* Ponto inicial */
+    this._sCtx.beginPath();
+    this._sCtx.arc(this._lastX, this._lastY, this.BRUSH / 2, 0, Math.PI * 2);
+    this._sCtx.fillStyle = this.currentColor;
+    this._sCtx.fill();
+    this._redraw();
+  },
+
+  _onMove(e) {
+    if (!this._painting) return;
+    e.preventDefault();
+    const rect = this._pCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    this._sCtx.beginPath();
+    this._sCtx.moveTo(this._lastX, this._lastY);
+    this._sCtx.lineTo(x, y);
+    this._sCtx.strokeStyle = this.currentColor;
+    this._sCtx.lineWidth   = this.BRUSH;
+    this._sCtx.lineCap     = 'round';
+    this._sCtx.lineJoin    = 'round';
+    this._sCtx.stroke();
+    this._lastX = x;
+    this._lastY = y;
+    this._redraw();
+  },
+
+  _onUp(e) {
+    if (!this._painting) return;
+    this._painting = false;
+    this._checkCompletion();
+  },
+
+  _calcFill() {
+    const w = this._w * this._dpr, h = this._h * this._dpr;
+    const maskData   = this._mCtx.getImageData(0, 0, w, h).data;
+    const strokeData = this._sCtx.getImageData(0, 0, w, h).data;
+    let painted = 0;
+    const step = 4;
+    for (let y = 0; y < h; y += step) {
+      for (let x = 0; x < w; x += step) {
+        const i = (y * w + x) * 4 + 3;
+        if (maskData[i] > 128 && strokeData[i] > 128) painted++;
+      }
+    }
+    return this._totalMaskPx > 0 ? painted / this._totalMaskPx : 0;
+  },
+
+  _checkCompletion() {
+    const fill = this._calcFill();
+    const pct  = Math.min(fill / this.THRESHOLD, 1);
+    document.getElementById('paintBar').style.width = (pct * 100) + '%';
+
+    if (fill >= this.THRESHOLD && !this._completed) {
+      this._completed = true;
+      SFX.playCorrect();
+      const L    = LANG[this.lang];
+      const num  = this.sequence[this.step];
+      const name = L.numWords[num - 1];
+      const enc  = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+      const t    = document.getElementById('encToast');
+      t.textContent = enc.text;
+      t.classList.add('show');
+      TTS.speakExcitedAndWait(name).then(() => {
+        setTimeout(() => TTS.speak(enc.spoken), 200);
+      });
+      setTimeout(() => t.classList.remove('show'), 3000);
+      setTimeout(() => {
+        if (this._aborted) return;
+        this.step++;
+        if (this.step >= this.sequence.length) this._celebrate();
+        else this._setupNumber();
+      }, 3200);
+    }
+  },
+
+  prev() {
+    if (this.step <= 0) return;
+    this._aborted = true;
+    speechSynthesis && speechSynthesis.cancel();
+    this.step--;
+    this._aborted = false;
+    this._setupNumber();
+  },
+
+  next() {
+    this._aborted = true;
+    speechSynthesis && speechSynthesis.cancel();
+    this.step++;
+    if (this.step >= this.sequence.length) {
+      this._celebrate();
+    } else {
+      this._aborted = false;
+      this._setupNumber();
+    }
+  },
+
+  _celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.paintCelSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.paintCelSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('numbers_paint_progresso', JSON.stringify({
+      completed:true, date:new Date().toISOString()
+    }));
+    Nav._show('sCelebrate');
+  },
+};
+
 /* ── BOOT ── */
-Nav.boot(['sHub','sLang','sCount','sCelebrate']);
+Nav.boot(['sHub','sLang','sCount','sPaint','sCelebrate']);
 </script>
 </body>
 </html>
