@@ -162,6 +162,32 @@ const TTS = {
     });
   },
 
+  /* Fala com empolgação (mais lento, pitch alto) — para destaque */
+  speakExcitedAndWait(text) {
+    return new Promise(resolve => {
+      if (!this.supported || !this.unlocked || !MF._soundOn) {
+        setTimeout(resolve, Math.max(400, text.length * 100));
+        return;
+      }
+      speechSynthesis.cancel();
+      const utt   = new SpeechSynthesisUtterance(text);
+      utt.lang    = this.langCode;
+      utt.rate    = 0.72;
+      utt.pitch   = 1.35;
+      utt.volume  = 1.0;
+      const voice = this.getBestVoice();
+      if (voice) utt.voice = voice;
+      this._pulse(true);
+      this.lastText = text;
+      let done = false;
+      const finish = () => { if (!done) { done = true; this._pulse(false); resolve(); } };
+      utt.onend   = finish;
+      utt.onerror = finish;
+      setTimeout(finish, 4000);
+      speechSynthesis.speak(utt);
+    });
+  },
+
   activate() {
     if (this.unlocked) { this.replay(); return; }
     if (!this.supported) return;
