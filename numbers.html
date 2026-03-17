@@ -6,166 +6,26 @@
 <title>Números — Mafinho v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap"
       rel="stylesheet" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="base.css"/>
 <style>
 /* ═══════════════════════════════════════════
-   DESIGN SYSTEM — numbers.html (Fase 2)
+   CSS ESPECÍFICO — numbers.html
 ═══════════════════════════════════════════ */
-:root {
-  --c-red:#E53935; --c-blue:#1E88E5; --c-yellow:#F9A825;
-  --c-green:#43A047; --c-orange:#FB8C00; --c-purple:#8E24AA;
-  --c-pink:#F06292; --c-teal:#00897B;
-  --bg:#F8F9FA; --surface:#FFFFFF; --sur2:#F1F3F5;
-  --text:#212121; --muted:#757575; --border:#DEE2E6; --shadow:rgba(0,0,0,0.12);
-  --fs:1;
-  --sm:calc(1.2rem*var(--fs)); --md:calc(1.55rem*var(--fs));
-  --lg:calc(2.1rem*var(--fs)); --xl:calc(2.7rem*var(--fs)); --2xl:calc(3.4rem*var(--fs));
-  --btn-h:80px; --rad:18px; --radlg:26px;
-  --country-accent:#2E7D32; --country-light:#F1F8E9;
-}
-[data-theme="dark"] {
-  --bg:#0F0F1A; --surface:#1A1A2E; --sur2:#16213E;
-  --text:#F5F5F5; --muted:#9E9E9E; --border:#33335A; --shadow:rgba(0,0,0,0.5);
-  --country-light:#1a2a1a;
-}
-[data-country="br"] { --country-accent:#2E7D32; --country-light:#F1F8E9; }
-[data-country="ca"] { --country-accent:#C62828; --country-light:#FFEBEE; }
-[data-theme="dark"][data-country="ca"] { --country-light:#2E1B1B; }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body {
-  font-family:'Comic Sans MS','Chalkboard SE','Comic Neue','Nunito',cursive;
-  background:var(--bg); color:var(--text);
-  min-height:100vh; display:flex; flex-direction:column;
-  transition:background .4s,color .3s;
-}
-
-/* ── Faixa e cantos temáticos ── */
-.theme-stripe { height:6px; background:var(--country-accent); flex-shrink:0; transition:background .5s; }
-.corner-deco  { position:fixed; font-size:5rem; opacity:0.07; pointer-events:none; z-index:0; user-select:none; line-height:1; }
-.corner-deco.tl { top:90px; left:6px; }
-.corner-deco.tr { top:90px; right:6px; }
-.corner-deco.bl { bottom:6px; left:6px; }
-.corner-deco.br { bottom:6px; right:6px; }
-
-/* ── Navbar ── */
-.navbar {
-  display:flex; align-items:center; gap:5px;
-  padding:8px 10px; background:var(--surface);
-  box-shadow:0 2px 10px var(--shadow);
-  position:sticky; top:0; z-index:100; min-height:80px;
-  border-bottom:4px solid var(--country-accent); transition:border-color .5s;
-}
-.nav-btn {
-  height:64px; min-width:56px; border:none; border-radius:var(--rad);
-  font-size:1.7rem; font-weight:900; cursor:pointer;
-  background:var(--sur2); color:var(--text);
-  transition:transform .12s; -webkit-tap-highlight-color:transparent;
-  display:flex; align-items:center; justify-content:center;
-  text-decoration:none; font-family:inherit; border:2px solid var(--border); flex-shrink:0;
-}
-.nav-btn:active{transform:scale(0.91);}
-.btn-home  { background:var(--country-accent); color:white; border-color:transparent; font-size:1.9rem; transition:background .5s; }
-.btn-theme { background:var(--c-yellow); color:#333; border-color:transparent; }
-.btn-sound { background:var(--c-blue); color:white; border-color:transparent; }
-.btn-lock  { background:var(--sur2); color:var(--text); }
-.nav-title { font-size:var(--md); font-weight:900; flex:1; padding-left:4px; overflow:hidden; white-space:nowrap; min-width:0; }
-.nav-lang-badge {
-  font-size:var(--sm); font-weight:800;
-  background:var(--country-light); color:var(--country-accent);
-  padding:6px 12px; border-radius:100px; cursor:pointer;
-  border:2px solid var(--country-accent); -webkit-tap-highlight-color:transparent;
-  transition:background .4s,color .4s,border-color .4s;
-  white-space:nowrap; font-family:inherit; flex-shrink:0; height:52px;
-  display:flex; align-items:center;
-}
-
-/* ── TELA A: Hub ── */
-#sHub { flex:1; display:flex; flex-direction:column; }
-.hub-hero { text-align:center; padding:28px 16px 20px; border-bottom:5px solid var(--c-blue); }
-.hub-hero-icon { font-size:4rem; display:block; margin-bottom:10px; }
-.hub-hero h1   { font-size:var(--2xl); font-weight:900; margin-bottom:6px; }
-.hub-hero p    { font-size:var(--md); color:var(--muted); font-weight:700; }
-.hub-grid {
-  display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:20px; padding:24px 18px 48px; max-width:900px; margin:0 auto; width:100%;
-}
-.game-card {
-  background:var(--surface); border-radius:var(--radlg);
-  box-shadow:0 5px 20px var(--shadow); padding:28px 16px;
-  text-align:center; color:var(--text);
-  display:flex; flex-direction:column; align-items:center; gap:12px;
-  border:4px solid var(--border); transition:transform .15s;
-  -webkit-tap-highlight-color:transparent; cursor:pointer; font-family:inherit;
-}
-.game-card:hover { transform:translateY(-5px); }
-.game-card:active { transform:scale(0.94); }
-.game-card.coming { opacity:0.52; cursor:default; pointer-events:none; }
-.game-card.ready  { border-color:var(--c-blue); }
-.g-icon  { font-size:3.5rem; line-height:1; }
-.g-title { font-size:var(--lg); font-weight:900; }
-.g-badge { font-size:var(--sm); font-weight:800; padding:5px 16px; border-radius:100px; }
-.badge-ready { background:var(--c-green); color:white; }
-.badge-soon  { background:var(--border); color:var(--muted); }
-
-/* ── TELA B: Idioma ── */
-#sLang {
-  flex:1; display:none; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding:24px 18px 48px; gap:28px;
-}
-.lang-intro { text-align:center; }
-.lang-intro h1 { font-size:var(--xl); font-weight:900; margin-bottom:8px; }
-.lang-intro p  { font-size:var(--md); color:var(--muted); }
-.lang-cards    { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; max-width:520px; }
-.lang-card {
-  flex:1; min-width:200px; max-width:240px; border:none; border-radius:28px;
-  cursor:pointer; padding:32px 20px 28px;
-  display:flex; flex-direction:column; align-items:center; gap:14px;
-  font-family:inherit; box-shadow:0 8px 28px rgba(0,0,0,0.18);
-  transition:transform .15s, box-shadow .15s; -webkit-tap-highlight-color:transparent;
-}
-.lang-card:hover  { transform:translateY(-6px); box-shadow:0 16px 40px rgba(0,0,0,0.22); }
-.lang-card:active { transform:scale(0.95); }
-.lang-card-br { background:linear-gradient(145deg,#2E7D32,#1B5E20); color:#FFDF00; }
-.lang-card-ca { background:linear-gradient(145deg,#C62828,#8B0000); color:#FFFFFF; }
-.lang-flag { font-size:6rem; line-height:1; }
-.lang-name { font-size:var(--xl); font-weight:900; }
-.lang-sub  { font-size:var(--sm); font-weight:700; opacity:0.8; }
+/* Hub: cor do tópico Números */
+.hub-hero { border-bottom-color:var(--c-blue); }
+.game-card.ready { border-color:var(--c-blue); }
 
 /* ── TELA C: Contar ── */
 #sCount {
   flex:1; display:none; flex-direction:column;
   align-items:center; padding:8px 12px 8px; gap:6px;
 }
-.back-link {
-  display:inline-flex; align-items:center; gap:8px;
-  font-size:var(--sm); font-weight:800; color:var(--muted);
-  text-decoration:none; padding:8px 18px;
-  border-radius:var(--rad); background:var(--sur2);
-  -webkit-tap-highlight-color:transparent;
-  align-self:flex-start; max-width:520px; width:100%;
-  border:none; cursor:pointer; font-family:inherit; min-height:80px;
-}
 
 /* Número grande + botão som */
 .num-digit-wrap {
   display:flex; align-items:center; justify-content:center; gap:14px;
 }
-.btn-speak-side {
-  width:80px; height:80px; flex-shrink:0; border-radius:50%; border:none;
-  font-size:2.2rem; cursor:pointer; font-family:inherit; font-weight:900;
-  transition:transform .12s, box-shadow .2s, background .4s;
-  -webkit-tap-highlight-color:transparent;
-  background:var(--country-accent); color:white;
-  box-shadow:0 4px 14px rgba(0,0,0,0.25);
-  display:flex; align-items:center; justify-content:center;
-}
-.btn-speak-side:active { transform:scale(0.91); }
-.btn-speak-side.speaking {
-  animation:speakPulse .7s infinite alternate;
-  box-shadow:0 0 0 8px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.3);
-}
-@keyframes speakPulse { from{transform:scale(1);}to{transform:scale(1.1);} }
 .num-digit {
   width:90px; height:90px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
@@ -216,114 +76,12 @@ body {
 .ctrl-btn:active { transform:scale(0.91); }
 .ctrl-btn.active { background:var(--country-accent); color:white; border-color:transparent; }
 
-/* Navegação ◀ ▶ */
-.card-nav {
-  display:flex; gap:16px; justify-content:center; align-items:center;
-  width:100%; max-width:420px;
-}
-.btn-nav {
-  height:80px; min-width:80px; border:none; border-radius:20px;
-  font-size:2rem; cursor:pointer; font-weight:900;
-  transition:transform .12s; -webkit-tap-highlight-color:transparent;
-  flex:1; font-family:inherit;
-}
-.btn-nav:active  { transform:scale(0.91); }
-.btn-nav:disabled{ opacity:0.35; cursor:default; }
-.btn-prev { background:var(--sur2); color:var(--text); border:3px solid var(--border); }
-.btn-next { background:var(--country-accent); color:white; transition:background .5s; }
+/* Navegação ◀ ▶ — max-width menor para números */
+#sCount .card-nav { max-width:420px; }
+#sCount .progress-bar-wrap { max-width:420px; }
 
 /* Progresso */
 .count-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
-.progress-bar-wrap {
-  width:100%; max-width:420px; height:12px;
-  background:var(--border); border-radius:100px; overflow:hidden;
-}
-.progress-bar {
-  height:100%; background:var(--country-accent);
-  border-radius:100px; transition:width .35s ease, background .5s;
-}
-
-/* ── TELA D: Celebração ── */
-#sCelebrate {
-  display:none; flex-direction:column; align-items:center;
-  justify-content:center; gap:22px; text-align:center; padding:36px 24px; flex:1;
-}
-#sCelebrate.show { display:flex; }
-.cel-emoji { font-size:7rem; animation:bounce .6s infinite alternate; }
-@keyframes bounce { from{transform:scale(1);}to{transform:scale(1.12);} }
-.cel-title { font-size:var(--xl); font-weight:900; }
-.cel-sub   { font-size:var(--md); color:var(--muted); font-weight:700; }
-.stars { font-size:2.5rem; letter-spacing:6px; animation:twinkle 1s infinite alternate; }
-@keyframes twinkle { from{opacity:1;}to{opacity:0.5;} }
-.btn-big {
-  height:var(--btn-h); padding:0 48px; border:none; border-radius:var(--radlg);
-  font-size:var(--lg); font-weight:900; cursor:pointer;
-  background:var(--country-accent); color:white;
-  font-family:inherit; transition:transform .12s, background .5s;
-  -webkit-tap-highlight-color:transparent;
-}
-.btn-big:active { transform:scale(0.93); }
-.btn-mid {
-  height:64px; padding:0 32px; border:none; border-radius:var(--rad);
-  font-size:var(--md); font-weight:800; cursor:pointer;
-  background:var(--sur2); color:var(--text); font-family:inherit;
-  -webkit-tap-highlight-color:transparent; transition:transform .12s;
-}
-.btn-mid:active { transform:scale(0.93); }
-
-/* ── Toast encorajamento ── */
-.enc-toast {
-  position:fixed; top:90px; left:50%;
-  transform:translateX(-50%) translateY(-20px);
-  background:var(--country-accent); color:white;
-  padding:16px 32px; border-radius:100px;
-  font-size:var(--lg); font-weight:900; font-family:inherit;
-  box-shadow:0 8px 28px rgba(0,0,0,0.3);
-  z-index:300; white-space:nowrap; max-width:90vw; opacity:0;
-  transition:opacity .35s, transform .35s; pointer-events:none;
-}
-.enc-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* ── Banner ativar som ── */
-.sound-banner {
-  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
-  background:var(--c-blue); color:white; padding:14px 28px; border-radius:100px;
-  font-size:var(--md); font-weight:900; font-family:inherit;
-  box-shadow:0 6px 20px rgba(30,136,229,0.45); z-index:200;
-  cursor:pointer; display:flex; align-items:center; gap:10px;
-  white-space:nowrap; border:none; -webkit-tap-highlight-color:transparent;
-  animation:bannerBounce 1.4s ease-in-out infinite alternate;
-}
-.sound-banner.hidden { display:none; }
-@keyframes bannerBounce {
-  from{transform:translateX(-50%) translateY(0);}
-  to  {transform:translateX(-50%) translateY(-8px);}
-}
-
-/* ── Overlay lock / confirmHome ── */
-.mf-overlay {
-  display:none; position:fixed; inset:0;
-  background:rgba(0,0,0,0.7); z-index:9999;
-  align-items:center; justify-content:center;
-}
-.mf-overlay.show { display:flex; }
-.mf-modal {
-  background:var(--surface); border-radius:var(--radlg);
-  padding:36px 24px; text-align:center;
-  display:flex; flex-direction:column; gap:18px;
-  box-shadow:0 16px 48px rgba(0,0,0,0.45); max-width:300px; width:90%;
-}
-.mf-modal-icon { font-size:4rem; }
-.mf-modal-msg  { font-size:var(--lg); font-weight:900; }
-.mf-modal-btns { display:flex; gap:12px; justify-content:center; }
-.mf-modal-btns button {
-  height:var(--btn-h); min-width:90px; border:none;
-  border-radius:var(--rad); font-size:var(--md); font-weight:900;
-  cursor:pointer; font-family:inherit; flex:1;
-}
-.mf-btn-yes { background:var(--c-green); color:white; }
-.mf-btn-no  { background:var(--c-red); color:white; }
-[data-locked="true"] .nav-btn:not(#btnLock) { pointer-events:none; opacity:.45; }
 </style>
 </head>
 <body>
@@ -459,6 +217,7 @@ body {
   </div>
 </div>
 
+<script src="base.js"></script>
 <script>
 /* ═══════════════════════════════════════════════
    DADOS — NÚMEROS
@@ -487,7 +246,6 @@ const LANG = {
     celTitle:'Muito bem!', celSub:'Você aprendeu a contar!',
     celSpoken:'Parabéns! Você aprendeu a contar! Que criança esperta!',
     restart:'Recomeçar 🔄', backHub:'← Números',
-    nextLabel:'▶', speedSlow:'🐢', speedNormal:'🐇',
     encourage:[
       {text:'Isso! Muito bem! ⭐',   spoken:'Isso! Muito bem!'},
       {text:'Parabéns! 🌟',          spoken:'Parabéns!'},
@@ -514,7 +272,6 @@ const LANG = {
     celTitle:'Well done!', celSub:'You learned to count!',
     celSpoken:'Hooray! You learned to count! What a smart child!',
     restart:'Restart 🔄', backHub:'← Numbers',
-    nextLabel:'▶', speedSlow:'🐢', speedNormal:'🐇',
     encourage:[
       {text:'Good job! ⭐',        spoken:'Good job!'},
       {text:'Well done! 🌟',       spoken:'Well done!'},
@@ -531,195 +288,45 @@ const LANG = {
 };
 
 /* ═══════════════════════════════════════════════
-   NAV — gerencia telas
+   NAV — overrides específicos de Números
 ═══════════════════════════════════════════════ */
-const SCREENS = ['sHub','sLang','sCount','sCelebrate'];
+Nav._onLeave = function() { CountGame.abort(); };
 
-const Nav = {
-  currentGame: null,
-
-  _show(id) {
-    SCREENS.forEach(s => {
-      const el = document.getElementById(s);
-      if (!el) return;
-      el.style.display       = (s === id) ? 'flex' : 'none';
-      el.style.flexDirection = 'column';
-    });
-    if (id === 'sCelebrate') document.getElementById('sCelebrate').classList.add('show');
-  },
-
-  goLang(game) {
-    this.currentGame = game;
-    this._show('sLang');
-    document.getElementById('navLangBadge').style.display = 'none';
-  },
-
-  startGame(lang) {
-    this._applyLang(lang);
-    document.getElementById('navLangBadge').style.display = '';
-    this._show('sCount');
-    CountGame.start(lang);
-  },
-
-  restartGame() {
-    document.getElementById('sCelebrate').classList.remove('show');
-    this._show('sCount');
-    CountGame.start(CountGame.lang);
-  },
-
-  backToHub() {
-    CountGame.abort();
-    speechSynthesis && speechSynthesis.cancel();
-    document.getElementById('sCelebrate').classList.remove('show');
-    document.getElementById('navLangBadge').style.display = 'none';
-    this._show('sHub');
-    document.documentElement.dataset.country = 'br';
-    this._setCorners('⭐');
-  },
-
-  backToLang() {
-    CountGame.abort();
-    speechSynthesis && speechSynthesis.cancel();
-    document.getElementById('sCelebrate').classList.remove('show');
-    this._show('sLang');
-    document.getElementById('navLangBadge').style.display = 'none';
-    document.documentElement.dataset.country = 'br';
-    this._setCorners('⭐');
-  },
-
-  _applyLang(lang) {
-    const L = LANG[lang];
-    document.documentElement.dataset.country = L.country;
-    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
-    document.getElementById('navTitle').textContent      = L.navTitle;
-    document.getElementById('navLangBadge').textContent  = L.navBadge;
-    document.getElementById('hubSub').textContent        = L.hubSub;
-    document.getElementById('hubContar').textContent     = L.hubContar;
-    document.getElementById('badgeContar').textContent   = L.badgeContar;
-    document.getElementById('hubFlash').textContent      = L.hubFlash;
-    document.getElementById('hubClicar').textContent     = L.hubClicar;
-    document.getElementById('hubArrastar').textContent   = L.hubArrastar;
-    document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
-    document.getElementById('countBackLabel').textContent = L.backLabel;
-    document.getElementById('btnRestart').textContent    = L.restart;
-    document.getElementById('btnBackHub').textContent    = L.backHub;
-    this._setCorners(L.corners);
-    TTS.setLang(L.tts);
-  },
-
-  _setCorners(ch) {
-    ['dc1','dc2','dc3','dc4'].forEach(id =>
-      document.getElementById(id).textContent = ch
-    );
-  }
+Nav.startGame = function(lang) {
+  this._applyLang(lang);
+  document.getElementById('navLangBadge').style.display = '';
+  this._show('sCount');
+  CountGame.start(lang);
 };
 
-/* ═══════════════════════════════════════════════
-   TTS — Web Speech API
-═══════════════════════════════════════════════ */
-const TTS = {
-  supported: !!window.speechSynthesis,
-  unlocked:  false,
-  langCode:  'pt-BR',
-
-  init() {
-    if (!this.supported) {
-      document.getElementById('soundBanner').classList.add('hidden');
-      return;
-    }
-    speechSynthesis.getVoices();
-    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
-    document.addEventListener('pointerdown', () => this.activate(), {once:true});
-  },
-
-  setLang(code) { this.langCode = code; },
-
-  getBestVoice() {
-    const voices = speechSynthesis.getVoices();
-    const lang   = this.langCode;
-    const tests  = [
-      v => v.lang === lang && (v.name.includes('Natural') || v.name.includes('Online')),
-      v => v.lang === lang,
-      v => v.lang.startsWith(lang.split('-')[0]),
-    ];
-    for (const fn of tests) { const f = voices.find(fn); if (f) return f; }
-    return null;
-  },
-
-  speak(text) {
-    if (!this.supported || !this.unlocked || !MF._soundOn) return;
-    speechSynthesis.cancel();
-    const utt   = new SpeechSynthesisUtterance(text);
-    utt.lang    = this.langCode;
-    utt.rate    = 0.85;
-    const voice = this.getBestVoice();
-    if (voice) utt.voice = voice;
-    speechSynthesis.speak(utt);
-  },
-
-  /* Fala e retorna Promise que resolve ao terminar */
-  speakAndWait(text) {
-    return new Promise(resolve => {
-      if (!this.supported || !this.unlocked || !MF._soundOn) {
-        setTimeout(resolve, Math.max(400, text.length * 80));
-        return;
-      }
-      const utt   = new SpeechSynthesisUtterance(text);
-      utt.lang    = this.langCode;
-      utt.rate    = 0.85;
-      const voice = this.getBestVoice();
-      if (voice) utt.voice = voice;
-      let done = false;
-      const finish = () => { if (!done) { done = true; resolve(); } };
-      utt.onend   = finish;
-      utt.onerror = finish;
-      setTimeout(finish, 4000); /* safety */
-      speechSynthesis.speak(utt);
-    });
-  },
-
-  activate() {
-    if (this.unlocked) return;
-    if (!this.supported) return;
-    const s = new SpeechSynthesisUtterance(' ');
-    s.volume = 0.01;
-    s.onend  = () => {
-      this.unlocked = true;
-      document.getElementById('soundBanner').classList.add('hidden');
-    };
-    speechSynthesis.speak(s);
-  },
+Nav.restartGame = function() {
+  document.getElementById('sCelebrate').classList.remove('show');
+  this._show('sCount');
+  CountGame.start(CountGame.lang);
 };
 
-/* ═══════════════════════════════════════════════
-   SFX — Web Audio (acerto festivo)
-═══════════════════════════════════════════════ */
-const SFX = {
-  _ctx: null,
-  _ac() {
-    if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
-    return this._ctx;
-  },
-  playCorrect() {
-    if (!MF._soundOn) return;
-    try {
-      const ctx = this._ac(), t = ctx.currentTime;
-      [[523, t], [659, t + 0.13], [784, t + 0.26]].forEach(([freq, t0]) => {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        o.type = 'sine';
-        o.frequency.value = freq;
-        g.gain.setValueAtTime(0.28, t0);
-        g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.28);
-        o.start(t0); o.stop(t0 + 0.28);
-      });
-    } catch(e) {}
-  }
+Nav._applyLang = function(lang) {
+  const L = LANG[lang];
+  document.documentElement.dataset.country = L.country;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+  document.getElementById('navTitle').textContent      = L.navTitle;
+  document.getElementById('navLangBadge').textContent  = L.navBadge;
+  document.getElementById('hubSub').textContent        = L.hubSub;
+  document.getElementById('hubContar').textContent     = L.hubContar;
+  document.getElementById('badgeContar').textContent   = L.badgeContar;
+  document.getElementById('hubFlash').textContent      = L.hubFlash;
+  document.getElementById('hubClicar').textContent     = L.hubClicar;
+  document.getElementById('hubArrastar').textContent   = L.hubArrastar;
+  document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
+  document.getElementById('countBackLabel').textContent = L.backLabel;
+  document.getElementById('btnRestart').textContent    = L.restart;
+  document.getElementById('btnBackHub').textContent    = L.backHub;
+  this._setCorners(L.corners);
+  TTS.setLang(L.tts);
 };
 
 /* ═══════════════════════════════════════════════
    COUNT GAME — Aprender a contar
-   Sincronização: TTS fala → objeto destaca → próximo
 ═══════════════════════════════════════════════ */
 const CountGame = {
   lang:'pt', sequence:[], step:0,
@@ -740,7 +347,7 @@ const CountGame = {
 
   _buildSequence() {
     const base = [1,2,3,4,5];
-    this.sequence = this.shuffled ? this._shuffle([...base]) : [...base];
+    this.sequence = this.shuffled ? shuffle([...base]) : [...base];
   },
 
   replay() {
@@ -770,23 +377,16 @@ const CountGame = {
     const total = this.sequence.length;
     const i     = this.step + 1;
 
-    /* Progresso */
     document.getElementById('countProgress').textContent = i + ' / ' + total;
     document.getElementById('progressBar').style.width   = ((i / total) * 100) + '%';
-
-    /* Botões ◀ ▶ */
     document.getElementById('btnPrev').disabled = this.step === 0;
 
-    /* Dígito */
     const digit = document.getElementById('numDigit');
     digit.textContent      = num;
     digit.style.background = color;
     digit.classList.remove('pulse');
 
-    /* Tamanho dos objetos */
     const objSize = num <= 3 ? '3.8rem' : num <= 6 ? '3rem' : '2.4rem';
-
-    /* Grade de objetos */
     const objEl = document.getElementById('numObjects');
     objEl.innerHTML = '';
     for (let j = 0; j < num; j++) {
@@ -797,7 +397,6 @@ const CountGame = {
       objEl.appendChild(span);
     }
 
-    /* Inicia contagem sincronizada */
     this._countAnimation(num);
   },
 
@@ -806,49 +405,40 @@ const CountGame = {
     const gap   = this.speed === 'slow' ? 350 : 100;
     const objs  = document.querySelectorAll('#numObjects .num-obj');
 
-    /* Pequena pausa antes de começar */
-    await this._delay(400);
+    await delay(400);
 
-    /* Contagem: objeto destaca + TTS fala o número */
     for (let i = 0; i < num; i++) {
       if (this._aborted) return;
       objs[i].classList.add('lit', 'pop');
       await TTS.speakAndWait(L.numWords[i]);
-      if (i < num - 1) await this._delay(gap);
+      if (i < num - 1) await delay(gap);
     }
 
     if (this._aborted) return;
 
-    /* Celebração do número */
     SFX.playCorrect();
     const digit = document.getElementById('numDigit');
     digit.classList.add('pulse');
-    await this._delay(600);
+    await delay(600);
 
     if (this._aborted) return;
 
-    /* Pergunta retórica: "Que número é esse?" */
     await TTS.speakAndWait(L.whatNumber);
-    await this._delay(2000);
+    await delay(2000);
 
     if (this._aborted) return;
 
-    /* Resposta: "É o três!" */
     const answer = L.itsNumber.replace('{n}', L.numWords[num - 1]);
     await TTS.speakAndWait(answer);
 
     if (this._aborted) return;
 
-    /* Encorajamento */
     const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
     const t   = document.getElementById('encToast');
     t.textContent = enc.text;
     t.classList.add('show');
     await TTS.speakAndWait(enc.spoken);
     setTimeout(() => t.classList.remove('show'), 1500);
-
-    if (this._aborted) return;
-
   },
 
   prev() {
@@ -883,88 +473,10 @@ const CountGame = {
     }));
     Nav._show('sCelebrate');
   },
-
-  _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
-
-  _shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
 };
 
-/* ═══════════════════════════════════════════════
-   MF — tema, fonte, som, lock, confirmHome
-═══════════════════════════════════════════════ */
-const MF = {
-  _soundOn: true,
-  _locked:  false,
-
-  init() {
-    this.applyTheme(localStorage.getItem('mf-theme') || 'light');
-    this.applyFont(parseFloat(localStorage.getItem('mf-font') || '1'));
-    this._soundOn = (localStorage.getItem('mf-sound') || 'on') === 'on';
-    this._updateSoundBtn();
-  },
-
-  applyTheme(t) {
-    document.documentElement.dataset.theme = t;
-    const b = document.getElementById('btnTheme');
-    if (b) b.textContent = t === 'dark' ? '☀️' : '🌙';
-    localStorage.setItem('mf-theme', t);
-  },
-  toggleTheme() { this.applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); },
-
-  applyFont(s) {
-    document.documentElement.style.setProperty('--fs', s);
-    localStorage.setItem('mf-font', s);
-  },
-
-  toggleSound() {
-    this._soundOn = !this._soundOn;
-    localStorage.setItem('mf-sound', this._soundOn ? 'on' : 'off');
-    this._updateSoundBtn();
-    if (!this._soundOn) speechSynthesis && speechSynthesis.cancel();
-  },
-  _updateSoundBtn() {
-    const b = document.getElementById('btnSound');
-    if (b) b.textContent = this._soundOn ? '🔊' : '🔇';
-  },
-
-  handleLock() {
-    if (!this._locked) {
-      this._locked = true;
-      document.body.dataset.locked = 'true';
-      document.getElementById('btnLock').textContent = '🔓';
-      document.documentElement.requestFullscreen?.().catch(() => {});
-    } else {
-      document.getElementById('lockOverlay').classList.add('show');
-    }
-  },
-  _unlock() {
-    this._locked = false;
-    document.body.dataset.locked = 'false';
-    document.getElementById('btnLock').textContent = '🔒';
-    document.getElementById('lockOverlay').classList.remove('show');
-    document.exitFullscreen?.().catch(() => {});
-  },
-
-  confirmHome(e) {
-    e && e.preventDefault();
-    document.getElementById('homeOverlay').classList.add('show');
-  }
-};
-
-/* ── INIT ── */
-MF.init();
-SCREENS.forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.style.display = 'none';
-});
-document.getElementById('sHub').style.display = 'flex';
+/* ── BOOT ── */
+Nav.boot(['sHub','sLang','sCount','sCelebrate']);
 </script>
 </body>
 </html>
