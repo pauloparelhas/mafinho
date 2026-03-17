@@ -845,6 +845,20 @@ const PaintGame = {
     return this._totalMaskPx > 0 ? painted / this._totalMaskPx : 0;
   },
 
+  /* Preenche automaticamente as bordas restantes do número
+     usando destination-over (por baixo dos traços da criança).
+     Garante que o número fique 100% pintado visualmente. */
+  _autoFill() {
+    const w = this._w, h = this._h;
+    const cx = w / 2, cy = h / 2 + 4;
+    const num = this.sequence[this.step];
+    this._sCtx.save();
+    this._sCtx.globalCompositeOperation = 'destination-over';
+    this._sCtx.fillStyle = this.currentColor;
+    this._drawNum(this._sCtx, num, cx, cy);
+    this._sCtx.restore();
+  },
+
   _checkCompletion() {
     const fill = this._calcFill();
     const pct  = Math.min(fill / this.THRESHOLD, 1);
@@ -852,13 +866,17 @@ const PaintGame = {
 
     if (fill >= this.THRESHOLD && !this._completed) {
       this._completed = true;
-      const L    = LANG[this.lang];
-      const num  = this.sequence[this.step];
-      const name = L.numWords[num - 1];
-      const isMilestone = (this.step + 1) % 3 === 0 && this.step + 1 < this.sequence.length;
 
-      /* Sininho discreto — sinaliza acerto */
+      /* PRIMEIRO: preencher bordas restantes para visual 100% */
+      this._autoFill();
+      this._redraw();
+      document.getElementById('paintBar').style.width = '100%';
+
+      /* Sininho discreto — sinaliza conclusão */
       SFX.playChime();
+
+      const L = LANG[this.lang];
+      const isMilestone = (this.step + 1) % 3 === 0 && this.step + 1 < this.sequence.length;
 
       if (isMilestone) {
         /* A cada 3 números: frase de encorajamento falada */
@@ -866,7 +884,7 @@ const PaintGame = {
         const t = document.getElementById('encToast');
         t.textContent = '🌟 ' + ms;
         t.classList.add('show', 'paint-pos');
-        TTS.speakExcitedAndWait(name).then(() => TTS.speakAndWait(ms));
+        TTS.speakAndWait(ms);
         setTimeout(() => t.classList.remove('show', 'paint-pos'), 4300);
         setTimeout(() => {
           if (this._aborted) return;
@@ -875,14 +893,13 @@ const PaintGame = {
           else this._setupNumber();
         }, 4500);
       } else {
-        /* Por número: apenas sininho + nome empolgado, avança rápido */
-        TTS.speakExcitedAndWait(name);
+        /* Por número: sininho + avança */
         setTimeout(() => {
           if (this._aborted) return;
           this.step++;
           if (this.step >= this.sequence.length) this._celebrate();
           else this._setupNumber();
-        }, 2200);
+        }, 1500);
       }
     }
   },
