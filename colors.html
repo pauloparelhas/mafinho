@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light" data-country="br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Colors — Mafinho v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'"/>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — colors.html (Fase 2)
+   Mesma base técnica de cores.html +
+   navbar maior, lock, som, confirmHome.
+═══════════════════════════════════════════ */
+:root {
+  --c-red:#E53935; --c-blue:#1E88E5; --c-yellow:#F9A825;
+  --c-green:#43A047; --c-orange:#FB8C00; --c-purple:#8E24AA;
+  --c-pink:#F06292; --c-teal:#00897B;
+  --bg:#F8F9FA; --surface:#FFFFFF; --sur2:#F1F3F5;
+  --text:#212121; --muted:#757575; --border:#DEE2E6; --shadow:rgba(0,0,0,0.12);
+  --fs:1;
+  --sm:calc(1.2rem*var(--fs)); --md:calc(1.55rem*var(--fs));
+  --lg:calc(2.1rem*var(--fs)); --xl:calc(2.7rem*var(--fs)); --2xl:calc(3.4rem*var(--fs));
+  --btn-h:80px; --rad:18px; --radlg:26px;
+  --country-accent:#2E7D32; --country-light:#F1F8E9;
+}
+[data-theme="dark"] {
+  --bg:#0F0F1A; --surface:#1A1A2E; --sur2:#16213E;
+  --text:#F5F5F5; --muted:#9E9E9E; --border:#33335A; --shadow:rgba(0,0,0,0.5);
+  --country-light:#1a2a1a;
+}
+[data-country="br"] { --country-accent:#2E7D32; --country-light:#F1F8E9; }
+[data-country="ca"] { --country-accent:#C62828; --country-light:#FFEBEE; }
+[data-theme="dark"][data-country="ca"] { --country-light:#2E1B1B; }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body {
+  font-family:'Comic Sans MS','Chalkboard SE','Comic Neue','Nunito',cursive;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; display:flex; flex-direction:column;
+  transition:background .4s,color .3s;
+}
+
+/* ── Faixa e cantos temáticos ── */
+.theme-stripe { height:6px; background:var(--country-accent); flex-shrink:0; transition:background .5s; }
+.corner-deco  { position:fixed; font-size:5rem; opacity:0.07; pointer-events:none; z-index:0; user-select:none; line-height:1; }
+.corner-deco.tl { top:90px;  left:6px;  }
+.corner-deco.tr { top:90px;  right:6px; }
+.corner-deco.bl { bottom:6px; left:6px; }
+.corner-deco.br { bottom:6px; right:6px;}
+
+/* ── Navbar ── */
+.navbar {
+  display:flex; align-items:center; gap:5px;
+  padding:8px 10px; background:var(--surface);
+  box-shadow:0 2px 10px var(--shadow);
+  position:sticky; top:0; z-index:100; min-height:80px;
+  border-bottom:4px solid var(--country-accent);
+  transition:border-color .5s;
+}
+.nav-btn {
+  height:64px; min-width:56px; border:none;
+  border-radius:var(--rad); font-size:1.7rem; font-weight:900;
+  cursor:pointer; background:var(--sur2); color:var(--text);
+  transition:transform .12s; -webkit-tap-highlight-color:transparent;
+  display:flex; align-items:center; justify-content:center;
+  text-decoration:none; font-family:inherit; border:2px solid var(--border);
+  flex-shrink:0;
+}
+.nav-btn:active{transform:scale(0.91);}
+.btn-home  { background:var(--country-accent); color:white; border-color:transparent; font-size:1.9rem; transition:background .5s; }
+.btn-theme { background:var(--c-yellow); color:#333; border-color:transparent; }
+.btn-sound { background:var(--c-blue); color:white; border-color:transparent; }
+.btn-lock  { background:var(--sur2); color:var(--text); }
+.nav-title {
+  font-size:var(--md); font-weight:900; flex:1; padding-left:4px;
+  overflow:hidden; white-space:nowrap; min-width:0;
+}
+.nav-lang-badge {
+  font-size:var(--sm); font-weight:800;
+  background:var(--country-light); color:var(--country-accent);
+  padding:6px 12px; border-radius:100px; cursor:pointer;
+  border:2px solid var(--country-accent);
+  -webkit-tap-highlight-color:transparent;
+  transition:background .4s,color .4s,border-color .4s;
+  white-space:nowrap; font-family:inherit; flex-shrink:0;
+  height:52px; display:flex; align-items:center;
+}
+.nav-lang-badge:active{transform:scale(0.93);}
+
+/* ── TELA A: Hub ── */
+#sHub { flex:1; display:flex; flex-direction:column; }
+.hub-hero { text-align:center; padding:28px 16px 20px; border-bottom:5px solid var(--c-red); }
+.hub-hero-icon { font-size:4rem; display:block; margin-bottom:10px; }
+.hub-hero h1   { font-size:var(--2xl); font-weight:900; margin-bottom:6px; }
+.hub-hero p    { font-size:var(--md); color:var(--muted); font-weight:700; }
+.hub-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:20px; padding:24px 18px 48px; max-width:900px; margin:0 auto; width:100%;
+}
+.game-card {
+  background:var(--surface); border-radius:var(--radlg);
+  box-shadow:0 5px 20px var(--shadow); padding:28px 16px;
+  text-align:center; color:var(--text);
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  border:4px solid var(--border); transition:transform .15s;
+  -webkit-tap-highlight-color:transparent; cursor:pointer;
+  font-family:inherit;
+}
+.game-card:hover  { transform:translateY(-5px); }
+.game-card:active { transform:scale(0.94); }
+.game-card.coming { opacity:0.52; cursor:default; pointer-events:none; }
+.game-card.ready  { border-color:var(--c-red); }
+.g-icon  { font-size:3.5rem; line-height:1; }
+.g-title { font-size:var(--lg); font-weight:900; }
+.g-badge { font-size:var(--sm); font-weight:800; padding:5px 16px; border-radius:100px; }
+.badge-ready { background:var(--c-green); color:white; }
+.badge-soon  { background:var(--border); color:var(--muted); }
+
+/* ── TELA B: Idioma ── */
+#sLang {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:24px 18px 48px; gap:28px;
+}
+.lang-intro { text-align:center; }
+.lang-intro h1 { font-size:var(--xl); font-weight:900; margin-bottom:8px; }
+.lang-intro p  { font-size:var(--md); color:var(--muted); }
+.lang-cards    { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; max-width:520px; }
+.lang-card {
+  flex:1; min-width:200px; max-width:240px; border:none; border-radius:28px;
+  cursor:pointer; padding:32px 20px 28px;
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+  font-family:inherit; box-shadow:0 8px 28px rgba(0,0,0,0.18);
+  transition:transform .15s, box-shadow .15s; -webkit-tap-highlight-color:transparent;
+}
+.lang-card:hover  { transform:translateY(-6px); box-shadow:0 16px 40px rgba(0,0,0,0.22); }
+.lang-card:active { transform:scale(0.95); }
+.lang-card-br { background:linear-gradient(145deg,#2E7D32,#1B5E20); color:#FFDF00; }
+.lang-card-ca { background:linear-gradient(145deg,#C62828,#8B0000); color:#FFFFFF; }
+.lang-flag { font-size:6rem; line-height:1; }
+.lang-name { font-size:var(--xl); font-weight:900; }
+.lang-sub  { font-size:var(--sm); font-weight:700; opacity:0.8; }
+
+/* ── TELA C: Flashcard ── */
+#sGame {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:20px 16px 32px; gap:0;
+}
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:var(--sm); font-weight:800; color:var(--muted);
+  text-decoration:none; margin-bottom:18px; padding:8px 18px;
+  border-radius:var(--rad); background:var(--sur2);
+  -webkit-tap-highlight-color:transparent;
+  align-self:flex-start; max-width:520px; width:100%;
+  border:none; cursor:pointer; font-family:inherit;
+  min-height:80px;
+}
+.card-row   { display:flex; align-items:center; gap:14px; width:100%; max-width:520px; }
+.card-scene { flex:1; height:320px; perspective:1000px; min-width:0; }
+.card-3d {
+  width:100%; height:100%; position:relative;
+  transform-style:preserve-3d; transition:transform .5s;
+  cursor:pointer; border-radius:28px;
+}
+.card-3d.flipped { transform:rotateY(180deg); }
+.card-face {
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:28px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px; padding:24px;
+}
+.card-back  { transform:rotateY(180deg); background:var(--surface); border:5px solid var(--border); }
+.card-emoji      { font-size:6.5rem; line-height:1; user-select:none; }
+.card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; }
+.card-back-emoji { font-size:4rem; line-height:1; }
+.card-color-name { font-size:3.5rem; font-weight:900; text-align:center; line-height:1.1; }
+.btn-speak-side {
+  width:80px; height:80px; flex-shrink:0; border-radius:50%; border:none;
+  font-size:2.2rem; cursor:pointer; font-family:inherit; font-weight:900;
+  transition:transform .12s, box-shadow .2s, background .4s;
+  -webkit-tap-highlight-color:transparent;
+  background:var(--country-accent); color:white;
+  box-shadow:0 4px 14px rgba(0,0,0,0.25);
+  display:flex; align-items:center; justify-content:center;
+}
+.btn-speak-side:active { transform:scale(0.91); }
+.btn-speak-side.speaking {
+  animation:speakPulse .7s infinite alternate;
+  box-shadow:0 0 0 8px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.3);
+}
+@keyframes speakPulse { from{transform:scale(1);}to{transform:scale(1.1);} }
+.card-nav { display:flex; gap:16px; justify-content:center; align-items:center; margin-top:22px; width:100%; max-width:520px; }
+.btn-nav {
+  height:80px; min-width:80px; border:none; border-radius:20px;
+  font-size:2rem; cursor:pointer; font-weight:900;
+  transition:transform .12s; -webkit-tap-highlight-color:transparent;
+  flex:1; font-family:inherit;
+}
+.btn-nav:active  { transform:scale(0.91); }
+.btn-nav:disabled{ opacity:0.35; cursor:default; }
+.btn-prev { background:var(--sur2); color:var(--text); border:3px solid var(--border); }
+.btn-next { background:var(--country-accent); color:white; transition:background .5s; }
+.progress { font-size:var(--md); font-weight:800; color:var(--muted); margin-top:16px; text-align:center; }
+.progress-bar-wrap { width:100%; max-width:520px; height:12px; background:var(--border); border-radius:100px; margin-top:10px; overflow:hidden; }
+.progress-bar { height:100%; background:var(--country-accent); border-radius:100px; transition:width .35s ease, background .5s; }
+
+/* ── TELA E: Arrastar ── */
+#sDrag {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:16px 12px 32px; gap:14px;
+  touch-action:none;
+}
+.drag-instruction {
+  font-size:var(--lg); font-weight:900; text-align:center;
+  color:var(--country-accent); transition:color .5s;
+}
+.drag-bins {
+  display:flex; gap:10px; width:100%; max-width:640px;
+}
+.drag-bin {
+  flex:1; min-height:130px; border-radius:var(--radlg);
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:6px; padding:8px 4px;
+  font-size:var(--md); font-weight:900; text-align:center;
+  border:4px dashed rgba(0,0,0,0.18);
+  transition:transform .15s, box-shadow .15s, border-style .1s;
+  position:relative; overflow:hidden;
+}
+.drag-bin.over {
+  transform:scale(1.07);
+  border-style:solid;
+  box-shadow:0 0 0 4px rgba(255,255,255,0.5) inset, 0 8px 24px rgba(0,0,0,0.25);
+}
+.bin-icon { font-size:2.4rem; line-height:1; }
+.bin-name { font-size:var(--sm); font-weight:900; line-height:1.2; word-break:break-word; }
+.drag-cards {
+  display:flex; gap:12px; flex-wrap:wrap; justify-content:center;
+  max-width:640px; width:100%;
+}
+.drag-card {
+  width:96px; height:96px; border-radius:var(--rad);
+  font-size:3.2rem; display:flex; align-items:center; justify-content:center;
+  background:var(--surface); border:4px solid var(--border);
+  cursor:grab; user-select:none; touch-action:none;
+  box-shadow:0 4px 14px var(--shadow);
+  transition:opacity .2s, box-shadow .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.drag-card:hover { box-shadow:0 8px 22px var(--shadow); }
+.drag-round-badge { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
+
+/* ── TELA F: Clicar ── */
+#sClick {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:12px 12px 8px; gap:10px;
+}
+#sClick .back-link { margin-bottom:0; }
+.click-target {
+  width:150px; height:150px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:4rem; flex-shrink:0;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);
+}
+@keyframes clickPulse {
+  0%  { transform:scale(1); }
+  40% { transform:scale(1.14); }
+  100%{ transform:scale(1); }
+}
+.click-target.pulse { animation:clickPulse .55s ease-out; }
+.click-options {
+  display:flex; flex-direction:column; gap:14px;
+  width:100%; max-width:420px;
+}
+.click-opt {
+  height:80px; border:none; border-radius:var(--radlg);
+  font-size:var(--lg); font-weight:900; cursor:pointer;
+  font-family:inherit; display:flex; align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  position:relative; overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s;
+}
+.click-opt:active { transform:scale(0.94); }
+.click-opt .x-overlay {
+  position:absolute; inset:0; background:rgba(0,0,0,0.65);
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem; color:white; border-radius:inherit;
+  opacity:0; pointer-events:none;
+}
+@keyframes xShake {
+  0%  { transform:translate(0,0) rotate(0deg);   opacity:1; }
+  15% { transform:translate(-10px,0) rotate(-7deg); }
+  30% { transform:translate(10px,0)  rotate(7deg);  }
+  45% { transform:translate(-8px,0)  rotate(-5deg); }
+  60% { transform:translate(8px,0)   rotate(5deg);  }
+  75% { transform:translate(-4px,0)  rotate(-2deg); }
+  88% { opacity:1; }
+  100%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+}
+.click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
+.click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
+/* ── TELA D: Celebração ── */
+#sCelebrate {
+  display:none; flex-direction:column; align-items:center;
+  justify-content:center; gap:22px; text-align:center; padding:36px 24px; flex:1;
+}
+#sCelebrate.show { display:flex; }
+.cel-emoji { font-size:7rem; animation:bounce .6s infinite alternate; }
+@keyframes bounce { from{transform:scale(1);}to{transform:scale(1.12);} }
+.cel-title { font-size:var(--xl); font-weight:900; }
+.cel-sub   { font-size:var(--md); color:var(--muted); font-weight:700; }
+.stars { font-size:2.5rem; letter-spacing:6px; animation:twinkle 1s infinite alternate; }
+@keyframes twinkle { from{opacity:1;}to{opacity:0.5;} }
+.btn-big {
+  height:var(--btn-h); padding:0 48px; border:none; border-radius:var(--radlg);
+  font-size:var(--lg); font-weight:900; cursor:pointer;
+  background:var(--country-accent); color:white;
+  -webkit-tap-highlight-color:transparent; transition:transform .12s, background .5s;
+  font-family:inherit;
+}
+.btn-big:active  { transform:scale(0.93); }
+.btn-mid {
+  height:64px; padding:0 32px; border:none; border-radius:var(--rad);
+  font-size:var(--md); font-weight:800; cursor:pointer;
+  background:var(--sur2); color:var(--text);
+  -webkit-tap-highlight-color:transparent; transition:transform .12s;
+  font-family:inherit;
+}
+.btn-mid:active  { transform:scale(0.93); }
+
+/* ── Toast encorajamento ── */
+.enc-toast {
+  position:fixed; top:90px; left:50%;
+  transform:translateX(-50%) translateY(-20px);
+  background:var(--country-accent); color:white;
+  padding:16px 32px; border-radius:100px;
+  font-size:var(--lg); font-weight:900; font-family:inherit;
+  box-shadow:0 8px 28px rgba(0,0,0,0.3);
+  z-index:300; white-space:nowrap; max-width:90vw; opacity:0;
+  transition:opacity .35s, transform .35s; pointer-events:none;
+}
+.enc-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── Banner ativar som ── */
+.sound-banner {
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+  background:var(--c-blue); color:white; padding:14px 28px; border-radius:100px;
+  font-size:var(--md); font-weight:900; font-family:inherit;
+  box-shadow:0 6px 20px rgba(30,136,229,0.45); z-index:200;
+  cursor:pointer; display:flex; align-items:center; gap:10px;
+  white-space:nowrap; border:none; -webkit-tap-highlight-color:transparent;
+  animation:bannerBounce 1.4s ease-in-out infinite alternate;
+}
+.sound-banner.hidden { display:none; }
+@keyframes bannerBounce {
+  from{transform:translateX(-50%) translateY(0);}
+  to  {transform:translateX(-50%) translateY(-8px);}
+}
+
+/* ── Overlay lock / confirmHome ── */
+.mf-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7); z-index:9999;
+  align-items:center; justify-content:center;
+}
+.mf-overlay.show { display:flex; }
+.mf-modal {
+  background:var(--surface); border-radius:var(--radlg);
+  padding:36px 24px; text-align:center;
+  display:flex; flex-direction:column; gap:18px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.45);
+  max-width:300px; width:90%;
+}
+.mf-modal-icon { font-size:4rem; }
+.mf-modal-msg  { font-size:var(--lg); font-weight:900; }
+.mf-modal-btns { display:flex; gap:12px; justify-content:center; }
+.mf-modal-btns button {
+  height:var(--btn-h); min-width:90px; border:none;
+  border-radius:var(--rad); font-size:var(--md); font-weight:900;
+  cursor:pointer; font-family:inherit; flex:1;
+}
+.mf-btn-yes { background:var(--c-green); color:white; }
+.mf-btn-no  { background:var(--c-red);   color:white; }
+
+/* ── Lock: bloqueia navbar exceto lockBtn ── */
+[data-locked="true"] .nav-btn:not(#btnLock) { pointer-events:none; opacity:.45; }
+</style>
+</head>
+<body>
+
+<div class="theme-stripe"></div>
+<span class="corner-deco tl" id="dc1">⭐</span>
+<span class="corner-deco tr" id="dc2">⭐</span>
+<span class="corner-deco bl" id="dc3">⭐</span>
+<span class="corner-deco br" id="dc4">⭐</span>
+
+<!-- ═══ NAVBAR (fase 2: 6 botões ≥64px) ═══ -->
+<nav class="navbar">
+  <a id="navLogo" href="#" class="nav-btn btn-home" onclick="MF.confirmHome(event)" title="Início">🏠</a>
+  <span class="nav-title">🎨 <span id="navTitle">Cores</span></span>
+  <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
+  <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
+  <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
+  <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
+</nav>
+
+<!-- ═══ TELA A: Hub ═══ -->
+<div id="sHub">
+  <div class="hub-hero">
+    <span class="hub-hero-icon">🎨</span>
+    <h1>Cores</h1>
+    <p id="hubSub">Aprenda as cores!</p>
+  </div>
+  <div class="hub-grid">
+    <div class="game-card ready" onclick="Nav.goLang('flashcard')">
+      <span class="g-icon">💡</span>
+      <span class="g-title">Flashcards</span>
+      <span class="g-badge badge-ready" id="badgeFlash">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('drag')">
+      <span class="g-icon">🤚</span>
+      <span class="g-title" id="hubArrastar">Arrastar</span>
+      <span class="g-badge badge-ready" id="badgeArrastar">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('click')">
+      <span class="g-icon">🎯</span>
+      <span class="g-title" id="hubClicar">Clicar</span>
+      <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
+    </div>
+    <div class="game-card coming">
+      <span class="g-icon">📦</span>
+      <span class="g-title" id="hubSeparar">Separar</span>
+      <span class="g-badge badge-soon" id="badgeSeparar">Em breve</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TELA B: Idioma ═══ -->
+<div id="sLang">
+  <div class="lang-intro">
+    <h1>🎨 Mafinho Explora!</h1>
+    <p>Escolha o idioma · Choose the language</p>
+  </div>
+  <div class="lang-cards">
+    <button class="lang-card lang-card-br" onclick="Nav.startGame('pt')">
+      <span class="lang-flag">🇧🇷</span>
+      <span class="lang-name">Português</span>
+      <span class="lang-sub">Brasil</span>
+    </button>
+    <button class="lang-card lang-card-ca" onclick="Nav.startGame('en')">
+      <span class="lang-flag">🇨🇦</span>
+      <span class="lang-name">English</span>
+      <span class="lang-sub">Canada</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ TELA C: Flashcard ═══ -->
+<div id="sGame">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="backLabel">Cores</span></button>
+  <div class="card-row">
+    <div class="card-scene">
+      <div class="card-3d" id="card3d" onclick="Game.flip()">
+        <div class="card-face" id="cardFront">
+          <span class="card-emoji"    id="frontEmoji">🔴</span>
+          <span class="card-tap-hint" id="tapHint">Toque para descobrir!</span>
+        </div>
+        <div class="card-face card-back" id="cardBack">
+          <span class="card-back-emoji" id="backEmoji">🔴</span>
+          <span class="card-color-name" id="backName">Vermelho</span>
+          <span class="card-tap-hint" style="opacity:0.55;font-size:1rem;">▶ próxima cor</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-speak-side" id="btnSpeak" onclick="TTS.replay()">🔊</button>
+  </div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="btnPrev" onclick="Game.prev()">◀</button>
+    <button class="btn-nav btn-next" id="btnNext" onclick="Game.next()">▶</button>
+  </div>
+  <div class="progress" id="progressText">1 / 9</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar" style="width:11.1%"></div>
+  </div>
+</div>
+
+<!-- ═══ TELA E: Arrastar ═══ -->
+<div id="sDrag">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="dragBackLabel">Cores</span></button>
+  <p class="drag-instruction" id="dragInstruction">Arraste para a cor certa! 🤚</p>
+  <div class="drag-bins"  id="dragBins"></div>
+  <div class="drag-cards" id="dragCards"></div>
+  <p class="drag-round-badge" id="dragRoundBadge"></p>
+</div>
+
+<!-- ═══ TELA F: Clicar ═══ -->
+<div id="sClick">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="clickBackLabel">Cores</span></button>
+  <p class="click-round" id="clickRoundBadge"></p>
+  <div class="click-target" id="clickTarget">🔴</div>
+  <div class="click-options" id="clickOptions"></div>
+</div>
+
+<!-- ═══ TELA D: Celebração ═══ -->
+<div id="sCelebrate">
+  <div class="stars">⭐⭐⭐⭐⭐</div>
+  <div class="cel-emoji">🎉</div>
+  <div class="cel-title" id="celTitle">Muito bem!</div>
+  <div class="cel-sub"   id="celSub">Você aprendeu todas as cores!</div>
+  <button class="btn-big" onclick="Nav.restartGame()" id="btnRestart">Recomeçar 🔄</button>
+  <button class="btn-mid" onclick="Nav.backToHub()"   id="btnBackHub">← Cores</button>
+</div>
+
+<!-- Toast encorajamento -->
+<div class="enc-toast" id="encToast">⭐ Muito bem!</div>
+
+<!-- Banner ativar som -->
+<button class="sound-banner" id="soundBanner" onclick="TTS.activate()">
+  🔊 Toque aqui para ativar o som!
+</button>
+
+<!-- Overlay: travar tela -->
+<div class="mf-overlay" id="lockOverlay">
+  <div class="mf-modal">
+    <div class="mf-modal-icon">🔒</div>
+    <div class="mf-modal-msg">Desbloquear tela?</div>
+    <div class="mf-modal-btns">
+      <button class="mf-btn-yes" onclick="MF._unlock()">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('lockOverlay').classList.remove('show')">❌ Não</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay: confirmar saída -->
+<div class="mf-overlay" id="homeOverlay">
+  <div class="mf-modal">
+    <div class="mf-modal-icon">🏠</div>
+    <div class="mf-modal-msg">Sair do jogo?</div>
+    <div class="mf-modal-btns">
+      <button class="mf-btn-yes" onclick="window.location.href='index.html'">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('homeOverlay').classList.remove('show')">❌ Ficar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   BANCO DE DADOS — CORES
+═══════════════════════════════════════════════ */
+const COLORS = [
+  { icon:'🔴', pt:'Vermelho', en:'Red',    bg:'#E53935', text:'#fff' },
+  { icon:'🔵', pt:'Azul',     en:'Blue',   bg:'#1E88E5', text:'#fff' },
+  { icon:'🟡', pt:'Amarelo',  en:'Yellow', bg:'#F9A825', text:'#333' },
+  { icon:'🟢', pt:'Verde',    en:'Green',  bg:'#43A047', text:'#fff' },
+  { icon:'🟠', pt:'Laranja',  en:'Orange', bg:'#FB8C00', text:'#fff' },
+  { icon:'🟣', pt:'Roxo',     en:'Purple', bg:'#8E24AA', text:'#fff' },
+  { icon:'🩷', pt:'Rosa',     en:'Pink',   bg:'#F06292', text:'#fff' },
+  { icon:'⬛', pt:'Preto',    en:'Black',  bg:'#212121', text:'#fff' },
+  { icon:'⬜', pt:'Branco',   en:'White',  bg:'#F5F5F5', text:'#333', border:'4px solid #DEE2E6' },
+];
+
+/* SVGs pintados na cor de referência */
+const SVG_BIKE_PURPLE = `<svg viewBox="0 0 68 52" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="14" cy="38" r="12" fill="none" stroke="#8E24AA" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="54" cy="38" r="12" fill="none" stroke="#8E24AA" stroke-width="5" stroke-linecap="round"/>
+  <polyline points="34,38 34,20 14,38" fill="none" stroke="#8E24AA" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  <line x1="34" y1="20" x2="54" y2="38" stroke="#8E24AA" stroke-width="4" stroke-linecap="round"/>
+  <line x1="28" y1="28" x2="40" y2="28" stroke="#8E24AA" stroke-width="5" stroke-linecap="round"/>
+  <line x1="34" y1="20" x2="46" y2="16" stroke="#8E24AA" stroke-width="4" stroke-linecap="round"/>
+  <line x1="43" y1="13" x2="49" y2="13" stroke="#8E24AA" stroke-width="4" stroke-linecap="round"/>
+</svg>`;
+
+const SVG_PIG_PINK = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="32" cy="34" r="24" fill="#F06292"/>
+  <ellipse cx="18" cy="14" rx="8" ry="10" fill="#F06292"/>
+  <ellipse cx="46" cy="14" rx="8" ry="10" fill="#F06292"/>
+  <ellipse cx="18" cy="14" rx="5" ry="7" fill="#F48FB1"/>
+  <ellipse cx="46" cy="14" rx="5" ry="7" fill="#F48FB1"/>
+  <ellipse cx="32" cy="42" rx="12" ry="9" fill="#F48FB1"/>
+  <circle cx="28" cy="42" r="3" fill="#C2185B"/>
+  <circle cx="36" cy="42" r="3" fill="#C2185B"/>
+  <circle cx="22" cy="28" r="4" fill="#1a1a1a"/>
+  <circle cx="42" cy="28" r="4" fill="#1a1a1a"/>
+  <circle cx="23" cy="27" r="1.5" fill="white"/>
+  <circle cx="43" cy="27" r="1.5" fill="white"/>
+</svg>`;
+
+const SVG_SHIRT_BLACK = `<svg viewBox="0 0 64 54" xmlns="http://www.w3.org/2000/svg">
+  <path d="M22,4 Q32,12 42,4 L60,18 L50,26 L50,52 L14,52 L14,26 L4,18 Z" fill="#212121"/>
+</svg>`;
+
+const SVG_CAT_BLACK = `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="14,22 8,4 22,16" fill="#212121"/>
+  <polygon points="50,22 56,4 42,16" fill="#212121"/>
+  <circle cx="32" cy="28" r="18" fill="#212121"/>
+  <ellipse cx="32" cy="50" rx="16" ry="12" fill="#212121"/>
+  <ellipse cx="25" cy="26" rx="4" ry="5" fill="#66BB6A"/>
+  <ellipse cx="39" cy="26" rx="4" ry="5" fill="#66BB6A"/>
+  <ellipse cx="25" cy="26" rx="2" ry="4" fill="#212121"/>
+  <ellipse cx="39" cy="26" rx="2" ry="4" fill="#212121"/>
+  <path d="M48,48 Q60,38 56,28" fill="none" stroke="#212121" stroke-width="5" stroke-linecap="round"/>
+</svg>`;
+
+/* 2 objetos por cor para o jogo de arrastar */
+const COLOR_OBJECTS = [
+  ['🍎','🚒'],
+  ['🌊','🐟'],
+  ['⭐','🍌'],
+  ['🐸','🍀'],
+  ['🍊','🥕'],
+  ['🍇', SVG_BIKE_PURPLE],
+  [SVG_PIG_PINK, '🌸'],
+  [SVG_SHIRT_BLACK, SVG_CAT_BLACK],
+  ['☁️','🐑'],
+];
+
+/* ═══════════════════════════════════════════════
+   TEXTOS PT / EN
+═══════════════════════════════════════════════ */
+const LANG = {
+  pt: {
+    country:'br', tts:'pt-BR',
+    navTitle:'Cores', navBadge:'🇧🇷 PT', corners:'⭐',
+    hubSub:'Aprenda as cores!',
+    badgeFlash:'Disponível', hubArrastar:'Arrastar', badgeArrastar:'Disponível',
+    hubClicar:'Clicar', badgeClicar:'Disponível', hubSeparar:'Separar',
+    badgeSoon:'Em breve', backLabel:'Cores', clickBackLabel:'Cores',
+    tapHint:'Toque para descobrir!', nextHint:'▶ próxima cor',
+    question:'Qual cor é esta?',
+    dragInstruction:'Arraste para a cor certa! 🤚',
+    dragBackLabel:'Cores', dragRound:'Rodada',
+    celTitle:'Muito bem!', celSub:'Você aprendeu todas as cores!',
+    restart:'Recomeçar 🔄', backHub:'← Cores',
+    celSpoken:'Parabéns! Você aprendeu todas as cores! Que criança boa!',
+    encourage:[
+      {text:'Isso! Muito bem! ⭐',   spoken:'Isso! Muito bem!'},
+      {text:'Parabéns! 🌟',          spoken:'Parabéns!'},
+      {text:'Uau! Que esperto! 🎉',  spoken:'Uau! Que esperto!'},
+      {text:'Eba! Acertou! ⭐',      spoken:'Eba! Acertou!'},
+      {text:'Que inteligente! 🌟',   spoken:'Que inteligente!'},
+      {text:'Muito bem! 🎉',         spoken:'Muito bem!'},
+      {text:'Boa! Boa! Boa! ⭐',     spoken:'Boa! Boa! Boa!'},
+      {text:'Que bonito! 🌟',        spoken:'Que bonito!'},
+      {text:'Ótimo! 🎉',             spoken:'Ótimo!'},
+      {text:'Que bom! ⭐',           spoken:'Que bom!'},
+      {text:'Que criança boa! 🌟',   spoken:'Que criança boa!'},
+      {text:'Eba! Que legal! 🎉',    spoken:'Eba! Que legal!'},
+      {text:'Bravo! Bravo! ⭐',      spoken:'Bravo!'},
+      {text:'Que maravilha! 🌟',     spoken:'Que maravilha!'},
+      {text:'Você conseguiu! 🎉',    spoken:'Você conseguiu!'},
+    ],
+  },
+  en: {
+    country:'ca', tts:'en-US',
+    navTitle:'Colors', navBadge:'🇨🇦 EN', corners:'🍁',
+    hubSub:'Learn the colors!',
+    badgeFlash:'Available', hubArrastar:'Drag', badgeArrastar:'Available',
+    hubClicar:'Click', badgeClicar:'Available', hubSeparar:'Sort',
+    badgeSoon:'Coming soon', backLabel:'Colors', clickBackLabel:'Colors',
+    tapHint:'Tap to find out!', nextHint:'▶ next color',
+    question:'What color is this?',
+    dragInstruction:'Drag to the right color! 🤚',
+    dragBackLabel:'Colors', dragRound:'Round',
+    celTitle:'Well done!', celSub:'You learned all the colors!',
+    restart:'Restart 🔄', backHub:'← Colors',
+    celSpoken:'Hooray! You learned all the colors! What a smart child!',
+    encourage:[
+      {text:'Good job! ⭐',        spoken:'Good job!'},
+      {text:'Well done! 🌟',       spoken:'Well done!'},
+      {text:'Yay! You did it! 🎉', spoken:'Yay! You did it!'},
+      {text:'Wonderful! ⭐',       spoken:'Wonderful!'},
+      {text:'Hooray! 🌟',          spoken:'Hooray!'},
+      {text:'So smart! 🎉',        spoken:'So smart!'},
+      {text:'Amazing! ⭐',         spoken:'Amazing!'},
+      {text:'Bravo! 🌟',           spoken:'Bravo!'},
+      {text:'You got it! 🎉',      spoken:'You got it!'},
+      {text:'Superstar! ⭐',       spoken:'Superstar!'},
+      {text:'Fantastic! 🌟',       spoken:'Fantastic!'},
+      {text:'Oh wow! 🎉',          spoken:'Oh wow!'},
+      {text:'Brilliant! ⭐',       spoken:'Brilliant!'},
+      {text:'Great! 🌟',           spoken:'Great!'},
+      {text:'Awesome! 🎉',         spoken:'Awesome!'},
+    ],
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   NAV — gerencia telas
+═══════════════════════════════════════════════ */
+const SCREENS = ['sHub','sLang','sGame','sDrag','sClick','sCelebrate'];
+
+const Nav = {
+  currentGame: null,
+
+  _show(id) {
+    SCREENS.forEach(s => {
+      const el = document.getElementById(s);
+      if (!el) return;
+      el.style.display       = (s === id) ? 'flex' : 'none';
+      el.style.flexDirection = 'column';
+    });
+    if (id === 'sCelebrate') {
+      document.getElementById('sCelebrate').classList.add('show');
+    }
+  },
+
+  goLang(game) {
+    this.currentGame = game;
+    this._show('sLang');
+    document.getElementById('navLangBadge').style.display = 'none';
+  },
+
+  startGame(lang) {
+    this._applyLang(lang);
+    document.getElementById('navLangBadge').style.display = '';
+    if (this.currentGame === 'drag') {
+      this._show('sDrag');
+      DragGame.start(lang);
+    } else if (this.currentGame === 'click') {
+      this._show('sClick');
+      ClickGame.start(lang);
+    } else {
+      this._show('sGame');
+      Game.start(lang);
+    }
+  },
+
+  restartGame() {
+    document.getElementById('sCelebrate').classList.remove('show');
+    if (this.currentGame === 'drag') {
+      this._show('sDrag');
+      DragGame.start(DragGame.lang);
+    } else if (this.currentGame === 'click') {
+      this._show('sClick');
+      ClickGame.start(ClickGame.lang);
+    } else {
+      this._show('sGame');
+      Game.restart();
+    }
+  },
+
+  backToHub() {
+    speechSynthesis && speechSynthesis.cancel();
+    document.body.style.touchAction = '';
+    document.body.style.overflow    = '';
+    document.getElementById('sCelebrate').classList.remove('show');
+    document.getElementById('navLangBadge').style.display = 'none';
+    this._show('sHub');
+    document.documentElement.dataset.country = 'br';
+    this._setCorners('⭐');
+  },
+
+  backToLang() {
+    speechSynthesis && speechSynthesis.cancel();
+    document.body.style.touchAction = '';
+    document.body.style.overflow    = '';
+    document.getElementById('sCelebrate').classList.remove('show');
+    this._show('sLang');
+    document.getElementById('navLangBadge').style.display = 'none';
+    document.documentElement.dataset.country = 'br';
+    this._setCorners('⭐');
+  },
+
+  _applyLang(lang) {
+    const L = LANG[lang];
+    document.documentElement.dataset.country = L.country;
+    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+    document.getElementById('navTitle').textContent      = L.navTitle;
+    document.getElementById('navLangBadge').textContent  = L.navBadge;
+    document.getElementById('hubSub').textContent        = L.hubSub;
+    document.getElementById('badgeFlash').textContent    = L.badgeFlash;
+    document.getElementById('hubArrastar').textContent   = L.hubArrastar;
+    document.getElementById('badgeArrastar').textContent = L.badgeArrastar;
+    document.getElementById('hubClicar').textContent     = L.hubClicar;
+    document.getElementById('hubSeparar').textContent    = L.hubSeparar;
+    document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
+    document.getElementById('backLabel').textContent     = L.backLabel;
+    document.getElementById('tapHint').textContent       = L.tapHint;
+    document.getElementById('btnRestart').textContent    = L.restart;
+    document.getElementById('btnBackHub').textContent    = L.backHub;
+    document.getElementById('dragInstruction').textContent = L.dragInstruction;
+    document.getElementById('dragBackLabel').textContent   = L.dragBackLabel;
+    document.getElementById('clickBackLabel').textContent  = L.clickBackLabel;
+    document.getElementById('badgeClicar').textContent     = L.badgeClicar;
+    this._setCorners(L.corners);
+    TTS.setLang(L.tts);
+  },
+
+  _setCorners(ch) {
+    ['dc1','dc2','dc3','dc4'].forEach(id =>
+      document.getElementById(id).textContent = ch
+    );
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   TTS — Web Speech API
+═══════════════════════════════════════════════ */
+const TTS = {
+  supported: !!window.speechSynthesis,
+  unlocked:  false,
+  langCode:  'pt-BR',
+  lastText:  '',
+
+  init() {
+    if (!this.supported) {
+      document.getElementById('soundBanner').classList.add('hidden');
+      return;
+    }
+    speechSynthesis.getVoices();
+    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
+    document.addEventListener('pointerdown', () => this.activate(), {once:true});
+  },
+
+  setLang(code) { this.langCode = code; },
+
+  getBestVoice() {
+    const voices = speechSynthesis.getVoices();
+    const lang   = this.langCode;
+    const tests  = [
+      v => v.lang === lang && (v.name.includes('Natural') || v.name.includes('Online')),
+      v => v.lang === lang,
+      v => v.lang.startsWith(lang.split('-')[0]),
+    ];
+    for (const fn of tests) { const f = voices.find(fn); if (f) return f; }
+    return null;
+  },
+
+  speak(text) {
+    if (!this.supported || !this.unlocked || !MF._soundOn) return;
+    speechSynthesis.cancel();
+    const utt   = new SpeechSynthesisUtterance(text);
+    utt.lang    = this.langCode;
+    utt.rate    = 0.82;
+    utt.pitch   = 1.0;
+    const voice = this.getBestVoice();
+    if (voice) utt.voice = voice;
+    this._pulse(true);
+    utt.onend   = () => this._pulse(false);
+    utt.onerror = () => this._pulse(false);
+    this.lastText = text;
+    speechSynthesis.speak(utt);
+  },
+
+  activate() {
+    if (this.unlocked) { this.replay(); return; }
+    if (!this.supported) return;
+    const s = new SpeechSynthesisUtterance(' ');
+    s.volume = 0.01;
+    s.onend  = () => {
+      this.unlocked = true;
+      document.getElementById('soundBanner').classList.add('hidden');
+      this.replay();
+    };
+    speechSynthesis.speak(s);
+  },
+
+  askColor(q)    { this.lastText = q;    this.speak(q); },
+  sayColor(name) { this.lastText = name; this.speak(name); },
+  replay()       { this.speak(this.lastText); },
+
+  _pulse(on) {
+    const el = document.getElementById('btnSpeak');
+    if (!el) return;
+    if (on) el.classList.add('speaking'); else el.classList.remove('speaking');
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   GAME — flashcard
+═══════════════════════════════════════════════ */
+const Game = {
+  index: 0, flipped: false, lang: 'pt', encCount: 0,
+
+  start(lang) {
+    this.lang = lang; this.index = 0; this.flipped = false; this.encCount = 0;
+    TTS.init();
+    this.render();
+  },
+
+  render() {
+    const card = COLORS[this.index];
+    const L    = LANG[this.lang];
+    document.getElementById('card3d').classList.toggle('flipped', this.flipped);
+    const front = document.getElementById('cardFront');
+    front.style.background = card.bg;
+    front.style.color      = card.text;
+    front.style.border     = card.border || 'none';
+    document.getElementById('frontEmoji').textContent = card.icon;
+    document.getElementById('backEmoji').textContent  = card.icon;
+    document.getElementById('backName').textContent   = this.lang === 'pt' ? card.pt : card.en;
+    const n = COLORS.length, i = this.index + 1;
+    document.getElementById('progressText').textContent = i + ' / ' + n;
+    document.getElementById('progressBar').style.width  = ((i/n)*100) + '%';
+    document.getElementById('btnPrev').disabled = this.index === 0;
+    TTS.askColor(L.question);
+  },
+
+  flip() {
+    this.flipped = !this.flipped;
+    document.getElementById('card3d').classList.toggle('flipped', this.flipped);
+    if (this.flipped) {
+      const name = this.lang === 'pt' ? COLORS[this.index].pt : COLORS[this.index].en;
+      TTS.sayColor(name);
+      this.encCount++;
+      if (this.encCount % 3 === 0) {
+        const enc = LANG[this.lang].encourage[Math.floor(Math.random() * LANG[this.lang].encourage.length)];
+        this._encourage(enc);
+      }
+    } else {
+      TTS.askColor(LANG[this.lang].question);
+    }
+  },
+
+  next() {
+    if (this.index >= COLORS.length - 1) { this.celebrate(); return; }
+    this.index++; this.flipped = false; this.render();
+  },
+
+  prev() {
+    if (this.index <= 0) return;
+    this.index--; this.flipped = false; this.render();
+  },
+
+  celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.celSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.celSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    localStorage.setItem('colors_progresso', JSON.stringify({ completed:true, date:new Date().toISOString() }));
+    Nav._show('sCelebrate');
+  },
+
+  restart() {
+    this.index = 0; this.flipped = false; this.encCount = 0;
+    document.getElementById('sCelebrate').classList.remove('show');
+    Nav._show('sGame');
+    this.render();
+  },
+
+  _encourage(enc) {
+    const t = document.getElementById('encToast');
+    t.textContent = enc.text;
+    t.classList.add('show');
+    setTimeout(() => TTS.speak(enc.spoken), 1400);
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   DRAG GAME — Arrastar cores
+   Mobile fix: touch-action:none no container,
+   e.preventDefault() no pointermove,
+   body overflow:hidden durante o jogo.
+═══════════════════════════════════════════════ */
+const DragGame = {
+  lang: 'pt', roundNum: 0, totalRounds: 3, remaining: 0, activeGhost: null,
+
+  start(lang) {
+    this.lang     = lang;
+    this.roundNum = 0;
+    document.body.style.touchAction = 'none';
+    document.body.style.overflow    = 'hidden';
+    TTS.init();
+    this._newRound();
+  },
+
+  _newRound() {
+    this.roundNum++;
+    const L = LANG[this.lang];
+    document.getElementById('dragRoundBadge').textContent =
+      L.dragRound + ' ' + this.roundNum + ' / ' + this.totalRounds;
+    const indices = this._shuffle([0,1,2,3,4,5,6,7,8]).slice(0, 3);
+
+    const binsEl = document.getElementById('dragBins');
+    binsEl.innerHTML = '';
+    indices.forEach(ci => {
+      const color = COLORS[ci];
+      const bin   = document.createElement('div');
+      bin.className        = 'drag-bin';
+      bin.dataset.colorIdx = ci;
+      bin.style.background = color.bg;
+      bin.style.color      = color.text;
+      if (color.border) bin.style.border = color.border;
+      bin.innerHTML = `<span class="bin-icon">${color.icon}</span>
+                       <span class="bin-name">${this.lang === 'pt' ? color.pt : color.en}</span>`;
+      binsEl.appendChild(bin);
+    });
+
+    const pool = [];
+    indices.forEach(ci => COLOR_OBJECTS[ci].forEach(em => pool.push({ci, em})));
+    const shuffled = this._shuffle(pool);
+
+    const cardsEl = document.getElementById('dragCards');
+    cardsEl.innerHTML = '';
+    shuffled.forEach(({ci, em}) => {
+      const el = document.createElement('div');
+      el.className        = 'drag-card';
+      el.dataset.colorIdx = ci;
+      if (em.startsWith('<svg')) {
+        el.innerHTML     = em;
+        el.style.padding = '8px';
+      } else {
+        el.textContent = em;
+      }
+      this._setupDrag(el);
+      cardsEl.appendChild(el);
+    });
+
+    this.remaining = pool.length;
+    TTS.speak(LANG[this.lang].dragInstruction.replace(' 🤚',''));
+  },
+
+  _setupDrag(card) {
+    let ghostEl = null, startX = 0, startY = 0, origRect = null;
+
+    card.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (card.style.visibility === 'hidden') return;
+      if (this.activeGhost) { this.activeGhost.remove(); this.activeGhost = null; }
+      origRect = card.getBoundingClientRect();
+      startX   = e.clientX;
+      startY   = e.clientY;
+      ghostEl  = card.cloneNode(true);
+      ghostEl.style.cssText = [
+        'position:fixed',
+        `left:${origRect.left}px`,
+        `top:${origRect.top}px`,
+        `width:${origRect.width}px`,
+        `height:${origRect.height}px`,
+        'pointer-events:none',
+        'z-index:500',
+        'opacity:0.92',
+        'transition:none',
+        'box-shadow:0 10px 30px rgba(0,0,0,0.35)',
+        'transform:scale(1.12)',
+      ].join(';');
+      document.body.appendChild(ghostEl);
+      this.activeGhost  = ghostEl;
+      card.style.opacity = '0.3';
+      card.setPointerCapture(e.pointerId);
+    });
+
+    card.addEventListener('pointermove', e => {
+      if (!ghostEl) return;
+      e.preventDefault();
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      ghostEl.style.transform = `translate(${dx}px,${dy}px) scale(1.15)`;
+      ghostEl.style.display = 'none';
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      ghostEl.style.display = '';
+      document.querySelectorAll('.drag-bin').forEach(b => b.classList.remove('over'));
+      under?.closest('.drag-bin')?.classList.add('over');
+    });
+
+    card.addEventListener('pointerup', e => {
+      if (!ghostEl) return;
+      document.querySelectorAll('.drag-bin').forEach(b => b.classList.remove('over'));
+      ghostEl.style.display = 'none';
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      ghostEl.style.display = '';
+      const bin          = under?.closest('.drag-bin');
+      const cardColorIdx = parseInt(card.dataset.colorIdx);
+      if (bin && parseInt(bin.dataset.colorIdx) === cardColorIdx) {
+        ghostEl.remove(); ghostEl = null; this.activeGhost = null;
+        card.style.opacity = '1';
+        this._onCorrect(card, bin, cardColorIdx);
+      } else {
+        const gHost = ghostEl;
+        gHost.style.transition = 'transform 0.28s ease';
+        gHost.style.transform  = 'translate(0,0) scale(1)';
+        setTimeout(() => {
+          gHost.remove();
+          if (this.activeGhost === gHost) this.activeGhost = null;
+          card.style.opacity = '1';
+        }, 280);
+        ghostEl = null;
+      }
+    });
+
+    card.addEventListener('pointercancel', () => {
+      if (!ghostEl) return;
+      ghostEl.remove();
+      if (this.activeGhost === ghostEl) this.activeGhost = null;
+      ghostEl = null;
+      card.style.opacity = '1';
+      document.querySelectorAll('.drag-bin').forEach(b => b.classList.remove('over'));
+    });
+  },
+
+  _onCorrect(card, bin, colorIdx) {
+    const name = this.lang === 'pt' ? COLORS[colorIdx].pt : COLORS[colorIdx].en;
+    TTS.speak(name);
+    const binRect = bin.getBoundingClientRect();
+    const star    = document.createElement('div');
+    star.textContent = '⭐';
+    star.style.cssText = [
+      'position:fixed',
+      `left:${binRect.left + binRect.width / 2}px`,
+      `top:${binRect.top + 10}px`,
+      'font-size:3rem', 'pointer-events:none', 'z-index:600',
+      'transform:translateX(-50%)',
+    ].join(';');
+    document.body.appendChild(star);
+    star.animate([
+      { opacity:1, transform:'translateX(-50%) scale(0.7) translateY(0)' },
+      { opacity:0, transform:'translateX(-50%) scale(1.6) translateY(-70px)' },
+    ], { duration:600, easing:'ease-out' }).onfinish = () => star.remove();
+    card.animate([
+      { opacity:1, transform:'scale(1)' },
+      { opacity:0, transform:'scale(0.3)' },
+    ], { duration:250, easing:'ease-in' }).onfinish = () => {
+      card.style.visibility = 'hidden';
+      this.remaining--;
+      if (this.remaining === 0) setTimeout(() => this._roundDone(), 350);
+    };
+  },
+
+  _roundDone() {
+    const L   = LANG[this.lang];
+    const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+    const t   = document.getElementById('encToast');
+    t.textContent = enc.text;
+    t.classList.add('show');
+    TTS.speak(enc.spoken);
+    setTimeout(() => {
+      t.classList.remove('show');
+      if (this.roundNum >= this.totalRounds) { this._celebrate(); }
+      else { this._newRound(); }
+    }, 2600);
+  },
+
+  _celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.celSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.celSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('colors_progresso', JSON.stringify({ completed:true, date:new Date().toISOString() }));
+    Nav._show('sCelebrate');
+  },
+
+  _shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   SFX — Web Audio (erro engraçado + acerto festivo)
+═══════════════════════════════════════════════ */
+const SFX = {
+  _ctx: null,
+  _ac() {
+    if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return this._ctx;
+  },
+
+  /* Dois "bwooops" descendentes — como fechadura negando acesso */
+  playWrong() {
+    if (!MF._soundOn) return;
+    try {
+      const ctx = this._ac(), t = ctx.currentTime;
+      [[420, 95, t,      t + 0.38],
+       [310, 75, t + 0.50, t + 0.85]].forEach(([f0, f1, t0, t1]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(f0, t0);
+        o.frequency.exponentialRampToValueAtTime(f1, t1);
+        g.gain.setValueAtTime(0.28, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t1);
+        o.start(t0); o.stop(t1);
+      });
+    } catch(e) {}
+  },
+
+  /* Três notas ascendentes — festivo e curto */
+  playCorrect() {
+    if (!MF._soundOn) return;
+    try {
+      const ctx = this._ac(), t = ctx.currentTime;
+      [[523, t], [659, t + 0.13], [784, t + 0.26]].forEach(([freq, t0]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.28, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.28);
+        o.start(t0); o.stop(t0 + 0.28);
+      });
+    } catch(e) {}
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   CLICK GAME — Clicar na cor certa
+═══════════════════════════════════════════════ */
+const ClickGame = {
+  lang:'pt', sequence:[], step:0, totalSteps:5, _locked:false,
+
+  start(lang) {
+    this.lang     = lang;
+    this.step     = 0;
+    this._locked  = false;
+    this.sequence = this._shuffle([...Array(COLORS.length).keys()]).slice(0, this.totalSteps);
+    TTS.init();
+    this._render();
+  },
+
+  _render() {
+    const colorIdx = this.sequence[this.step];
+    const color    = COLORS[colorIdx];
+
+    /* Badge */
+    document.getElementById('clickRoundBadge').textContent =
+      (this.step + 1) + ' / ' + this.totalSteps;
+
+    /* Círculo alvo */
+    const target = document.getElementById('clickTarget');
+    target.style.background = color.bg;
+    target.style.color      = color.text;
+    target.style.border     = color.border || 'none';
+    target.textContent      = color.icon;
+    target.classList.remove('pulse');
+
+    /* 3 opções: 1 correta + 2 erradas */
+    const pool  = [...Array(COLORS.length).keys()].filter(i => i !== colorIdx);
+    const opts  = this._shuffle([colorIdx, ...this._shuffle(pool).slice(0, 2)]);
+
+    const optionsEl = document.getElementById('clickOptions');
+    optionsEl.innerHTML = '';
+    opts.forEach(ci => {
+      const c   = COLORS[ci];
+      const btn = document.createElement('button');
+      btn.className        = 'click-opt';
+      btn.style.background = c.bg;
+      btn.style.color      = c.text;
+      if (c.border) btn.style.border = c.border;
+
+      const label     = document.createElement('span');
+      label.textContent = this.lang === 'pt' ? c.pt : c.en;
+      btn.appendChild(label);
+
+      const xOv       = document.createElement('span');
+      xOv.className   = 'x-overlay';
+      xOv.textContent = '✖';
+      btn.appendChild(xOv);
+
+      btn.addEventListener('click', () => {
+        if (this._locked) return;
+        if (ci === colorIdx) this._onCorrect(colorIdx);
+        else                  this._onWrong(btn);
+      });
+
+      optionsEl.appendChild(btn);
+    });
+
+    /* TTS automático + pulsação */
+    const name = this.lang === 'pt' ? color.pt : color.en;
+    setTimeout(() => {
+      TTS.speak(name);
+      target.classList.remove('pulse');
+      void target.offsetWidth; /* force reflow para reiniciar animação */
+      target.classList.add('pulse');
+    }, 350);
+  },
+
+  _onCorrect(colorIdx) {
+    this._locked = true;
+    const L    = LANG[this.lang];
+    const name = this.lang === 'pt' ? COLORS[colorIdx].pt : COLORS[colorIdx].en;
+    const enc  = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+    SFX.playCorrect();
+    const t = document.getElementById('encToast');
+    t.textContent = enc.text;
+    t.classList.add('show');
+    setTimeout(() => TTS.speak(name + '! ' + enc.spoken), 200);
+    setTimeout(() => t.classList.remove('show'), 2600);
+    setTimeout(() => {
+      this._locked = false;
+      this.step++;
+      if (this.step >= this.totalSteps) this._celebrate();
+      else                              this._render();
+    }, 1500);
+  },
+
+  _onWrong(btn) {
+    SFX.playWrong();
+    btn.classList.add('wrong');
+    setTimeout(() => btn.classList.remove('wrong'), 720);
+  },
+
+  _celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.celSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.celSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('colors_progresso', JSON.stringify({ completed:true, date:new Date().toISOString() }));
+    Nav._show('sCelebrate');
+  },
+
+  _shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   MF — tema, fonte, som, lock, confirmHome
+═══════════════════════════════════════════════ */
+const MF = {
+  _soundOn: true,
+  _locked:  false,
+
+  init() {
+    this.applyTheme(localStorage.getItem('mf-theme') || 'light');
+    this.applyFont(parseFloat(localStorage.getItem('mf-font') || '1'));
+    this._soundOn = (localStorage.getItem('mf-sound') || 'on') === 'on';
+    this._updateSoundBtn();
+  },
+
+  applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    const b = document.getElementById('btnTheme');
+    if (b) b.textContent = t === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('mf-theme', t);
+  },
+  toggleTheme() { this.applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); },
+
+  applyFont(s) {
+    document.documentElement.style.setProperty('--fs', s);
+    localStorage.setItem('mf-font', s);
+  },
+
+  toggleSound() {
+    this._soundOn = !this._soundOn;
+    localStorage.setItem('mf-sound', this._soundOn ? 'on' : 'off');
+    this._updateSoundBtn();
+    if (!this._soundOn) speechSynthesis && speechSynthesis.cancel();
+  },
+  _updateSoundBtn() {
+    const b = document.getElementById('btnSound');
+    if (b) b.textContent = this._soundOn ? '🔊' : '🔇';
+  },
+
+  handleLock() {
+    if (!this._locked) {
+      this._locked = true;
+      document.body.dataset.locked = 'true';
+      document.getElementById('btnLock').textContent = '🔓';
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.getElementById('lockOverlay').classList.add('show');
+    }
+  },
+  _unlock() {
+    this._locked = false;
+    document.body.dataset.locked = 'false';
+    document.getElementById('btnLock').textContent = '🔒';
+    document.getElementById('lockOverlay').classList.remove('show');
+    document.exitFullscreen?.().catch(() => {});
+  },
+
+  confirmHome(e) {
+    e && e.preventDefault();
+    document.getElementById('homeOverlay').classList.add('show');
+  }
+};
+
+/* ── INIT ── */
+MF.init();
+SCREENS.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+});
+document.getElementById('sHub').style.display = 'flex';
+</script>
+</body>
+</html>

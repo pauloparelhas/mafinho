@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light" data-lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mafinho Explora!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════
+       MAFINHO DESIGN SYSTEM v1.0
+       Jogos exploratórios · Criança de 2 anos
+       Tudo maior, mais óbvio, mais acessível
+       ═══════════════════════════════════════════════ */
+    :root {
+      /* Paleta primária — cores distintas, sem tons similares */
+      --c-red:    #E53935;
+      --c-blue:   #1E88E5;
+      --c-yellow: #F9A825;
+      --c-green:  #43A047;
+      --c-orange: #FB8C00;
+      --c-purple: #8E24AA;
+      --c-pink:   #E91E63;
+      --c-teal:   #00897B;
+
+      /* Tema claro (padrão) */
+      --bg:      #F8F9FA;
+      --surface: #FFFFFF;
+      --sur2:    #F1F3F5;
+      --text:    #212121;
+      --muted:   #757575;
+      --border:  #DEE2E6;
+      --shadow:  rgba(0,0,0,0.12);
+
+      /* Tipografia — escalonável */
+      --fs:  1;  /* controlado por JS */
+      --sm:  calc(1.2rem * var(--fs));
+      --md:  calc(1.55rem * var(--fs));
+      --lg:  calc(2.1rem * var(--fs));
+      --xl:  calc(2.7rem * var(--fs));
+      --2xl: calc(3.4rem * var(--fs));
+
+      /* Componentes — grandes para toque de criança */
+      --btn-h:   72px;
+      --btn-hsm: 54px;
+      --rad:     18px;
+      --radlg:   26px;
+    }
+    [data-theme="dark"] {
+      --bg:      #0F0F1A;
+      --surface: #1A1A2E;
+      --sur2:    #16213E;
+      --text:    #F5F5F5;
+      --muted:   #9E9E9E;
+      --border:  #33335A;
+      --shadow:  rgba(0,0,0,0.5);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: var(--md);
+      line-height: 1.4;
+      min-height: 100vh;
+      transition: background .3s, color .3s;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: var(--surface);
+      box-shadow: 0 4px 16px var(--shadow);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      min-height: 72px;
+    }
+    .nav-logo {
+      font-size: var(--lg);
+      font-weight: 900;
+      flex: 1;
+      background: linear-gradient(120deg, var(--c-red), var(--c-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-btn {
+      height: var(--btn-hsm);
+      min-width: var(--btn-hsm);
+      border: none;
+      border-radius: var(--rad);
+      font-family: inherit;
+      font-size: var(--sm);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      transition: transform .12s, filter .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-btn:active { transform: scale(0.91); }
+    .btn-font  { background: var(--sur2); color: var(--text); border: 2px solid var(--border); }
+    .btn-theme { background: var(--c-yellow); color: #333; }
+    .btn-lang  { background: var(--sur2); font-size: 1.9rem; border: 2px solid var(--border); }
+
+    /* ── HERO ── */
+    .main { max-width: 960px; margin: 0 auto; padding: 32px 18px 60px; }
+    .hero { text-align: center; padding: 24px 0 40px; }
+    .hero-icon { font-size: 5rem; display: block; margin-bottom: 12px; animation: float 3s ease-in-out infinite; }
+    .hero h1   { font-size: var(--2xl); font-weight: 900; margin-bottom: 10px; }
+    .hero p    { font-size: var(--sm); color: var(--muted); }
+
+    /* ── GRADE DE TÓPICOS ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 24px;
+    }
+    .topic-card {
+      background: var(--surface);
+      border-radius: var(--radlg);
+      box-shadow: 0 6px 24px var(--shadow);
+      padding: 32px 18px;
+      text-align: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 5px solid transparent;
+      min-height: 190px;
+      justify-content: center;
+      transition: transform .15s, box-shadow .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .topic-card:hover  { transform: translateY(-6px); box-shadow: 0 14px 36px var(--shadow); }
+    .topic-card:active { transform: scale(0.94); }
+    .t-icon  { font-size: 3.8rem; line-height: 1; }
+    .t-label { font-size: var(--lg); font-weight: 900; }
+    .t-en    { font-size: var(--sm); color: var(--muted); font-weight: 700; }
+
+    /* Bordas coloridas por tópico */
+    .acc-red    { border-color: var(--c-red); }
+    .acc-blue   { border-color: var(--c-blue); }
+    .acc-green  { border-color: var(--c-green); }
+    .acc-purple { border-color: var(--c-purple); }
+    .acc-orange { border-color: var(--c-orange); }
+    .acc-yellow { border-color: var(--c-yellow); }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <span class="nav-logo">🌟 Mafinho</span>
+    <button class="nav-btn btn-font"  onclick="MF.adjustFont(-1)" title="Diminuir fonte">A−</button>
+    <button class="nav-btn btn-font"  onclick="MF.adjustFont(1)"  title="Aumentar fonte">A+</button>
+    <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()">🌙</button>
+    <button class="nav-btn btn-lang"  id="btnLang"  onclick="MF.toggleLang()">🇧🇷</button>
+  </nav>
+
+  <main class="main">
+    <div class="hero">
+      <span class="hero-icon">🚀</span>
+      <h1 data-pt="Vamos Explorar!" data-en="Let's Explore!">Vamos Explorar!</h1>
+      <p  data-pt="Escolha um tema para aprender" data-en="Choose a topic to learn">Escolha um tema para aprender</p>
+    </div>
+
+    <div class="grid">
+      <a href="cores.html" class="topic-card acc-red">
+        <span class="t-icon">🎨</span>
+        <span class="t-label" data-pt="Cores"             data-en="Colors">Cores</span>
+        <span class="t-en"    data-pt="Colors"            data-en="Cores">Colors</span>
+      </a>
+      <a href="numeros.html" class="topic-card acc-blue">
+        <span class="t-icon">🔢</span>
+        <span class="t-label" data-pt="Números"           data-en="Numbers">Números</span>
+        <span class="t-en"    data-pt="Numbers"           data-en="Números">Numbers</span>
+      </a>
+      <a href="animais.html" class="topic-card acc-green">
+        <span class="t-icon">🐾</span>
+        <span class="t-label" data-pt="Animais"           data-en="Animals">Animais</span>
+        <span class="t-en"    data-pt="Animals"           data-en="Animais">Animals</span>
+      </a>
+      <a href="formas.html" class="topic-card acc-purple">
+        <span class="t-icon">🔷</span>
+        <span class="t-label" data-pt="Formas"            data-en="Shapes">Formas</span>
+        <span class="t-en"    data-pt="Shapes"            data-en="Formas">Shapes</span>
+      </a>
+      <a href="objetos.html" class="topic-card acc-orange">
+        <span class="t-icon">🧸</span>
+        <span class="t-label" data-pt="Objetos"           data-en="Objects">Objetos</span>
+        <span class="t-en"    data-pt="Objects"           data-en="Objetos">Objects</span>
+      </a>
+      <a href="dias_semana.html" class="topic-card acc-yellow">
+        <span class="t-icon">📅</span>
+        <span class="t-label" data-pt="Dias da Semana"    data-en="Days of the Week">Dias da Semana</span>
+        <span class="t-en"    data-pt="Days of the Week"  data-en="Dias da Semana">Days of the Week</span>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    /* ── MAFINHO SHARED SYSTEM v1.0 ──
+       Copie este bloco <script> em todos os arquivos do projeto.
+       Controla: tema claro/escuro, escala de fonte, idioma PT/EN.
+       Persiste preferências no localStorage com prefixo "mf-". */
+    const MF = {
+      init() {
+        this.applyTheme(localStorage.getItem('mf-theme') || 'light');
+        this.applyFont(parseFloat(localStorage.getItem('mf-font') || '1'));
+        this.applyLang(localStorage.getItem('mf-lang') || 'pt');
+      },
+      applyTheme(t) {
+        document.documentElement.dataset.theme = t;
+        const b = document.getElementById('btnTheme');
+        if (b) b.textContent = t === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('mf-theme', t);
+      },
+      toggleTheme() { this.applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); },
+      applyFont(s) {
+        document.documentElement.style.setProperty('--fs', s);
+        localStorage.setItem('mf-font', s);
+      },
+      adjustFont(d) {
+        const s = parseFloat(localStorage.getItem('mf-font') || '1');
+        this.applyFont(Math.max(0.7, Math.min(1.5, +(s + d * 0.1).toFixed(2))));
+      },
+      applyLang(lang) {
+        document.documentElement.dataset.lang = lang;
+        const b = document.getElementById('btnLang');
+        if (b) b.textContent = lang === 'en' ? '🇨🇦' : '🇧🇷';
+        document.querySelectorAll('[data-pt]').forEach(el => {
+          el.textContent = lang === 'en' ? (el.dataset.en || el.dataset.pt) : el.dataset.pt;
+        });
+        localStorage.setItem('mf-lang', lang);
+      },
+      toggleLang() { this.applyLang(document.documentElement.dataset.lang === 'en' ? 'pt' : 'en'); }
+    };
+    MF.init();
+  </script>
+</body>
+</html>
