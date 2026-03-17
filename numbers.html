@@ -138,6 +138,10 @@
   top:auto; bottom:150px;
   font-size:var(--md);
 }
+/* ── Trace mode (caligrafia) ── */
+#sPaint.trace-mode .paint-palette { display:none; }
+#sPaint.trace-mode .paint-area { border-color:var(--c-blue); }
+#sPaint.trace-mode #paintCanvas { cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='%23333' opacity='.5'/%3E%3C/svg%3E") 12 12, crosshair; }
 </style>
 </head>
 <body>
@@ -175,6 +179,11 @@
       <span class="g-icon">🎨</span>
       <span class="g-title" id="hubPintar">Pintar</span>
       <span class="g-badge badge-ready" id="badgePintar">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('trace')">
+      <span class="g-icon">✏️</span>
+      <span class="g-title" id="hubEscrever">Escrever</span>
+      <span class="g-badge badge-ready" id="badgeEscrever">Disponível</span>
     </div>
     <div class="game-card coming">
       <span class="g-icon">💡</span>
@@ -316,9 +325,14 @@ const LANG = {
     hubFlash:'Flashcards', hubClicar:'Clicar', hubArrastar:'Arrastar',
     badgeSoon:'Em breve', backLabel:'Números',
     hubPintar:'Pintar', badgePintar:'Disponível', paintBackLabel:'Números',
+    paintColors:['vermelho','azul','verde','amarelo','roxo'],
     paintCelSub:'Você pintou todos os números!',
     paintCelSpoken:'Parabéns! Você pintou todos os números! Que artista!',
     paintMilestones:['Que artista incrível!','Pintando super bem!','Que talento!','Mandou bem demais!'],
+    hubEscrever:'Escrever', badgeEscrever:'Disponível',
+    traceCelSub:'Você escreveu todos os números!',
+    traceCelSpoken:'Parabéns! Você escreveu todos os números! Que caligrafia linda!',
+    traceMilestones:['Letra bonita!','Escrevendo super bem!','Que capricho!','Mandou bem!'],
     numWords:['Um','Dois','Três','Quatro','Cinco','Seis','Sete','Oito','Nove','Dez'],
     whatNumber:'Que número é esse?',
     itsNumber:'{n}!',
@@ -346,9 +360,14 @@ const LANG = {
     hubFlash:'Flashcards', hubClicar:'Click', hubArrastar:'Drag',
     badgeSoon:'Coming soon', backLabel:'Numbers',
     hubPintar:'Paint', badgePintar:'Available', paintBackLabel:'Numbers',
+    paintColors:['red','blue','green','yellow','purple'],
     paintCelSub:'You painted all the numbers!',
     paintCelSpoken:'Hooray! You painted all the numbers! What an artist!',
     paintMilestones:['Amazing artist!','Painting so well!','What talent!','So awesome!'],
+    hubEscrever:'Write', badgeEscrever:'Available',
+    traceCelSub:'You wrote all the numbers!',
+    traceCelSpoken:'Hooray! You wrote all the numbers! Beautiful handwriting!',
+    traceMilestones:['Beautiful writing!','Writing so well!','So neat!','Great job!'],
     numWords:['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'],
     whatNumber:'What number is this?',
     itsNumber:'{n}!',
@@ -380,7 +399,10 @@ Nav.startGame = function(lang) {
   document.getElementById('navLangBadge').style.display = '';
   if (this.currentGame === 'paint') {
     this._show('sPaint');
-    PaintGame.start(lang);
+    PaintGame.start(lang, 'paint');
+  } else if (this.currentGame === 'trace') {
+    this._show('sPaint');
+    PaintGame.start(lang, 'trace');
   } else {
     this._show('sCount');
     CountGame.start(lang);
@@ -389,9 +411,9 @@ Nav.startGame = function(lang) {
 
 Nav.restartGame = function() {
   document.getElementById('sCelebrate').classList.remove('show');
-  if (this.currentGame === 'paint') {
+  if (this.currentGame === 'paint' || this.currentGame === 'trace') {
     this._show('sPaint');
-    PaintGame.start(PaintGame.lang);
+    PaintGame.start(PaintGame.lang, PaintGame.mode);
   } else {
     this._show('sCount');
     CountGame.start(CountGame.lang);
@@ -413,6 +435,8 @@ Nav._applyLang = function(lang) {
   set('hubClicar',      L.hubClicar);
   set('hubPintar',      L.hubPintar);
   set('badgePintar',    L.badgePintar);
+  set('hubEscrever',    L.hubEscrever);
+  set('badgeEscrever',  L.badgeEscrever);
   set('countBackLabel', L.backLabel);
   set('paintBackLabel', L.paintBackLabel);
   set('btnRestart',     L.restart);
@@ -597,14 +621,19 @@ const PaintGame = {
   BRUSH:72,
   THRESHOLD:0.95,
   PALETTE:['#E53935','#1E88E5','#43A047','#F9A825','#8E24AA'],
+  mode:'paint',
 
-  start(lang) {
+  start(lang, mode) {
+    this.mode      = mode || 'paint';
+    this.BRUSH     = this.mode === 'trace' ? 24 : 72;
+    this.THRESHOLD = this.mode === 'trace' ? 0.80 : 0.95;
     this.lang      = lang;
     this.step      = 0;
     this._aborted  = false;
     const base = [1,2,3,4,5,6,7,8,9,10];
     this.sequence  = this.shuffled ? shuffle([...base]) : [...base];
     TTS.init();
+    document.getElementById('sPaint').classList.toggle('trace-mode', this.mode === 'trace');
     /* requestAnimationFrame garante que o layout foi computado após display:flex */
     requestAnimationFrame(() => {
       this._initCanvases();
@@ -705,7 +734,7 @@ const PaintGame = {
     const total = this.sequence.length;
     const i     = this.step + 1;
     const w = this._w, h = this._h;
-    const cx = w / 2, cy = h / 2 + 4;
+    const cx = w / 2, cy = h / 2;
     const isDark = document.documentElement.dataset.theme === 'dark';
 
     document.getElementById('paintProgress').textContent = i + ' / ' + total;
@@ -715,13 +744,23 @@ const PaintGame = {
     /* Limpar stroke canvas */
     this._sCtx.clearRect(0, 0, w, h);
 
-    /* Outline canvas: preenchimento sutil + borda sólida (sem pontilhado) */
+    /* Outline canvas: guia visual (diferente para paint vs trace) */
     this._oCtx.clearRect(0, 0, w, h);
     this._oCtx.save();
-    this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)';
-    this._drawNum(this._oCtx, num, cx, cy);
-    this._oCtx.strokeStyle = isDark ? '#444' : '#CCC';
-    this._oCtx.lineWidth = 2;
+    if (this.mode === 'trace') {
+      /* Trace: preenchimento mais visível + contorno grosso colorido */
+      this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)';
+      this._drawNum(this._oCtx, num, cx, cy);
+      this._oCtx.strokeStyle = isDark ? '#5C7AEA' : '#90CAF9';
+      this._oCtx.lineWidth = 4;
+      this._oCtx.setLineDash([10, 6]);
+    } else {
+      /* Paint: preenchimento sutil + borda sólida fina */
+      this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.07)';
+      this._drawNum(this._oCtx, num, cx, cy);
+      this._oCtx.strokeStyle = isDark ? '#444' : '#CCC';
+      this._oCtx.lineWidth = 2;
+    }
     if (num === 4) {
       this._oCtx.stroke(this._fourPath(cx, cy, this._getFontSize(num)));
     } else {
@@ -730,6 +769,7 @@ const PaintGame = {
       this._oCtx.textBaseline = 'middle';
       this._oCtx.strokeText(String(num), cx, cy);
     }
+    this._oCtx.setLineDash([]);
     this._oCtx.restore();
 
     /* Mask canvas: número preenchido em branco (para compositing) */
@@ -773,6 +813,12 @@ const PaintGame = {
   _buildPalette() {
     const el = document.getElementById('paintPalette');
     el.innerHTML = '';
+    if (this.mode === 'trace') {
+      /* Trace: cor de lápis fixa, sem paleta (escondida via CSS) */
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      this.currentColor = isDark ? '#CCCCCC' : '#333333';
+      return;
+    }
     this.PALETTE.forEach((color, i) => {
       const btn = document.createElement('button');
       btn.className = 'paint-swatch' + (i === 0 ? ' active' : '');
@@ -866,7 +912,7 @@ const PaintGame = {
      Garante que o número fique 100% pintado visualmente. */
   _autoFill() {
     const w = this._w, h = this._h;
-    const cx = w / 2, cy = h / 2 + 4;
+    const cx = w / 2, cy = h / 2;
     const num = this.sequence[this.step];
     this._sCtx.save();
     this._sCtx.globalCompositeOperation = 'destination-over';
@@ -875,7 +921,7 @@ const PaintGame = {
     this._sCtx.restore();
   },
 
-  _checkCompletion() {
+  async _checkCompletion() {
     const fill = this._calcFill();
     const pct  = Math.min(fill / this.THRESHOLD, 1);
     document.getElementById('paintBar').style.width = (pct * 100) + '%';
@@ -883,38 +929,49 @@ const PaintGame = {
     if (fill >= this.THRESHOLD && !this._completed) {
       this._completed = true;
 
-      /* Polimento cosmético: preenche ~5% de bordas anti-aliadas
-         que o pincel grosso não alcança. A criança JÁ pintou 95%. */
+      /* Polimento cosmético: preenche bordas anti-aliadas restantes */
       this._autoFill();
       this._redraw();
       document.getElementById('paintBar').style.width = '100%';
 
       SFX.playChime();
 
+      const num = this.sequence[this.step];
       const L = LANG[this.lang];
+      const numName = L.numWords[num - 1];
+
+      /* Fala número + cor (paint) ou só número (trace) para fixação */
+      await delay(350);
+      if (this._aborted) return;
+      if (this.mode === 'paint') {
+        const colorIdx = this.PALETTE.indexOf(this.currentColor);
+        const colorName = (L.paintColors || [])[colorIdx] || '';
+        await TTS.speakAndWait(numName + (colorName ? ' ' + colorName : ''));
+      } else {
+        await TTS.speakAndWait(numName);
+      }
+      if (this._aborted) return;
+
+      const milestones = this.mode === 'trace' ? L.traceMilestones : L.paintMilestones;
       const isMilestone = (this.step + 1) % 3 === 0 && this.step + 1 < this.sequence.length;
 
       if (isMilestone) {
-        const ms = L.paintMilestones[Math.floor(Math.random() * L.paintMilestones.length)];
+        const ms = milestones[Math.floor(Math.random() * milestones.length)];
         const t = document.getElementById('encToast');
         t.textContent = '🌟 ' + ms;
         t.classList.add('show', 'paint-pos');
-        TTS.speakAndWait(ms);
-        setTimeout(() => t.classList.remove('show', 'paint-pos'), 4300);
-        setTimeout(() => {
-          if (this._aborted) return;
-          this.step++;
-          if (this.step >= this.sequence.length) this._celebrate();
-          else this._setupNumber();
-        }, 4500);
+        await TTS.speakAndWait(ms);
+        if (this._aborted) return;
+        setTimeout(() => t.classList.remove('show', 'paint-pos'), 1500);
+        await delay(600);
       } else {
-        setTimeout(() => {
-          if (this._aborted) return;
-          this.step++;
-          if (this.step >= this.sequence.length) this._celebrate();
-          else this._setupNumber();
-        }, 1500);
+        await delay(600);
       }
+
+      if (this._aborted) return;
+      this.step++;
+      if (this.step >= this.sequence.length) this._celebrate();
+      else this._setupNumber();
     }
   },
 
@@ -942,12 +999,15 @@ const PaintGame = {
   _celebrate() {
     const L = LANG[this.lang];
     speechSynthesis && speechSynthesis.cancel();
-    setTimeout(() => TTS.speak(L.paintCelSpoken), 400);
+    const celSpoken = this.mode === 'trace' ? L.traceCelSpoken : L.paintCelSpoken;
+    const celSub    = this.mode === 'trace' ? L.traceCelSub    : L.paintCelSub;
+    const storageKey = this.mode === 'trace' ? 'numbers_trace_progresso' : 'numbers_paint_progresso';
+    setTimeout(() => TTS.speak(celSpoken), 400);
     document.getElementById('celTitle').textContent   = L.celTitle;
-    document.getElementById('celSub').textContent     = L.paintCelSub;
+    document.getElementById('celSub').textContent     = celSub;
     document.getElementById('btnRestart').textContent = L.restart;
     document.getElementById('btnBackHub').textContent = L.backHub;
-    localStorage.setItem('numbers_paint_progresso', JSON.stringify({
+    localStorage.setItem(storageKey, JSON.stringify({
       completed:true, date:new Date().toISOString()
     }));
     Nav._show('sCelebrate');
