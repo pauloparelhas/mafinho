@@ -1,27 +1,42 @@
 /* ═══════════════════════════════════════════════════
-   base.js — Mafinho Shared System v2.0
-   Fase 2 | 16/03/2026
+   base.js — Mafinho Shared System v2.1
+   Fase 2 | 17/03/2026
    Importar em todos os jogos fase 2:
-     <script src="base.js"></script>
-   Chamar MF.init() ao final do script de cada jogo.
+     <script src="base.js"><\/script>
+   Cada jogo define inline: LANG, Nav overrides
+   (startGame, restartGame, _applyLang), objetos de jogo.
+   Chamar Nav.boot([...screenIds]) ao final do inline script.
    ═══════════════════════════════════════════════════ */
 
-const MF = {
+/* ── UTILITÁRIOS ── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-  /* ── INIT ── */
+/* ═══════════════════════════════════════════════════
+   MF — tema, fonte, som, lock, confirmHome
+═══════════════════════════════════════════════════ */
+const MF = {
+  _soundOn: true,
+  _locked:  false,
+
   init() {
     this.applyTheme(localStorage.getItem('mf-theme') || 'light');
     this.applyFont(parseFloat(localStorage.getItem('mf-font') || '1'));
-    this.applyLang(localStorage.getItem('mf-lang') || 'pt');
     this._soundOn = (localStorage.getItem('mf-sound') || 'on') === 'on';
     this._updateSoundBtn();
-    this._locked = false;
   },
 
-  /* ── TEMA ── */
+  /* ── Tema ── */
   applyTheme(t) {
     document.documentElement.dataset.theme = t;
-    const b = document.getElementById('themeBtn');
+    const b = document.getElementById('btnTheme');
     if (b) b.textContent = t === 'dark' ? '☀️' : '🌙';
     localStorage.setItem('mf-theme', t);
   },
@@ -29,127 +44,267 @@ const MF = {
     this.applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
   },
 
-  /* ── FONTE ── */
+  /* ── Fonte ── */
   applyFont(s) {
     document.documentElement.style.setProperty('--fs', s);
     localStorage.setItem('mf-font', s);
   },
-  adjustFont(d) {
-    const s = parseFloat(localStorage.getItem('mf-font') || '1');
-    this.applyFont(Math.max(0.7, Math.min(1.5, +(s + d * 0.1).toFixed(2))));
-  },
 
-  /* ── IDIOMA ── */
-  applyLang(lang) {
-    document.documentElement.dataset.lang = lang;
-    const b = document.getElementById('btnLang');
-    if (b) b.textContent = lang === 'en' ? '🇨🇦' : '🇧🇷';
-    document.querySelectorAll('[data-pt]').forEach(el => {
-      el.textContent = lang === 'en' ? (el.dataset.en || el.dataset.pt) : el.dataset.pt;
-    });
-    localStorage.setItem('mf-lang', lang);
-  },
-  toggleLang() {
-    this.applyLang(document.documentElement.dataset.lang === 'en' ? 'pt' : 'en');
-  },
-  getLang() {
-    return document.documentElement.dataset.lang || 'pt';
-  },
-
-  /* ── SOM ── */
-  _soundOn: true,
+  /* ── Som ── */
   toggleSound() {
     this._soundOn = !this._soundOn;
     localStorage.setItem('mf-sound', this._soundOn ? 'on' : 'off');
     this._updateSoundBtn();
+    if (!this._soundOn) speechSynthesis && speechSynthesis.cancel();
   },
   _updateSoundBtn() {
-    const b = document.getElementById('soundBtn');
+    const b = document.getElementById('btnSound');
     if (b) b.textContent = this._soundOn ? '🔊' : '🔇';
   },
 
-  /* ── TTS ── */
-  speak(text, lang) {
-    if (!this._soundOn) return;
-    if (!window.speechSynthesis) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang  = lang === 'en' ? 'en-US' : 'pt-BR';
-    u.rate  = 0.85;
-    u.pitch = 1.1;
-    speechSynthesis.speak(u);
-  },
-
-  /* ── LOCK ── */
-  _locked: false,
+  /* ── Lock ── */
   handleLock() {
     if (!this._locked) {
       this._locked = true;
-      const b = document.getElementById('lockBtn');
-      if (b) b.textContent = '🔓';
       document.body.dataset.locked = 'true';
+      document.getElementById('btnLock').textContent = '🔓';
       document.documentElement.requestFullscreen?.().catch(() => {});
     } else {
-      this._showUnlockOverlay();
+      document.getElementById('lockOverlay').classList.add('show');
     }
-  },
-  _showUnlockOverlay() {
-    let ov = document.getElementById('mf-lock-overlay');
-    if (!ov) {
-      ov = document.createElement('div');
-      ov.id = 'mf-lock-overlay';
-      ov.innerHTML = `
-        <div class="lock-modal">
-          <div class="lock-emoji">🔒</div>
-          <div class="lock-msg">Desbloquear tela?</div>
-          <div class="lock-btns">
-            <button onclick="MF._unlock()">✅ Sim</button>
-            <button onclick="document.getElementById('mf-lock-overlay').style.display='none'">❌ Não</button>
-          </div>
-        </div>`;
-      document.body.appendChild(ov);
-    }
-    ov.style.display = 'flex';
   },
   _unlock() {
     this._locked = false;
     document.body.dataset.locked = 'false';
-    const b = document.getElementById('lockBtn');
-    if (b) b.textContent = '🔒';
-    const ov = document.getElementById('mf-lock-overlay');
-    if (ov) ov.style.display = 'none';
+    document.getElementById('btnLock').textContent = '🔒';
+    document.getElementById('lockOverlay').classList.remove('show');
     document.exitFullscreen?.().catch(() => {});
   },
 
-  /* ── NAVEGAÇÃO ── */
-  goToIndex() {
-    window.location.href = 'index.html';
+  /* ── Confirmar saída ── */
+  confirmHome(e) {
+    e && e.preventDefault();
+    document.getElementById('homeOverlay').classList.add('show');
   }
 };
 
-/* ── FUNÇÕES GLOBAIS (chamadas pelo HTML via onclick) ── */
+/* ═══════════════════════════════════════════════════
+   TTS — Web Speech API
+   speak(): fala + atualiza lastText + pulse no btnSpeak
+   speakAndWait(): retorna Promise que resolve ao terminar
+   replay(): repete lastText
+   activate(): desbloqueia TTS no primeiro toque
+═══════════════════════════════════════════════════ */
+const TTS = {
+  supported: !!window.speechSynthesis,
+  unlocked:  false,
+  langCode:  'pt-BR',
+  lastText:  '',
 
-function goToIndex() { MF.goToIndex(); }
+  init() {
+    if (!this.supported) {
+      document.getElementById('soundBanner').classList.add('hidden');
+      return;
+    }
+    speechSynthesis.getVoices();
+    speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
+    document.addEventListener('pointerdown', () => this.activate(), {once:true});
+  },
 
-function confirmHome() {
-  let ov = document.getElementById('mf-home-overlay');
-  if (!ov) {
-    ov = document.createElement('div');
-    ov.id = 'mf-home-overlay';
-    ov.innerHTML = `
-      <div class="lock-modal">
-        <div class="lock-emoji">🏠</div>
-        <div class="lock-msg">Sair do jogo?</div>
-        <div class="lock-btns">
-          <button onclick="MF.goToIndex()">✅ Sim</button>
-          <button onclick="document.getElementById('mf-home-overlay').style.display='none'">❌ Ficar</button>
-        </div>
-      </div>`;
-    document.body.appendChild(ov);
+  setLang(code) { this.langCode = code; },
+
+  getBestVoice() {
+    const voices = speechSynthesis.getVoices();
+    const lang   = this.langCode;
+    const tests  = [
+      v => v.lang === lang && (v.name.includes('Natural') || v.name.includes('Online')),
+      v => v.lang === lang,
+      v => v.lang.startsWith(lang.split('-')[0]),
+    ];
+    for (const fn of tests) { const f = voices.find(fn); if (f) return f; }
+    return null;
+  },
+
+  speak(text) {
+    if (!this.supported || !this.unlocked || !MF._soundOn) return;
+    speechSynthesis.cancel();
+    const utt   = new SpeechSynthesisUtterance(text);
+    utt.lang    = this.langCode;
+    utt.rate    = 0.85;
+    const voice = this.getBestVoice();
+    if (voice) utt.voice = voice;
+    this._pulse(true);
+    utt.onend   = () => this._pulse(false);
+    utt.onerror = () => this._pulse(false);
+    this.lastText = text;
+    speechSynthesis.speak(utt);
+  },
+
+  speakAndWait(text) {
+    return new Promise(resolve => {
+      if (!this.supported || !this.unlocked || !MF._soundOn) {
+        setTimeout(resolve, Math.max(400, text.length * 80));
+        return;
+      }
+      const utt   = new SpeechSynthesisUtterance(text);
+      utt.lang    = this.langCode;
+      utt.rate    = 0.85;
+      const voice = this.getBestVoice();
+      if (voice) utt.voice = voice;
+      this._pulse(true);
+      this.lastText = text;
+      let done = false;
+      const finish = () => { if (!done) { done = true; this._pulse(false); resolve(); } };
+      utt.onend   = finish;
+      utt.onerror = finish;
+      setTimeout(finish, 4000);
+      speechSynthesis.speak(utt);
+    });
+  },
+
+  activate() {
+    if (this.unlocked) { this.replay(); return; }
+    if (!this.supported) return;
+    const s = new SpeechSynthesisUtterance(' ');
+    s.volume = 0.01;
+    s.onend  = () => {
+      this.unlocked = true;
+      document.getElementById('soundBanner').classList.add('hidden');
+      this.replay();
+    };
+    speechSynthesis.speak(s);
+  },
+
+  replay() { if (this.lastText) this.speak(this.lastText); },
+
+  _pulse(on) {
+    const el = document.getElementById('btnSpeak');
+    if (!el) return;
+    if (on) el.classList.add('speaking'); else el.classList.remove('speaking');
   }
-  ov.style.display = 'flex';
-}
+};
 
-/* prevPhase / nextPhase — sobrescrever em cada arquivo de jogo */
-function prevPhase() {}
-function nextPhase() {}
+/* ═══════════════════════════════════════════════════
+   SFX — Web Audio
+   playCorrect(): Dó-Mi-Sol ascendente (festivo)
+   playWrong():   dois bwoops descendentes (engraçado)
+═══════════════════════════════════════════════════ */
+const SFX = {
+  _ctx: null,
+  _ac() {
+    if (!this._ctx) this._ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return this._ctx;
+  },
+
+  playCorrect() {
+    if (!MF._soundOn) return;
+    try {
+      const ctx = this._ac(), t = ctx.currentTime;
+      [[523, t], [659, t + 0.13], [784, t + 0.26]].forEach(([freq, t0]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sine';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.28, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.28);
+        o.start(t0); o.stop(t0 + 0.28);
+      });
+    } catch(e) {}
+  },
+
+  playWrong() {
+    if (!MF._soundOn) return;
+    try {
+      const ctx = this._ac(), t = ctx.currentTime;
+      [[420, 95, t,      t + 0.38],
+       [310, 75, t + 0.50, t + 0.85]].forEach(([f0, f1, t0, t1]) => {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(f0, t0);
+        o.frequency.exponentialRampToValueAtTime(f1, t1);
+        g.gain.setValueAtTime(0.28, t0);
+        g.gain.exponentialRampToValueAtTime(0.001, t1);
+        o.start(t0); o.stop(t1);
+      });
+    } catch(e) {}
+  }
+};
+
+/* ═══════════════════════════════════════════════════
+   Nav — gerenciador de telas (base)
+   Cada jogo SOBRESCREVE:
+     Nav.startGame = function(lang) { ... };
+     Nav.restartGame = function() { ... };
+     Nav._applyLang = function(lang) { ... };
+     Nav._onLeave = function() { ... }; // opcional
+═══════════════════════════════════════════════════ */
+const Nav = {
+  currentGame: null,
+  _screens:    [],
+  _onLeave:    null,
+
+  /* Registra telas e exibe o hub — chamar ao final do inline script */
+  boot(screens) {
+    this._screens = screens;
+    MF.init();
+    screens.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.getElementById('sHub').style.display = 'flex';
+  },
+
+  _show(id) {
+    this._screens.forEach(s => {
+      const el = document.getElementById(s);
+      if (!el) return;
+      el.style.display       = (s === id) ? 'flex' : 'none';
+      el.style.flexDirection = 'column';
+    });
+    if (id === 'sCelebrate') {
+      document.getElementById('sCelebrate').classList.add('show');
+    }
+  },
+
+  goLang(game) {
+    this.currentGame = game;
+    this._show('sLang');
+    document.getElementById('navLangBadge').style.display = 'none';
+  },
+
+  /* Stubs — sobrescritos por cada jogo inline */
+  startGame(lang) {},
+  restartGame() {},
+  _applyLang(lang) {},
+
+  backToHub() {
+    if (this._onLeave) this._onLeave();
+    speechSynthesis && speechSynthesis.cancel();
+    document.body.style.touchAction = '';
+    document.body.style.overflow    = '';
+    document.getElementById('sCelebrate').classList.remove('show');
+    document.getElementById('navLangBadge').style.display = 'none';
+    this._show('sHub');
+    document.documentElement.dataset.country = 'br';
+    this._setCorners('⭐');
+  },
+
+  backToLang() {
+    if (this._onLeave) this._onLeave();
+    speechSynthesis && speechSynthesis.cancel();
+    document.body.style.touchAction = '';
+    document.body.style.overflow    = '';
+    document.getElementById('sCelebrate').classList.remove('show');
+    this._show('sLang');
+    document.getElementById('navLangBadge').style.display = 'none';
+    document.documentElement.dataset.country = 'br';
+    this._setCorners('⭐');
+  },
+
+  _setCorners(ch) {
+    ['dc1','dc2','dc3','dc4'].forEach(id =>
+      document.getElementById(id).textContent = ch
+    );
+  }
+};
