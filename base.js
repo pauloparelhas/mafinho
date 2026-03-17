@@ -238,19 +238,34 @@ const SFX = {
     } catch(e) {}
   },
 
-  /* Sininho curto e discreto — sinaliza acerto sem palavras */
+  /* Sons discretos variados — sinalizam acerto sem superestimulação */
+  _chimeIdx: 0,
+  _chimes: [
+    /* 1: sininho ascendente A5→D6 */
+    [[880, 0, 0.18], [1175, 0.09, 0.22]],
+    /* 2: ding suave Dó6 */
+    [[1047, 0, 0.30]],
+    /* 3: dois toques piano Sol5→Dó6 */
+    [[784, 0, 0.16], [1047, 0.12, 0.20]],
+    /* 4: toque agudo Mi6 */
+    [[1319, 0, 0.25]],
+    /* 5: harpa Fá5→Lá5 */
+    [[698, 0, 0.14], [880, 0.08, 0.22]],
+  ],
   playChime() {
     if (!MF._soundOn) return;
     try {
       const ctx = this._ac(), t = ctx.currentTime;
-      [[880, t, 0.18], [1175, t + 0.09, 0.24]].forEach(([freq, t0, dur]) => {
+      const notes = this._chimes[this._chimeIdx % this._chimes.length];
+      this._chimeIdx++;
+      notes.forEach(([freq, offset, dur]) => {
         const o = ctx.createOscillator(), g = ctx.createGain();
         o.connect(g); g.connect(ctx.destination);
         o.type = 'sine';
         o.frequency.value = freq;
-        g.gain.setValueAtTime(0.18, t0);
-        g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
-        o.start(t0); o.stop(t0 + dur);
+        g.gain.setValueAtTime(0.16, t + offset);
+        g.gain.exponentialRampToValueAtTime(0.001, t + offset + dur);
+        o.start(t + offset); o.stop(t + offset + dur);
       });
     } catch(e) {}
   },
