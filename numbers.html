@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
 <title>Números — Mafinho v2</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap"
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;700;800;900&display=swap"
       rel="stylesheet" media="print" onload="this.media='all'"/>
 <link rel="stylesheet" href="base.css"/>
 <style>
@@ -267,6 +267,11 @@
 /* ── Trace mode (caligrafia) ── */
 #sPaint.trace-mode .paint-palette { display:none; }
 #sPaint.trace-mode .paint-area { border-color:var(--c-blue); }
+.trace-hand {
+  position:absolute; pointer-events:none; z-index:10;
+  opacity:0; will-change:transform;
+  transition:opacity 0.2s;
+}
 </style>
 </head>
 <body>
@@ -490,6 +495,45 @@ const NUM_COLORS = [
 
 const THEMES = ['⚽','🚀','✈️','🦖','🚗','🚁','⛵','🦸‍♂️','🏀','🚲','🤖','🦁','🏎️','🏍️'];
 
+/* Caminhos de traço para animação da mãozinha (caligrafia).
+   Cada número → array de sub-strokes, cada sub-stroke → array de [x%, y%] do canvas.
+   Número 4: 3 linhas retas (angular, sem diagonal). */
+const TRACE_PATHS = {
+  1: [[[.50,.18],[.50,.82]]],
+  2: [[[.38,.28],[.44,.20],[.54,.18],[.60,.24],[.60,.34],[.54,.44],[.44,.58],[.38,.72],[.36,.80],[.62,.80]]],
+  3: [[[.36,.24],[.44,.18],[.54,.18],[.60,.26],[.58,.36],[.50,.44],[.56,.52],[.60,.62],[.58,.72],[.50,.80],[.40,.80],[.36,.74]]],
+  4: [[[.35,.16],[.35,.55]],[[.35,.55],[.65,.55]],[[.65,.16],[.65,.84]]],
+  5: [[[.42,.18],[.42,.48]],[[.42,.48],[.52,.46],[.60,.54],[.58,.68],[.48,.78],[.38,.72]],[[.42,.18],[.58,.18]]],
+  6: [[[.56,.22],[.48,.18],[.40,.22],[.36,.34],[.36,.52],[.38,.66],[.46,.78],[.56,.78],[.60,.68],[.58,.56],[.50,.50],[.40,.54]]],
+  7: [[[.36,.18],[.62,.18],[.46,.82]]],
+  8: [[[.50,.48],[.42,.40],[.38,.30],[.42,.20],[.50,.18],[.58,.20],[.62,.30],[.58,.40],[.50,.48],[.42,.56],[.38,.66],[.42,.76],[.50,.80],[.58,.76],[.62,.66],[.58,.56],[.50,.48]]],
+  9: [[[.58,.48],[.56,.38],[.50,.22],[.42,.20],[.38,.28],[.38,.38],[.42,.46],[.52,.50],[.58,.48],[.56,.62],[.50,.80]]],
+  10:[[[.35,.25],[.35,.75]],[[.62,.25],[.57,.25],[.53,.35],[.53,.65],[.57,.75],[.65,.75],[.70,.65],[.70,.35],[.65,.25],[.62,.25]]]
+};
+
+/* SVG da mãozinha estilo Mario Paint — luva branca cartoon com dedo indicador apontando para baixo */
+const HAND_SVG = '<svg viewBox="0 0 40 60" width="40" height="60" xmlns="http://www.w3.org/2000/svg">' +
+  '<defs><filter id="hsh"><feDropShadow dx="1" dy="2" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs>' +
+  '<g filter="url(#hsh)">' +
+  /* Punho (cuff azul) */
+  '<rect x="8" y="1" width="24" height="8" rx="4" fill="#4285F4" stroke="#1a1a1a" stroke-width="1.6"/>' +
+  /* Palma da luva (arredondada, fofa) */
+  '<path d="M6,9 C3,9 2,14 2,18 L2,24 C2,28 5,31 9,31 L13,31 L27,31 L31,31 C35,31 38,28 38,24 L38,18 C38,14 37,9 34,9 Z" fill="white" stroke="#1a1a1a" stroke-width="1.8" stroke-linejoin="round"/>' +
+  /* Polegar (direita) */
+  '<ellipse cx="36" cy="24" rx="5" ry="4.5" fill="white" stroke="#1a1a1a" stroke-width="1.5" transform="rotate(-10,36,24)"/>' +
+  /* Dedos curvados (embaixo da palma) */
+  '<path d="M9,31 C8,36 11,38 14,36" fill="white" stroke="#1a1a1a" stroke-width="1.3" stroke-linejoin="round"/>' +
+  '<path d="M18,31 C17,37 20,39 23,37" fill="white" stroke="#1a1a1a" stroke-width="1.3" stroke-linejoin="round"/>' +
+  '<path d="M27,31 C28,36 31,37 33,34" fill="white" stroke="#1a1a1a" stroke-width="1.3" stroke-linejoin="round"/>' +
+  /* Dedo indicador apontando para baixo */
+  '<path d="M14,35 L13,50 C13,54 16,58 20,58 C24,58 27,54 27,50 L26,35" fill="white" stroke="#1a1a1a" stroke-width="1.8" stroke-linejoin="round"/>' +
+  /* Unha */
+  '<ellipse cx="20" cy="55" rx="3.5" ry="2.5" fill="#FFE4E4" stroke="#dbb" stroke-width="0.8"/>' +
+  /* Detalhes da luva — costuras/dobras */
+  '<path d="M14,19 C16,21 18,21 20,19" fill="none" stroke="#ddd" stroke-width="0.9"/>' +
+  '<path d="M22,19 C24,21 26,21 28,19" fill="none" stroke="#ddd" stroke-width="0.9"/>' +
+  '</g></svg>';
+
 /* ═══════════════════════════════════════════════
    TEXTOS PT / EN
 ═══════════════════════════════════════════════ */
@@ -508,6 +552,7 @@ const LANG = {
     paintCelSpoken:'Parabéns! Você pintou todos os números! Que artista!',
     paintMilestones:['Que artista incrível!','Pintando super bem!','Que talento!','Mandou bem demais!'],
     hubEscrever:'Escrever', badgeEscrever:'Disponível',
+    traceInstruction:'Cubra o número',
     traceCelSub:'Você escreveu todos os números!',
     traceCelSpoken:'Parabéns! Você escreveu todos os números! Que caligrafia linda!',
     traceMilestones:['Letra bonita!','Escrevendo super bem!','Que capricho!','Mandou bem!'],
@@ -557,6 +602,7 @@ const LANG = {
     paintCelSpoken:'Hooray! You painted all the numbers! What an artist!',
     paintMilestones:['Amazing artist!','Painting so well!','What talent!','So awesome!'],
     hubEscrever:'Write', badgeEscrever:'Available',
+    traceInstruction:'Cover number',
     traceCelSub:'You wrote all the numbers!',
     traceCelSpoken:'Hooray! You wrote all the numbers! Beautiful handwriting!',
     traceMilestones:['Beautiful writing!','Writing so well!','So neat!','Great job!'],
@@ -857,8 +903,8 @@ const PaintGame = {
 
   start(lang, mode) {
     this.mode      = mode || 'paint';
-    this.BRUSH     = this.mode === 'trace' ? 24 : 72;
-    this.THRESHOLD = this.mode === 'trace' ? 0.75 : 0.95;
+    this.BRUSH     = this.mode === 'trace' ? 18 : 72;
+    this.THRESHOLD = this.mode === 'trace' ? 0.70 : 0.95;
     this.lang      = lang;
     this.step      = 0;
     this._aborted  = false;
@@ -874,7 +920,7 @@ const PaintGame = {
     });
   },
 
-  abort() { this._aborted = true; this._painting = false; },
+  abort() { this._aborted = true; this._painting = false; this._stopHandHint(); },
 
   toggleShuffle() {
     this.shuffled = !this.shuffled;
@@ -962,7 +1008,7 @@ const PaintGame = {
   /* Desenha número como traço FINO (Nunito 400) — caligrafia.
      Resultado: linha única fina, não forma grossa para preencher. */
   _drawTraceNum(ctx, num, cx, cy) {
-    ctx.font = '400 ' + this._getFontSize(num) + 'px Nunito, sans-serif';
+    ctx.font = '300 ' + this._getFontSize(num) + 'px Nunito, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(String(num), cx, cy);
@@ -989,9 +1035,9 @@ const PaintGame = {
     this._oCtx.clearRect(0, 0, w, h);
     this._oCtx.save();
     if (this.mode === 'trace') {
-      /* Trace: número fino (Nunito 400) como rascunho de lápis.
+      /* Trace: número fino (Nunito 300) como rascunho de lápis.
          Traço ÚNICO — a criança escreve por cima. */
-      this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.18)';
+      this._oCtx.fillStyle = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(0,0,0,0.12)';
       this._drawTraceNum(this._oCtx, num, cx, cy);
     } else {
       /* Paint: preenchimento sutil + borda sólida fina */
@@ -1034,9 +1080,15 @@ const PaintGame = {
     /* Redraw paint canvas (vazio) */
     this._redraw();
 
-    /* TTS: fala o número */
-    const name = LANG[this.lang].numWords[num - 1];
-    setTimeout(() => TTS.speak(name), 300);
+    /* TTS: fala instrução */
+    const L = LANG[this.lang];
+    const name = L.numWords[num - 1];
+    if (this.mode === 'trace') {
+      setTimeout(() => TTS.speak(L.traceInstruction + ' ' + name), 300);
+      this._playHandHint(num);
+    } else {
+      setTimeout(() => TTS.speak(name), 300);
+    }
   },
 
   _redraw() {
@@ -1081,6 +1133,7 @@ const PaintGame = {
   _onDown(e) {
     if (this._completed || this._aborted) return;
     e.preventDefault();
+    this._stopHandHint();
     this._painting = true;
     this._pCanvas.setPointerCapture(e.pointerId);
     const rect = this._pCanvas.getBoundingClientRect();
@@ -1259,6 +1312,88 @@ const PaintGame = {
       completed:true, date:new Date().toISOString()
     }));
     Nav._show('sCelebrate');
+  },
+
+  /* ── Mãozinha animada (trace mode) ── */
+  _handEl: null,
+  _handActive: false,
+
+  _getHandEl() {
+    if (!this._handEl) {
+      const el = document.createElement('div');
+      el.className = 'trace-hand';
+      el.innerHTML = HAND_SVG;
+      document.getElementById('paintArea').appendChild(el);
+      this._handEl = el;
+    }
+    return this._handEl;
+  },
+
+  _stopHandHint() {
+    this._handActive = false;
+    if (this._handEl) {
+      this._handEl.style.transition = 'opacity 0.15s';
+      this._handEl.style.opacity = '0';
+    }
+  },
+
+  async _playHandHint(num) {
+    const paths = TRACE_PATHS[num];
+    if (!paths) return;
+    this._handActive = true;
+    const hand = this._getHandEl();
+    const area = document.getElementById('paintArea');
+    const w = area.clientWidth;
+    const h = area.clientHeight;
+    /* Offset: fingertip is at bottom-center of SVG (20px in, 58px down) */
+    const ox = 20, oy = 58;
+
+    await delay(600);
+    if (!this._handActive) return;
+
+    for (let s = 0; s < paths.length; s++) {
+      const stroke = paths[s];
+      if (!this._handActive) return;
+
+      /* Mover para início do traço (sem transição) */
+      hand.style.transition = 'none';
+      hand.style.left = (stroke[0][0] * w - ox) + 'px';
+      hand.style.top  = (stroke[0][1] * h - oy) + 'px';
+
+      /* Fade in */
+      await delay(50);
+      if (!this._handActive) return;
+      hand.style.transition = 'opacity 0.2s';
+      hand.style.opacity = '0.88';
+      await delay(250);
+
+      /* Percorrer pontos do traço */
+      for (let p = 1; p < stroke.length; p++) {
+        if (!this._handActive) return;
+        const dx = (stroke[p][0] - stroke[p-1][0]) * w;
+        const dy = (stroke[p][1] - stroke[p-1][1]) * h;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dur = Math.max(180, Math.round(dist / 0.14));
+
+        hand.style.transition = 'left ' + dur + 'ms ease-in-out, top ' + dur + 'ms ease-in-out';
+        hand.style.left = (stroke[p][0] * w - ox) + 'px';
+        hand.style.top  = (stroke[p][1] * h - oy) + 'px';
+        await delay(dur);
+      }
+
+      /* Entre sub-strokes: levantar (fade out) */
+      if (s < paths.length - 1) {
+        hand.style.transition = 'opacity 0.15s';
+        hand.style.opacity = '0';
+        await delay(300);
+      }
+    }
+
+    /* Fim: fade out */
+    if (!this._handActive) return;
+    hand.style.transition = 'opacity 0.35s';
+    hand.style.opacity = '0';
+    this._handActive = false;
   },
 };
 
