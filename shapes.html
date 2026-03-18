@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light" data-country="br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Formas — Mafinho v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="base.css"/>
+<style>
+/* ═══════════════════════════════════════════
+   CSS ESPECÍFICO — shapes.html
+═══════════════════════════════════════════ */
+.hub-hero { border-bottom-color:var(--c-purple); }
+.game-card.ready { border-color:var(--c-purple); }
+
+/* ── Flashcard ── */
+#sFlash {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:20px 16px 32px; gap:0;
+}
+.card-row   { display:flex; align-items:center; gap:14px; width:100%; max-width:520px; }
+.card-scene { flex:1; height:320px; perspective:1000px; min-width:0; }
+.card-3d {
+  width:100%; height:100%; position:relative;
+  transform-style:preserve-3d; transition:transform .5s;
+  cursor:pointer; border-radius:28px;
+}
+.card-3d.flipped { transform:rotateY(180deg); }
+.card-face {
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:28px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px; padding:24px;
+}
+.card-back  { transform:rotateY(180deg); background:var(--surface); border:5px solid var(--border); }
+.card-emoji      { font-size:7rem; line-height:1; user-select:none; }
+.card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; color:inherit; }
+.card-back-name  { font-size:3rem; font-weight:900; text-align:center; line-height:1.1; }
+.flash-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; margin-top:16px; }
+#sFlash .card-nav { max-width:520px; }
+#sFlash .progress-bar-wrap { max-width:520px; }
+
+/* ── Clicar ── */
+#sClick {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:12px 12px 8px; gap:10px;
+}
+#sClick .back-link { margin-bottom:0; }
+.click-instruction { font-size:var(--xl); font-weight:900; text-align:center; color:var(--country-accent); }
+.click-options { display:flex; gap:14px; justify-content:center; width:100%; max-width:420px; }
+.click-opt {
+  width:110px; height:110px; border:none; border-radius:var(--radlg);
+  font-size:4.5rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--surface); border:4px solid var(--border);
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
+  position:relative; overflow:hidden;
+  -webkit-tap-highlight-color:transparent; transition:transform .12s;
+}
+.click-opt:active { transform:scale(0.94); }
+.click-opt .x-overlay {
+  position:absolute; inset:0; background:rgba(0,0,0,0.55);
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem; color:white; border-radius:inherit;
+  opacity:0; pointer-events:none;
+}
+@keyframes xShake {
+  0%  { transform:translate(0,0) rotate(0deg); opacity:1; }
+  15% { transform:translate(-10px,0) rotate(-7deg); }
+  30% { transform:translate(10px,0) rotate(7deg); }
+  45% { transform:translate(-8px,0) rotate(-5deg); }
+  60% { transform:translate(8px,0) rotate(5deg); }
+  75% { transform:translate(-4px,0) rotate(-2deg); }
+  88% { opacity:1; }
+  100%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+}
+.click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
+.click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
+/* ── Encontrar ── */
+#sFind {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:12px 12px 8px; gap:10px;
+}
+#sFind .back-link { margin-bottom:0; }
+.find-instruction { font-size:var(--lg); font-weight:900; text-align:center; color:var(--text); line-height:1.4; }
+.find-target-word { display:inline-block; padding:2px 14px; border-radius:12px; background:var(--c-purple); color:white; font-weight:900; }
+.find-grid {
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  gap:12px; max-width:360px; padding:8px; flex:1; align-content:center;
+}
+.find-item {
+  width:80px; height:80px; border-radius:var(--radlg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.6rem; cursor:pointer;
+  background:var(--surface); border:3px solid var(--border);
+  box-shadow:0 3px 12px var(--shadow);
+  transition:transform .15s, opacity .25s;
+  -webkit-tap-highlight-color:transparent;
+}
+.find-item:active { transform:scale(0.92); }
+@keyframes findPop {
+  0%   { transform:scale(1); opacity:1; }
+  40%  { transform:scale(1.3); opacity:1; }
+  100% { transform:scale(0); opacity:0; }
+}
+.find-item.found { animation:findPop .45s ease forwards; pointer-events:none; }
+@keyframes findShake {
+  0%,100% { transform:translateX(0); }
+  20%     { transform:translateX(-6px); }
+  40%     { transform:translateX(6px); }
+  60%     { transform:translateX(-4px); }
+  80%     { transform:translateX(4px); }
+}
+.find-item.wrong { animation:findShake .4s ease; }
+.find-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
+/* ── Pintar ── */
+#sPaint {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:4px 12px 4px; gap:4px;
+}
+#sPaint .back-link { min-height:52px; margin-bottom:0; }
+.paint-area {
+  position:relative;
+  width:100%; max-width:340px; height:320px;
+  border-radius:var(--radlg);
+  background:var(--surface);
+  border:3px solid var(--border);
+  box-shadow:0 4px 16px var(--shadow);
+  overflow:hidden; touch-action:none;
+}
+.paint-area canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
+#outlineCanvas { z-index:1; }
+#paintCanvas   { z-index:2; cursor:crosshair; }
+.paint-palette { display:flex; gap:8px; justify-content:center; padding:4px 0; }
+.paint-swatch {
+  width:64px; height:64px; border-radius:50%;
+  border:4px solid transparent; cursor:pointer; margin:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s, border-color .15s;
+  box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+.paint-swatch:active { transform:scale(0.91); }
+.paint-swatch.active {
+  border-color:white;
+  box-shadow:0 0 0 3px var(--text), 0 4px 14px rgba(0,0,0,0.35);
+  transform:scale(1.15);
+}
+#sPaint .card-nav { max-width:340px; }
+#sPaint .progress-bar-wrap { max-width:340px; }
+.paint-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
+.enc-toast.paint-pos { top:auto; bottom:150px; font-size:var(--md); }
+</style>
+</head>
+<body>
+
+<div class="theme-stripe"></div>
+<span class="corner-deco tl" id="dc1">⭐</span>
+<span class="corner-deco tr" id="dc2">⭐</span>
+<span class="corner-deco bl" id="dc3">⭐</span>
+<span class="corner-deco br" id="dc4">⭐</span>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <a id="navLogo" href="#" class="nav-btn btn-home" onclick="MF.confirmHome(event)" title="Início">🏠</a>
+  <span class="nav-title">🔷 <span id="navTitle">Formas</span></span>
+  <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
+  <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
+  <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
+  <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
+</nav>
+
+<!-- ═══ Hub ═══ -->
+<div id="sHub">
+  <div class="hub-hero">
+    <span class="hub-hero-icon">🔷</span>
+    <h1>Formas</h1>
+    <p id="hubSub">Conheça as formas!</p>
+  </div>
+  <div class="hub-grid">
+    <div class="game-card ready" onclick="Nav.goLang('flash')">
+      <span class="g-icon">💡</span>
+      <span class="g-title" id="hubFlash">Flashcards</span>
+      <span class="g-badge badge-ready" id="badgeFlash">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('click')">
+      <span class="g-icon">🎯</span>
+      <span class="g-title" id="hubClicar">Clicar</span>
+      <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('find')">
+      <span class="g-icon">🔍</span>
+      <span class="g-title" id="hubEncontrar">Encontrar</span>
+      <span class="g-badge badge-ready" id="badgeEncontrar">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('paint')">
+      <span class="g-icon">🎨</span>
+      <span class="g-title" id="hubPintar">Pintar</span>
+      <span class="g-badge badge-ready" id="badgePintar">Disponível</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Idioma ═══ -->
+<div id="sLang">
+  <div class="lang-intro">
+    <h1>🔷 Mafinho Explora!</h1>
+    <p>Escolha o idioma · Choose the language</p>
+  </div>
+  <div class="lang-cards">
+    <button class="lang-card lang-card-br" onclick="Nav.startGame('pt')">
+      <span class="lang-flag">🇧🇷</span><span class="lang-name">Português</span><span class="lang-sub">Brasil</span>
+    </button>
+    <button class="lang-card lang-card-ca" onclick="Nav.startGame('en')">
+      <span class="lang-flag">🇨🇦</span><span class="lang-name">English</span><span class="lang-sub">Canada</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ Flashcard ═══ -->
+<div id="sFlash">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="flashBackLabel">Formas</span></button>
+  <div class="card-row">
+    <div class="card-scene">
+      <div class="card-3d" id="flashCard3d" onclick="FlashGame.flip()">
+        <div class="card-face" id="flashFront" style="color:white;">
+          <span class="card-emoji" id="flashEmoji">⭕</span>
+          <span class="card-tap-hint" id="flashTapHint">Qual forma?</span>
+        </div>
+        <div class="card-face card-back">
+          <span class="card-emoji" id="flashBackEmoji">⭕</span>
+          <span class="card-back-name" id="flashName">Círculo</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-speak-side" id="flashSpeak" onclick="TTS.replay()">🔊</button>
+  </div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="flashPrev" onclick="FlashGame.prev()">◀</button>
+    <button class="btn-nav btn-next" id="flashNext" onclick="FlashGame.next()">▶</button>
+  </div>
+  <div class="flash-progress" id="flashProgress">1 / 8</div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="flashBar" style="width:12.5%"></div></div>
+</div>
+
+<!-- ═══ Clicar ═══ -->
+<div id="sClick">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="clickBackLabel">Formas</span></button>
+  <p class="click-instruction" id="clickInstruction"></p>
+  <div class="click-options" id="clickOptions"></div>
+  <p class="click-round" id="clickRoundBadge"></p>
+</div>
+
+<!-- ═══ Encontrar ═══ -->
+<div id="sFind">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="findBackLabel">Formas</span></button>
+  <p class="find-instruction" id="findInstruction"></p>
+  <div class="find-grid" id="findGrid"></div>
+  <p class="find-round" id="findRoundBadge"></p>
+</div>
+
+<!-- ═══ Pintar ═══ -->
+<div id="sPaint">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="paintBackLabel">Formas</span></button>
+  <div class="paint-area" id="paintArea">
+    <canvas id="outlineCanvas"></canvas>
+    <canvas id="paintCanvas"></canvas>
+  </div>
+  <div class="paint-palette" id="paintPalette"></div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="paintPrev" onclick="PaintGame.prev()">◀</button>
+    <button class="ctrl-btn" id="paintShuffleBtn" onclick="PaintGame.toggleShuffle()" title="Embaralhar">🔀</button>
+    <button class="btn-nav btn-next" id="paintNext" onclick="PaintGame.next()">▶</button>
+  </div>
+  <div class="paint-progress" id="paintProgress">1 / 8</div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="paintBar" style="width:0%"></div></div>
+</div>
+
+<!-- ═══ Celebração ═══ -->
+<div id="sCelebrate">
+  <div class="stars">⭐⭐⭐⭐⭐</div>
+  <div class="cel-emoji">🎉</div>
+  <div class="cel-title" id="celTitle">Muito bem!</div>
+  <div class="cel-sub" id="celSub">Você conhece todas as formas!</div>
+  <button class="btn-big" onclick="Nav.restartGame()" id="btnRestart">Recomeçar 🔄</button>
+  <button class="btn-mid" onclick="Nav.backToHub()" id="btnBackHub">← Formas</button>
+</div>
+
+<div class="enc-toast" id="encToast">⭐ Muito bem!</div>
+<button class="sound-banner" id="soundBanner" onclick="TTS.activate()">🔊 Toque aqui para ativar o som!</button>
+<div class="mf-overlay" id="lockOverlay"><div class="mf-modal"><div class="mf-modal-icon">🔒</div><div class="mf-modal-msg">Desbloquear tela?</div><div class="mf-modal-btns"><button onclick="MF.unlock()" class="mf-modal-btn yes">Sim</button><button onclick="MF.cancelUnlock()" class="mf-modal-btn no">Não</button></div></div></div>
+<div class="mf-overlay" id="homeOverlay"><div class="mf-modal"><div class="mf-modal-icon">🏠</div><div class="mf-modal-msg">Voltar ao início?</div><div class="mf-modal-btns"><button onclick="MF.goHome()" class="mf-modal-btn yes">Sim</button><button onclick="MF.cancelHome()" class="mf-modal-btn no">Não</button></div></div></div>
+
+<script src="base.js"></script>
+<script>
+/* ═══════════════════════════════════════════════
+   DADOS — Formas
+═══════════════════════════════════════════════ */
+const SHAPE_COLORS = [
+  '#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA',
+  '#00897B','#F06292','#F9A825'
+];
+
+const SHAPES = [
+  { emoji:'⭕', pt:'Círculo',   en:'Circle',    draw:'circle' },
+  { emoji:'🟦', pt:'Quadrado',  en:'Square',    draw:'square' },
+  { emoji:'🔺', pt:'Triângulo', en:'Triangle',  draw:'triangle' },
+  { emoji:'⭐', pt:'Estrela',   en:'Star',      draw:'star' },
+  { emoji:'❤️', pt:'Coração',   en:'Heart',     draw:'heart' },
+  { emoji:'🔷', pt:'Losango',   en:'Diamond',   draw:'diamond' },
+  { emoji:'🟫', pt:'Retângulo', en:'Rectangle', draw:'rectangle' },
+  { emoji:'🥚', pt:'Oval',      en:'Oval',      draw:'oval' },
+];
+
+/* Desenha forma no canvas. cx,cy = centro, s = tamanho (~250px) */
+function drawShape(ctx, type, cx, cy, s) {
+  ctx.beginPath();
+  const r = s / 2;
+  switch (type) {
+    case 'circle':
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      break;
+    case 'square':
+      ctx.rect(cx - r, cy - r, s, s);
+      break;
+    case 'triangle': {
+      const h = s * 0.866;
+      ctx.moveTo(cx, cy - h / 2);
+      ctx.lineTo(cx + r, cy + h / 2);
+      ctx.lineTo(cx - r, cy + h / 2);
+      ctx.closePath();
+      break;
+    }
+    case 'star': {
+      for (let i = 0; i < 10; i++) {
+        const rad = (i % 2 === 0 ? r : r * 0.42);
+        const angle = Math.PI / 2 + i * Math.PI / 5;
+        const x = cx + rad * Math.cos(-angle);
+        const y = cy + rad * Math.sin(-angle);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      break;
+    }
+    case 'heart': {
+      const w = s * 0.52, h2 = s * 0.48;
+      ctx.moveTo(cx, cy + h2);
+      ctx.bezierCurveTo(cx - w * 1.3, cy, cx - w, cy - h2, cx, cy - h2 * 0.3);
+      ctx.bezierCurveTo(cx + w, cy - h2, cx + w * 1.3, cy, cx, cy + h2);
+      break;
+    }
+    case 'diamond':
+      ctx.moveTo(cx, cy - r);
+      ctx.lineTo(cx + r * 0.65, cy);
+      ctx.lineTo(cx, cy + r);
+      ctx.lineTo(cx - r * 0.65, cy);
+      ctx.closePath();
+      break;
+    case 'rectangle':
+      ctx.rect(cx - r, cy - r * 0.6, s, s * 0.6);
+      break;
+    case 'oval':
+      ctx.ellipse(cx, cy, r, r * 0.62, 0, 0, Math.PI * 2);
+      break;
+  }
+  ctx.fill();
+}
+
+const LANG = {
+  pt: {
+    country:'br', tts:'pt-BR',
+    navTitle:'Formas', navBadge:'🇧🇷 PT', corners:'⭐',
+    hubSub:'Conheça as formas!',
+    hubFlash:'Flashcards', badgeFlash:'Disponível',
+    hubClicar:'Clicar', badgeClicar:'Disponível',
+    hubEncontrar:'Encontrar', badgeEncontrar:'Disponível',
+    hubPintar:'Pintar', badgePintar:'Disponível',
+    backLabel:'Formas',
+    flashBackLabel:'Formas', flashTapHint:'Qual forma?',
+    flashQuestion:'Qual forma é essa?',
+    flashCelSub:'Você conhece todas as formas!',
+    flashCelSpoken:'Parabéns! Você conhece todas as formas! Que inteligente!',
+    clickBackLabel:'Formas', clickCmd:'Qual é',
+    clickCelSub:'Você acertou todas as formas!',
+    clickCelSpoken:'Parabéns! Você acertou todas as formas! Muito bem!',
+    findBackLabel:'Formas', findCmd:'Toque nos',
+    findRound:'Rodada',
+    findCelSub:'Você encontrou todas as formas!',
+    findCelSpoken:'Parabéns! Você encontrou todas as formas! Que observador!',
+    paintBackLabel:'Formas',
+    paintColors:['vermelho','azul','verde','amarelo','roxo'],
+    paintCelSub:'Você pintou todas as formas!',
+    paintCelSpoken:'Parabéns! Você pintou todas as formas! Que artista!',
+    paintMilestones:['Que artista!','Pintando super bem!','Que talento!','Mandou bem!'],
+    celTitle:'Muito bem!',
+    restart:'Recomeçar 🔄', backHub:'← Formas',
+    encourage:[
+      {text:'Isso! Muito bem! ⭐',   spoken:'Isso! Muito bem!'},
+      {text:'Parabéns! 🌟',          spoken:'Parabéns!'},
+      {text:'Uau! Que esperto! 🎉',  spoken:'Uau! Que esperto!'},
+      {text:'Eba! Acertou! ⭐',      spoken:'Eba! Acertou!'},
+      {text:'Que inteligente! 🌟',   spoken:'Que inteligente!'},
+      {text:'Muito bem! 🎉',         spoken:'Muito bem!'},
+      {text:'Boa! Boa! Boa! ⭐',     spoken:'Boa! Boa! Boa!'},
+      {text:'Que criança boa! 🌟',   spoken:'Que criança boa!'},
+      {text:'Eba! Que legal! 🎉',    spoken:'Eba! Que legal!'},
+      {text:'Que maravilha! 🌟',     spoken:'Que maravilha!'},
+    ],
+  },
+  en: {
+    country:'ca', tts:'en-US',
+    navTitle:'Shapes', navBadge:'🇨🇦 EN', corners:'🍁',
+    hubSub:'Learn the shapes!',
+    hubFlash:'Flashcards', badgeFlash:'Available',
+    hubClicar:'Click', badgeClicar:'Available',
+    hubEncontrar:'Find', badgeEncontrar:'Available',
+    hubPintar:'Paint', badgePintar:'Available',
+    backLabel:'Shapes',
+    flashBackLabel:'Shapes', flashTapHint:'What shape?',
+    flashQuestion:'What shape is this?',
+    flashCelSub:'You know all the shapes!',
+    flashCelSpoken:'Hooray! You know all the shapes! So smart!',
+    clickBackLabel:'Shapes', clickCmd:'Where is the',
+    clickCelSub:'You got all the shapes right!',
+    clickCelSpoken:'Hooray! You got all the shapes right! Amazing!',
+    findBackLabel:'Shapes', findCmd:'Tap the',
+    findRound:'Round',
+    findCelSub:'You found all the shapes!',
+    findCelSpoken:'Hooray! You found all the shapes! Great eyes!',
+    paintBackLabel:'Shapes',
+    paintColors:['red','blue','green','yellow','purple'],
+    paintCelSub:'You painted all the shapes!',
+    paintCelSpoken:'Hooray! You painted all the shapes! What an artist!',
+    paintMilestones:['Amazing artist!','Painting so well!','What talent!','So awesome!'],
+    celTitle:'Well done!',
+    restart:'Restart 🔄', backHub:'← Shapes',
+    encourage:[
+      {text:'Good job! ⭐',        spoken:'Good job!'},
+      {text:'Well done! 🌟',       spoken:'Well done!'},
+      {text:'Yay! You did it! 🎉', spoken:'Yay! You did it!'},
+      {text:'Wonderful! ⭐',       spoken:'Wonderful!'},
+      {text:'Hooray! 🌟',          spoken:'Hooray!'},
+      {text:'So smart! 🎉',        spoken:'So smart!'},
+      {text:'Amazing! ⭐',         spoken:'Amazing!'},
+      {text:'You got it! 🎉',      spoken:'You got it!'},
+      {text:'Superstar! ⭐',       spoken:'Superstar!'},
+      {text:'Awesome! 🎉',         spoken:'Awesome!'},
+    ],
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════ */
+Nav._onLeave = function() { PaintGame.abort(); speechSynthesis && speechSynthesis.cancel(); };
+
+Nav.startGame = function(lang) {
+  this._applyLang(lang);
+  document.getElementById('navLangBadge').style.display = '';
+  if (this.currentGame === 'flash') { this._show('sFlash'); FlashGame.start(lang); }
+  else if (this.currentGame === 'click') { this._show('sClick'); ClickGame.start(lang); }
+  else if (this.currentGame === 'find')  { this._show('sFind');  FindGame.start(lang); }
+  else if (this.currentGame === 'paint') { this._show('sPaint'); PaintGame.start(lang); }
+};
+
+Nav.restartGame = function() {
+  document.getElementById('sCelebrate').classList.remove('show');
+  if (this.currentGame === 'flash') { this._show('sFlash'); FlashGame.start(FlashGame.lang); }
+  else if (this.currentGame === 'click') { this._show('sClick'); ClickGame.start(ClickGame.lang); }
+  else if (this.currentGame === 'find')  { this._show('sFind');  FindGame.start(FindGame.lang); }
+  else if (this.currentGame === 'paint') { this._show('sPaint'); PaintGame.start(PaintGame.lang); }
+};
+
+Nav._applyLang = function(lang) {
+  const L = LANG[lang];
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  document.documentElement.dataset.country = L.country;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+  set('navTitle',L.navTitle); set('navLangBadge',L.navBadge); set('hubSub',L.hubSub);
+  set('hubFlash',L.hubFlash); set('badgeFlash',L.badgeFlash);
+  set('hubClicar',L.hubClicar); set('badgeClicar',L.badgeClicar);
+  set('hubEncontrar',L.hubEncontrar); set('badgeEncontrar',L.badgeEncontrar);
+  set('hubPintar',L.hubPintar); set('badgePintar',L.badgePintar);
+  set('flashBackLabel',L.flashBackLabel); set('flashTapHint',L.flashTapHint);
+  set('clickBackLabel',L.clickBackLabel); set('findBackLabel',L.findBackLabel);
+  set('paintBackLabel',L.paintBackLabel);
+  set('btnRestart',L.restart); set('btnBackHub',L.backHub);
+  this._setCorners(L.corners);
+  TTS.setLang(L.tts);
+};
+
+/* ═══════════════════════════════════════════════
+   FLASH GAME
+═══════════════════════════════════════════════ */
+const FlashGame = {
+  lang:'pt', step:0, flipped:false, encCount:0,
+  start(lang) {
+    this.lang=lang; this.step=0; this.flipped=false; this.encCount=0;
+    TTS.init(); this._render();
+  },
+  _render() {
+    const s=SHAPES[this.step], color=SHAPE_COLORS[this.step], L=LANG[this.lang];
+    const name=this.lang==='pt'?s.pt:s.en;
+    document.getElementById('flashCard3d').classList.toggle('flipped',this.flipped);
+    document.getElementById('flashFront').style.background=color;
+    document.getElementById('flashEmoji').textContent=s.emoji;
+    document.getElementById('flashBackEmoji').textContent=s.emoji;
+    document.getElementById('flashName').textContent=name;
+    const total=SHAPES.length;
+    document.getElementById('flashProgress').textContent=(this.step+1)+' / '+total;
+    document.getElementById('flashBar').style.width=(((this.step+1)/total)*100)+'%';
+    document.getElementById('flashPrev').disabled=this.step===0;
+    TTS.speak(L.flashQuestion);
+  },
+  flip() {
+    this.flipped=!this.flipped;
+    document.getElementById('flashCard3d').classList.toggle('flipped',this.flipped);
+    if(this.flipped){
+      const name=this.lang==='pt'?SHAPES[this.step].pt:SHAPES[this.step].en;
+      SFX.playCorrect(); TTS.speakExcitedAndWait(name+'!');
+      this.encCount++;
+      if(this.encCount%3===0){
+        const enc=LANG[this.lang].encourage[Math.floor(Math.random()*LANG[this.lang].encourage.length)];
+        this._encourage(enc);
+      }
+    } else { TTS.speak(LANG[this.lang].flashQuestion); }
+  },
+  next(){ speechSynthesis&&speechSynthesis.cancel(); if(this.step>=SHAPES.length-1){this._celebrate();return;} this.step++;this.flipped=false;this._render(); },
+  prev(){ if(this.step<=0)return; speechSynthesis&&speechSynthesis.cancel(); this.step--;this.flipped=false;this._render(); },
+  _celebrate(){
+    const L=LANG[this.lang]; speechSynthesis&&speechSynthesis.cancel();
+    setTimeout(()=>TTS.speak(L.flashCelSpoken),400);
+    document.getElementById('celTitle').textContent=L.celTitle;
+    document.getElementById('celSub').textContent=L.flashCelSub;
+    document.getElementById('btnRestart').textContent=L.restart;
+    document.getElementById('btnBackHub').textContent=L.backHub;
+    localStorage.setItem('shapes_flash_progresso',JSON.stringify({completed:true,date:new Date().toISOString()}));
+    Nav._show('sCelebrate');
+  },
+  _encourage(enc){
+    const t=document.getElementById('encToast');t.textContent=enc.text;t.classList.add('show');
+    setTimeout(()=>TTS.speak(enc.spoken),1400);setTimeout(()=>t.classList.remove('show'),3200);
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   CLICK GAME
+═══════════════════════════════════════════════ */
+const ClickGame = {
+  lang:'pt', sequence:[], step:0, totalSteps:5, _locked:false,
+  start(lang){
+    this.lang=lang;this.step=0;this._locked=false;
+    this.sequence=shuffle([...Array(SHAPES.length).keys()]).slice(0,this.totalSteps);
+    TTS.init();this._render();
+  },
+  _render(){
+    const ti=this.sequence[this.step],target=SHAPES[ti],L=LANG[this.lang];
+    const name=this.lang==='pt'?target.pt:target.en;
+    document.getElementById('clickRoundBadge').textContent=(this.step+1)+' / '+this.totalSteps;
+    document.getElementById('clickInstruction').textContent=L.clickCmd+' '+name+'?';
+    const pool=[...Array(SHAPES.length).keys()].filter(i=>i!==ti);
+    const opts=shuffle([ti,...shuffle(pool).slice(0,2)]);
+    const el=document.getElementById('clickOptions');el.innerHTML='';
+    opts.forEach(si=>{
+      const btn=document.createElement('button');btn.className='click-opt';btn.textContent=SHAPES[si].emoji;
+      const xo=document.createElement('span');xo.className='x-overlay';xo.textContent='✖';btn.appendChild(xo);
+      btn.addEventListener('click',()=>{if(this._locked)return;si===ti?this._onCorrect(ti):this._onWrong(btn);});
+      el.appendChild(btn);
+    });
+    setTimeout(()=>TTS.speak(L.clickCmd+' '+name),250);
+  },
+  _onCorrect(idx){
+    this._locked=true;const L=LANG[this.lang],name=this.lang==='pt'?SHAPES[idx].pt:SHAPES[idx].en;
+    const enc=L.encourage[Math.floor(Math.random()*L.encourage.length)];
+    SFX.playCorrect();const t=document.getElementById('encToast');t.textContent=enc.text;t.classList.add('show');
+    setTimeout(()=>TTS.speak(name+'! '+enc.spoken),200);setTimeout(()=>t.classList.remove('show'),3800);
+    setTimeout(()=>{this._locked=false;this.step++;this.step>=this.totalSteps?this._celebrate():this._render();},3500);
+  },
+  _onWrong(btn){SFX.playWrong();btn.classList.add('wrong');setTimeout(()=>btn.classList.remove('wrong'),720);},
+  _celebrate(){
+    const L=LANG[this.lang];speechSynthesis&&speechSynthesis.cancel();
+    setTimeout(()=>TTS.speak(L.clickCelSpoken),400);
+    document.getElementById('celTitle').textContent=L.celTitle;
+    document.getElementById('celSub').textContent=L.clickCelSub;
+    document.getElementById('btnRestart').textContent=L.restart;
+    document.getElementById('btnBackHub').textContent=L.backHub;
+    localStorage.setItem('shapes_click_progresso',JSON.stringify({completed:true,date:new Date().toISOString()}));
+    Nav._show('sCelebrate');
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   FIND GAME — Encontrar todas as formas iguais
+═══════════════════════════════════════════════ */
+const FindGame = {
+  lang:'pt', step:0, totalSteps:4, remaining:0, _locked:false, _seq:[],
+  start(lang){
+    this.lang=lang;this.step=0;this._locked=false;
+    this._seq=shuffle([...Array(SHAPES.length).keys()]).slice(0,this.totalSteps);
+    TTS.init();this._render();
+  },
+  _render(){
+    const ti=this._seq[this.step],target=SHAPES[ti],L=LANG[this.lang];
+    const name=this.lang==='pt'?target.pt:target.en;
+    document.getElementById('findRoundBadge').textContent=L.findRound+' '+(this.step+1)+' / '+this.totalSteps;
+    document.getElementById('findInstruction').innerHTML=
+      L.findCmd+' <span class="find-target-word">'+target.emoji+' '+name+'</span>!';
+    /* 3 alvos + 5 distratores */
+    const wrongPool=this._seq.filter(i=>i!==ti);
+    const distractorIdx=shuffle([...Array(SHAPES.length).keys()].filter(i=>i!==ti)).slice(0,5);
+    const items=[];
+    for(let j=0;j<3;j++) items.push({si:ti,emoji:target.emoji});
+    distractorIdx.forEach(si=>items.push({si,emoji:SHAPES[si].emoji}));
+    const shuffled=shuffle(items);
+    const grid=document.getElementById('findGrid');grid.innerHTML='';
+    this.remaining=3;
+    shuffled.forEach(({si,emoji})=>{
+      const el=document.createElement('div');el.className='find-item';el.dataset.shapeIdx=si;
+      el.textContent=emoji;
+      el.addEventListener('click',()=>{
+        if(this._locked)return;
+        parseInt(el.dataset.shapeIdx)===ti?this._onCorrect(el,ti):this._onWrong(el);
+      });
+      grid.appendChild(el);
+    });
+    setTimeout(()=>TTS.speak(L.findCmd+' '+name),250);
+  },
+  _onCorrect(el,idx){
+    el.classList.add('found');SFX.playCorrect();
+    TTS.speak(this.lang==='pt'?SHAPES[idx].pt:SHAPES[idx].en);
+    this.remaining--;
+    if(this.remaining<=0){
+      this._locked=true;
+      setTimeout(()=>{
+        const L=LANG[this.lang],enc=L.encourage[Math.floor(Math.random()*L.encourage.length)];
+        const t=document.getElementById('encToast');t.textContent=enc.text;t.classList.add('show');
+        TTS.speak(enc.spoken);
+        setTimeout(()=>t.classList.remove('show'),3200);
+        setTimeout(()=>{this._locked=false;this.step++;this.step>=this.totalSteps?this._celebrate():this._render();},3000);
+      },500);
+    }
+  },
+  _onWrong(el){SFX.playWrong();el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),450);},
+  _celebrate(){
+    const L=LANG[this.lang];speechSynthesis&&speechSynthesis.cancel();
+    setTimeout(()=>TTS.speak(L.findCelSpoken),400);
+    document.getElementById('celTitle').textContent=L.celTitle;
+    document.getElementById('celSub').textContent=L.findCelSub;
+    document.getElementById('btnRestart').textContent=L.restart;
+    document.getElementById('btnBackHub').textContent=L.backHub;
+    localStorage.setItem('shapes_find_progresso',JSON.stringify({completed:true,date:new Date().toISOString()}));
+    Nav._show('sCelebrate');
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   PAINT GAME — Pintar formas (mesmo sistema de numbers.html)
+═══════════════════════════════════════════════ */
+const PaintGame = {
+  lang:'pt', step:0, sequence:[], shuffled:false,
+  _oCanvas:null, _oCtx:null, _pCanvas:null, _pCtx:null,
+  _strokeCanvas:null, _sCtx:null,
+  _maskCanvas:null, _mCtx:null,
+  _maskData:null, _maskTotal:0,
+  _dpr:1, _w:0, _h:0, _painting:false, _completed:false, _aborted:false, _bound:false,
+  _lastX:0, _lastY:0,
+  BRUSH:72, THRESHOLD:0.95,
+  PALETTE:['#E53935','#1E88E5','#43A047','#F9A825','#8E24AA'],
+  currentColor:'#E53935',
+
+  start(lang) {
+    this.lang=lang; this.step=0; this._aborted=false;
+    const base=[0,1,2,3,4,5,6,7];
+    this.sequence=this.shuffled?shuffle([...base]):[...base];
+    TTS.init();
+    requestAnimationFrame(()=>{ this._initCanvases(); this._buildPalette(); this._setupShape(); });
+  },
+  abort(){ this._aborted=true; this._painting=false; },
+  toggleShuffle(){ this.shuffled=!this.shuffled; document.getElementById('paintShuffleBtn').classList.toggle('active',this.shuffled); },
+
+  _initCanvases(){
+    const area=document.getElementById('paintArea');
+    const w=area.clientWidth, h=area.clientHeight;
+    this._dpr=window.devicePixelRatio||1; this._w=w; this._h=h;
+    this._oCanvas=document.getElementById('outlineCanvas');
+    this._pCanvas=document.getElementById('paintCanvas');
+    [this._oCanvas,this._pCanvas].forEach(c=>{
+      c.width=w*this._dpr; c.height=h*this._dpr;
+      c.style.width=w+'px'; c.style.height=h+'px';
+    });
+    this._oCtx=this._oCanvas.getContext('2d'); this._oCtx.scale(this._dpr,this._dpr);
+    this._pCtx=this._pCanvas.getContext('2d'); this._pCtx.scale(this._dpr,this._dpr);
+    this._strokeCanvas=document.createElement('canvas');
+    this._strokeCanvas.width=w*this._dpr; this._strokeCanvas.height=h*this._dpr;
+    this._sCtx=this._strokeCanvas.getContext('2d'); this._sCtx.scale(this._dpr,this._dpr);
+    this._maskCanvas=document.createElement('canvas');
+    this._maskCanvas.width=w*this._dpr; this._maskCanvas.height=h*this._dpr;
+    this._mCtx=this._maskCanvas.getContext('2d'); this._mCtx.scale(this._dpr,this._dpr);
+    if(!this._bound){
+      this._bound=true;
+      const pc=this._pCanvas;
+      pc.addEventListener('pointerdown',e=>this._onDown(e));
+      pc.addEventListener('pointermove',e=>this._onMove(e));
+      pc.addEventListener('pointerup',e=>this._onUp(e));
+      pc.addEventListener('pointercancel',()=>{this._painting=false;});
+    }
+  },
+
+  _buildPalette(){
+    const el=document.getElementById('paintPalette');el.innerHTML='';
+    this.PALETTE.forEach((color,i)=>{
+      const btn=document.createElement('button');
+      btn.className='paint-swatch'+(i===0?' active':'');
+      btn.style.background=color; btn.dataset.color=color;
+      btn.addEventListener('click',()=>{
+        this.currentColor=color;
+        el.querySelectorAll('.paint-swatch').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      el.appendChild(btn);
+    });
+    this.currentColor=this.PALETTE[0];
+  },
+
+  _setupShape(){
+    this._completed=false; this._painting=false;
+    const si=this.sequence[this.step], shape=SHAPES[si];
+    const total=this.sequence.length, idx=this.step+1;
+    const w=this._w, h=this._h, cx=w/2, cy=h/2, size=Math.min(w,h)*0.72;
+    const isDark=document.documentElement.dataset.theme==='dark';
+
+    document.getElementById('paintProgress').textContent=idx+' / '+total;
+    document.getElementById('paintBar').style.width='0%';
+    document.getElementById('paintPrev').disabled=this.step===0;
+
+    this._sCtx.clearRect(0,0,w,h);
+
+    /* Outline: guia visual */
+    this._oCtx.clearRect(0,0,w,h); this._oCtx.save();
+    this._oCtx.fillStyle=isDark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.07)';
+    drawShape(this._oCtx,shape.draw,cx,cy,size);
+    this._oCtx.strokeStyle=isDark?'#444':'#CCC'; this._oCtx.lineWidth=2;
+    drawShape(this._oCtx,shape.draw,cx,cy,size); this._oCtx.stroke();
+    this._oCtx.restore();
+
+    /* Mask */
+    this._mCtx.clearRect(0,0,w,h); this._mCtx.fillStyle='#FFFFFF';
+    drawShape(this._mCtx,shape.draw,cx,cy,size);
+
+    /* Cachear mask data */
+    const pw=w*this._dpr, ph=h*this._dpr;
+    this._maskData=this._mCtx.getImageData(0,0,pw,ph).data;
+    this._maskTotal=0;
+    const step=2;
+    for(let y=0;y<ph;y+=step) for(let x=0;x<pw;x+=step)
+      if(this._maskData[(y*pw+x)*4+3]>30) this._maskTotal++;
+
+    this._redraw();
+
+    const name=this.lang==='pt'?shape.pt:shape.en;
+    setTimeout(()=>TTS.speak(name),300);
+  },
+
+  _redraw(){
+    const ctx=this._pCtx, w=this._w, h=this._h;
+    ctx.clearRect(0,0,w,h);
+    ctx.globalCompositeOperation='source-over';
+    ctx.drawImage(this._strokeCanvas,0,0,w,h);
+    ctx.globalCompositeOperation='destination-in';
+    ctx.drawImage(this._maskCanvas,0,0,w,h);
+    ctx.globalCompositeOperation='source-over';
+  },
+
+  _onDown(e){
+    if(this._completed||this._aborted)return;
+    e.preventDefault(); this._painting=true;
+    this._pCanvas.setPointerCapture(e.pointerId);
+    const rect=this._pCanvas.getBoundingClientRect();
+    this._lastX=e.clientX-rect.left; this._lastY=e.clientY-rect.top;
+    this._sCtx.beginPath();
+    this._sCtx.arc(this._lastX,this._lastY,this.BRUSH/2,0,Math.PI*2);
+    this._sCtx.fillStyle=this.currentColor; this._sCtx.fill();
+    this._redraw();
+  },
+  _onMove(e){
+    if(!this._painting)return; e.preventDefault();
+    const rect=this._pCanvas.getBoundingClientRect();
+    const x=e.clientX-rect.left, y=e.clientY-rect.top;
+    this._sCtx.strokeStyle=this.currentColor;
+    this._sCtx.lineWidth=this.BRUSH; this._sCtx.lineCap='round'; this._sCtx.lineJoin='round';
+    this._sCtx.beginPath(); this._sCtx.moveTo(this._lastX,this._lastY);
+    this._sCtx.lineTo(x,y); this._sCtx.stroke();
+    this._lastX=x; this._lastY=y; this._redraw();
+  },
+  _onUp(){ if(!this._painting)return; this._painting=false; this._checkCompletion(); },
+
+  _calcFill(){
+    this._redraw();
+    const pw=this._w*this._dpr, ph=this._h*this._dpr;
+    const paintData=this._pCtx.getImageData(0,0,pw,ph).data;
+    let painted=0; const step=2;
+    for(let y=0;y<ph;y+=step) for(let x=0;x<pw;x+=step){
+      const idx=(y*pw+x)*4;
+      if(this._maskData[idx+3]<=30)continue;
+      if(paintData[idx+3]<3)continue;
+      const r=paintData[idx],g=paintData[idx+1],b=paintData[idx+2];
+      if(Math.sqrt(r*r+g*g+b*b)>30) painted++;
+    }
+    return this._maskTotal>0?painted/this._maskTotal:0;
+  },
+
+  async _checkCompletion(){
+    if(this._completed||this._aborted)return;
+    const fill=this._calcFill();
+    const pct=Math.round(fill*100);
+    document.getElementById('paintBar').style.width=pct+'%';
+    if(fill<this.THRESHOLD)return;
+    this._completed=true;
+
+    /* Auto-fill cosmético */
+    const si=this.sequence[this.step], shape=SHAPES[si];
+    const w=this._w, h=this._h, cx=w/2, cy=h/2, size=Math.min(w,h)*0.72;
+    this._sCtx.globalCompositeOperation='destination-over';
+    this._sCtx.fillStyle=this.currentColor;
+    drawShape(this._sCtx,shape.draw,cx,cy,size);
+    this._sCtx.globalCompositeOperation='source-over';
+    this._redraw();
+    document.getElementById('paintBar').style.width='100%';
+
+    SFX.playChime();
+    const L=LANG[this.lang], name=this.lang==='pt'?shape.pt:shape.en;
+    await delay(350);
+    if(this._aborted)return;
+    const colorIdx=this.PALETTE.indexOf(this.currentColor);
+    const colorName=(L.paintColors||[])[colorIdx]||'';
+    await TTS.speakAndWait(name+(colorName?' '+colorName:''));
+    if(this._aborted)return;
+
+    const milestone=Math.floor((this.step+1)*4/this.sequence.length);
+    if(milestone>0&&milestone<=4&&(this.step+1)%2===0){
+      const ms=L.paintMilestones[milestone-1];
+      if(ms){const t=document.getElementById('encToast');t.textContent='⭐ '+ms;t.classList.add('show');t.classList.add('paint-pos');
+      setTimeout(()=>TTS.speak(ms),300);setTimeout(()=>{t.classList.remove('show');t.classList.remove('paint-pos');},3000);}
+    }
+  },
+
+  next(){
+    speechSynthesis&&speechSynthesis.cancel(); this._aborted=true;
+    if(this.step>=this.sequence.length-1){this._celebrate();return;}
+    this.step++;this._aborted=false;this._setupShape();
+  },
+  prev(){
+    if(this.step<=0)return; speechSynthesis&&speechSynthesis.cancel();
+    this._aborted=true;this.step--;this._aborted=false;this._setupShape();
+  },
+  _celebrate(){
+    const L=LANG[this.lang];speechSynthesis&&speechSynthesis.cancel();
+    setTimeout(()=>TTS.speak(L.paintCelSpoken),400);
+    document.getElementById('celTitle').textContent=L.celTitle;
+    document.getElementById('celSub').textContent=L.paintCelSub;
+    document.getElementById('btnRestart').textContent=L.restart;
+    document.getElementById('btnBackHub').textContent=L.backHub;
+    localStorage.setItem('shapes_paint_progresso',JSON.stringify({completed:true,date:new Date().toISOString()}));
+    Nav._show('sCelebrate');
+  },
+};
+
+/* ── BOOT ── */
+Nav.boot(['sHub','sLang','sFlash','sClick','sFind','sPaint','sCelebrate']);
+</script>
+</body>
+</html>
