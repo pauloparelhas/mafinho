@@ -39,7 +39,6 @@
 .card-emoji      { font-size:7rem; line-height:1; user-select:none; }
 .card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; color:inherit; }
 .card-back-name  { font-size:3rem; font-weight:900; text-align:center; line-height:1.1; }
-.card-back-sound { font-size:var(--lg); font-weight:700; opacity:0.7; text-align:center; }
 .flash-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; margin-top:16px; }
 #sFlash .card-nav { max-width:520px; }
 #sFlash .progress-bar-wrap { max-width:520px; }
@@ -88,49 +87,6 @@
 .click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
 .click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 
-/* ── TELA E: Sons ── */
-#sSound {
-  flex:1; display:none; flex-direction:column;
-  align-items:center; padding:12px 12px 8px; gap:14px;
-}
-#sSound .back-link { margin-bottom:0; }
-.sound-play-btn {
-  width:120px; height:120px; border:none; border-radius:50%;
-  background:var(--c-green); color:white;
-  font-size:3.5rem; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 6px 24px rgba(0,0,0,0.25);
-  -webkit-tap-highlight-color:transparent;
-  transition:transform .12s;
-}
-.sound-play-btn:active { transform:scale(0.92); }
-.sound-hint {
-  font-size:var(--lg); font-weight:900; text-align:center;
-  color:var(--country-accent);
-}
-.sound-options {
-  display:flex; gap:14px; justify-content:center;
-  width:100%; max-width:420px;
-}
-.sound-opt {
-  width:100px; height:100px; border:none; border-radius:var(--radlg);
-  font-size:4rem; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  background:var(--surface); border:4px solid var(--border);
-  box-shadow:0 4px 16px rgba(0,0,0,0.15);
-  position:relative; overflow:hidden;
-  -webkit-tap-highlight-color:transparent;
-  transition:transform .12s;
-}
-.sound-opt:active { transform:scale(0.94); }
-.sound-opt .x-overlay {
-  position:absolute; inset:0; background:rgba(0,0,0,0.55);
-  display:flex; align-items:center; justify-content:center;
-  font-size:3rem; color:white; border-radius:inherit;
-  opacity:0; pointer-events:none;
-}
-.sound-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
-.sound-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 </style>
 </head>
 <body>
@@ -169,11 +125,6 @@
       <span class="g-title" id="hubClicar">Clicar</span>
       <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
     </div>
-    <div class="game-card ready" onclick="Nav.goLang('sound')">
-      <span class="g-icon">🔊</span>
-      <span class="g-title" id="hubSons">Sons</span>
-      <span class="g-badge badge-ready" id="badgeSons">Disponível</span>
-    </div>
   </div>
 </div>
 
@@ -210,7 +161,6 @@
         <div class="card-face card-back">
           <span class="card-emoji" id="flashBackEmoji">🐶</span>
           <span class="card-back-name" id="flashName">Cachorro</span>
-          <span class="card-back-sound" id="flashSound">Au au!</span>
         </div>
       </div>
     </div>
@@ -234,14 +184,6 @@
   <p class="click-round" id="clickRoundBadge"></p>
 </div>
 
-<!-- ═══ TELA E: Sons ═══ -->
-<div id="sSound">
-  <button class="back-link" onclick="Nav.backToHub()">← <span id="soundBackLabel">Animais</span></button>
-  <button class="sound-play-btn" id="soundPlayBtn" onclick="SoundGame.playSound()">🔊</button>
-  <p class="sound-hint" id="soundHint">Quem faz esse som?</p>
-  <div class="sound-options" id="soundOptions"></div>
-  <p class="sound-round" id="soundRoundBadge"></p>
-</div>
 
 <!-- ═══ TELA F: Celebração ═══ -->
 <div id="sCelebrate">
@@ -295,16 +237,16 @@ const ANIMAL_COLORS = [
 ];
 
 const ANIMALS = [
-  { emoji:'🐶', pt:'Cachorro', en:'Dog',      soundPt:'Au au!',      soundEn:'Woof woof!' },
-  { emoji:'🐱', pt:'Gato',     en:'Cat',      soundPt:'Miau!',       soundEn:'Meow!' },
-  { emoji:'🐮', pt:'Vaca',     en:'Cow',      soundPt:'Muuu!',       soundEn:'Moo!' },
-  { emoji:'🐴', pt:'Cavalo',   en:'Horse',    soundPt:'Iiirrr!',     soundEn:'Neigh!' },
-  { emoji:'🐷', pt:'Porco',    en:'Pig',      soundPt:'Oinc oinc!',  soundEn:'Oink oink!' },
-  { emoji:'🐔', pt:'Galinha',  en:'Chicken',  soundPt:'Cocó cocó!',  soundEn:'Cluck cluck!' },
-  { emoji:'🦆', pt:'Pato',     en:'Duck',     soundPt:'Quá quá!',    soundEn:'Quack quack!' },
-  { emoji:'🦁', pt:'Leão',     en:'Lion',     soundPt:'Roarrr!',     soundEn:'Roar!' },
-  { emoji:'🐘', pt:'Elefante', en:'Elephant', soundPt:'Tromm!',      soundEn:'Trumpet!' },
-  { emoji:'🐵', pt:'Macaco',   en:'Monkey',   soundPt:'Uuu uuu!',   soundEn:'Ooh ooh!' },
+  { emoji:'🐶', pt:'Cachorro', en:'Dog',      gen:'o' },
+  { emoji:'🐱', pt:'Gato',     en:'Cat',      gen:'o' },
+  { emoji:'🐮', pt:'Vaca',     en:'Cow',      gen:'a' },
+  { emoji:'🐴', pt:'Cavalo',   en:'Horse',    gen:'o' },
+  { emoji:'🐷', pt:'Porco',    en:'Pig',      gen:'o' },
+  { emoji:'🐔', pt:'Galinha',  en:'Chicken',  gen:'a' },
+  { emoji:'🦆', pt:'Pato',     en:'Duck',     gen:'o' },
+  { emoji:'🦁', pt:'Leão',     en:'Lion',     gen:'o' },
+  { emoji:'🐘', pt:'Elefante', en:'Elephant', gen:'o' },
+  { emoji:'🐵', pt:'Macaco',   en:'Monkey',   gen:'o' },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -317,7 +259,6 @@ const LANG = {
     hubSub:'Conheça os animais!',
     hubFlash:'Flashcards', badgeFlash:'Disponível',
     hubClicar:'Clicar', badgeClicar:'Disponível',
-    hubSons:'Sons', badgeSons:'Disponível',
     backLabel:'Animais',
     flashBackLabel:'Animais', flashTapHint:'Quem é?',
     flashNextHint:'▶ próximo animal',
@@ -325,13 +266,8 @@ const LANG = {
     flashCelSub:'Você conhece todos os animais!',
     flashCelSpoken:'Parabéns! Você conhece todos os animais! Que esperto!',
     clickBackLabel:'Animais',
-    clickCmd:'Qual é',
     clickCelSub:'Você acertou todos os animais!',
     clickCelSpoken:'Parabéns! Você acertou todos os animais! Muito bem!',
-    soundBackLabel:'Animais',
-    soundHint:'Quem faz esse som?',
-    soundCelSub:'Você conhece todos os sons!',
-    soundCelSpoken:'Parabéns! Você conhece todos os sons dos animais! Incrível!',
     celTitle:'Muito bem!',
     restart:'Recomeçar 🔄', backHub:'← Animais',
     encourage:[
@@ -353,7 +289,6 @@ const LANG = {
     hubSub:'Meet the animals!',
     hubFlash:'Flashcards', badgeFlash:'Available',
     hubClicar:'Click', badgeClicar:'Available',
-    hubSons:'Sounds', badgeSons:'Available',
     backLabel:'Animals',
     flashBackLabel:'Animals', flashTapHint:'Who is it?',
     flashNextHint:'▶ next animal',
@@ -364,10 +299,6 @@ const LANG = {
     clickCmd:'Where is the',
     clickCelSub:'You got all the animals right!',
     clickCelSpoken:'Hooray! You got all the animals right! Amazing!',
-    soundBackLabel:'Animals',
-    soundHint:'Who makes this sound?',
-    soundCelSub:'You know all the animal sounds!',
-    soundCelSpoken:'Hooray! You know all the animal sounds! Incredible!',
     celTitle:'Well done!',
     restart:'Restart 🔄', backHub:'← Animals',
     encourage:[
@@ -397,9 +328,6 @@ Nav.startGame = function(lang) {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(lang);
-  } else if (this.currentGame === 'sound') {
-    this._show('sSound');
-    SoundGame.start(lang);
   }
 };
 
@@ -411,9 +339,6 @@ Nav.restartGame = function() {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(ClickGame.lang);
-  } else if (this.currentGame === 'sound') {
-    this._show('sSound');
-    SoundGame.start(SoundGame.lang);
   }
 };
 
@@ -429,12 +354,9 @@ Nav._applyLang = function(lang) {
   set('badgeFlash',     L.badgeFlash);
   set('hubClicar',      L.hubClicar);
   set('badgeClicar',    L.badgeClicar);
-  set('hubSons',        L.hubSons);
-  set('badgeSons',      L.badgeSons);
   set('flashBackLabel', L.flashBackLabel);
   set('flashTapHint',   L.flashTapHint);
   set('clickBackLabel', L.clickBackLabel);
-  set('soundBackLabel', L.soundBackLabel);
   set('btnRestart',     L.restart);
   set('btnBackHub',     L.backHub);
   this._setCorners(L.corners);
@@ -461,14 +383,12 @@ const FlashGame = {
     const color = ANIMAL_COLORS[this.step];
     const L     = LANG[this.lang];
     const name  = this.lang === 'pt' ? a.pt : a.en;
-    const sound = this.lang === 'pt' ? a.soundPt : a.soundEn;
 
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
     document.getElementById('flashFront').style.background = color;
     document.getElementById('flashEmoji').textContent = a.emoji;
     document.getElementById('flashBackEmoji').textContent = a.emoji;
     document.getElementById('flashName').textContent = name;
-    document.getElementById('flashSound').textContent = sound;
 
     const total = ANIMALS.length;
     document.getElementById('flashProgress').textContent = (this.step + 1) + ' / ' + total;
@@ -555,8 +475,16 @@ const ClickGame = {
     document.getElementById('clickRoundBadge').textContent =
       (this.step + 1) + ' / ' + this.totalSteps;
 
-    document.getElementById('clickInstruction').textContent =
-      L.clickCmd + ' ' + name + '?';
+    /* Gênero correto em PT: "Qual é o cachorro?" vs "Qual é a vaca?" */
+    let instruction, spoken;
+    if (this.lang === 'pt') {
+      instruction = 'Qual é ' + target.gen + ' ' + name + '?';
+      spoken      = 'Qual é ' + target.gen + ' ' + name;
+    } else {
+      instruction = L.clickCmd + ' ' + name + '?';
+      spoken      = L.clickCmd + ' ' + name;
+    }
+    document.getElementById('clickInstruction').textContent = instruction;
 
     const pool = [...Array(ANIMALS.length).keys()].filter(i => i !== targetIdx);
     const opts = shuffle([targetIdx, ...shuffle(pool).slice(0, 2)]);
@@ -582,7 +510,6 @@ const ClickGame = {
       optionsEl.appendChild(btn);
     });
 
-    const spoken = L.clickCmd + ' ' + name;
     setTimeout(() => TTS.speak(spoken), 250);
   },
 
@@ -626,109 +553,8 @@ const ClickGame = {
   },
 };
 
-/* ═══════════════════════════════════════════════
-   SOUND GAME — Quem faz esse som?
-═══════════════════════════════════════════════ */
-const SoundGame = {
-  lang:'pt', sequence:[], step:0, totalSteps:5, _locked:false, _currentIdx:0,
-
-  start(lang) {
-    this.lang = lang;
-    this.step = 0;
-    this._locked = false;
-    this.sequence = shuffle([...Array(ANIMALS.length).keys()]).slice(0, this.totalSteps);
-    TTS.init();
-    this._render();
-  },
-
-  playSound() {
-    const a = ANIMALS[this._currentIdx];
-    const sound = this.lang === 'pt' ? a.soundPt : a.soundEn;
-    TTS.speak(sound);
-  },
-
-  _render() {
-    const targetIdx = this.sequence[this.step];
-    this._currentIdx = targetIdx;
-    const target = ANIMALS[targetIdx];
-    const L      = LANG[this.lang];
-    const sound  = this.lang === 'pt' ? target.soundPt : target.soundEn;
-
-    document.getElementById('soundRoundBadge').textContent =
-      (this.step + 1) + ' / ' + this.totalSteps;
-
-    document.getElementById('soundHint').textContent = L.soundHint;
-
-    const pool = [...Array(ANIMALS.length).keys()].filter(i => i !== targetIdx);
-    const opts = shuffle([targetIdx, ...shuffle(pool).slice(0, 2)]);
-
-    const optionsEl = document.getElementById('soundOptions');
-    optionsEl.innerHTML = '';
-    opts.forEach(ai => {
-      const a   = ANIMALS[ai];
-      const btn = document.createElement('button');
-      btn.className = 'sound-opt';
-      btn.textContent = a.emoji;
-
-      const xOv = document.createElement('span');
-      xOv.className = 'x-overlay';
-      xOv.textContent = '✖';
-      btn.appendChild(xOv);
-
-      btn.addEventListener('click', () => {
-        if (this._locked) return;
-        if (ai === targetIdx) this._onCorrect(targetIdx);
-        else                  this._onWrong(btn);
-      });
-      optionsEl.appendChild(btn);
-    });
-
-    /* Tocar o som do animal */
-    setTimeout(() => TTS.speak(sound), 400);
-  },
-
-  _onCorrect(idx) {
-    this._locked = true;
-    const L    = LANG[this.lang];
-    const name = this.lang === 'pt' ? ANIMALS[idx].pt : ANIMALS[idx].en;
-    const enc  = L.encourage[Math.floor(Math.random() * L.encourage.length)];
-    SFX.playCorrect();
-    const t = document.getElementById('encToast');
-    t.textContent = enc.text;
-    t.classList.add('show');
-    setTimeout(() => TTS.speak(name + '! ' + enc.spoken), 200);
-    setTimeout(() => t.classList.remove('show'), 3800);
-    setTimeout(() => {
-      this._locked = false;
-      this.step++;
-      if (this.step >= this.totalSteps) this._celebrate();
-      else                              this._render();
-    }, 3500);
-  },
-
-  _onWrong(btn) {
-    SFX.playWrong();
-    btn.classList.add('wrong');
-    setTimeout(() => btn.classList.remove('wrong'), 720);
-  },
-
-  _celebrate() {
-    const L = LANG[this.lang];
-    speechSynthesis && speechSynthesis.cancel();
-    setTimeout(() => TTS.speak(L.soundCelSpoken), 400);
-    document.getElementById('celTitle').textContent   = L.celTitle;
-    document.getElementById('celSub').textContent     = L.soundCelSub;
-    document.getElementById('btnRestart').textContent = L.restart;
-    document.getElementById('btnBackHub').textContent = L.backHub;
-    localStorage.setItem('animals_sound_progresso', JSON.stringify({
-      completed:true, date:new Date().toISOString()
-    }));
-    Nav._show('sCelebrate');
-  },
-};
-
 /* ── BOOT ── */
-Nav.boot(['sHub','sLang','sFlash','sClick','sSound','sCelebrate']);
+Nav.boot(['sHub','sLang','sFlash','sClick','sCelebrate']);
 </script>
 </body>
 </html>
