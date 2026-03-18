@@ -37,6 +37,8 @@
 }
 .card-back  { transform:rotateY(180deg); background:var(--surface); border:5px solid var(--border); }
 .card-emoji      { font-size:7rem; line-height:1; user-select:none; }
+.card-emoji svg  { width:140px; height:140px; }
+.click-opt svg   { width:80px; height:80px; }
 .card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; color:inherit; }
 .card-back-name  { font-size:3rem; font-weight:900; text-align:center; line-height:1.1; }
 .flash-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; margin-top:16px; }
@@ -236,17 +238,41 @@ const ANIMAL_COLORS = [
   '#00897B','#F06292','#F9A825','#E53935','#1E88E5'
 ];
 
+/* SVGs kawaii gerados externamente */
+const ANIMAL_SVGS = [
+  /* 0: Cachorro/Dog */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M60,110 C60,90 140,90 140,110 L140,160 C140,180 60,180 60,160 Z" fill="#D2B48C"/><circle cx="80" cy="170" r="15" fill="#CD853F"/><circle cx="120" cy="170" r="15" fill="#CD853F"/><circle cx="100" cy="80" r="50" fill="#D2B48C"/><path d="M55,50 C40,50 40,100 55,110 Z" fill="#8B4513"/><path d="M145,50 C160,50 160,100 145,110 Z" fill="#8B4513"/><circle cx="80" cy="75" r="8" fill="#FFF"/><circle cx="80" cy="75" r="5" fill="#000"/><circle cx="82" cy="73" r="1.5" fill="#FFF"/><circle cx="120" cy="75" r="8" fill="#FFF"/><circle cx="120" cy="75" r="5" fill="#000"/><circle cx="122" cy="73" r="1.5" fill="#FFF"/><ellipse cx="100" cy="95" rx="15" ry="10" fill="#F5F5DC"/><circle cx="100" cy="90" r="5" fill="#000"/><path d="M90,100 C95,105 105,105 110,100" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="70" cy="90" r="5" fill="#FFB6C1" opacity="0.6"/><circle cx="130" cy="90" r="5" fill="#FFB6C1" opacity="0.6"/></svg>`,
+  /* 1: Gato/Cat */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M70,120 C70,100 130,100 130,120 L130,170 C130,185 70,185 70,170 Z" fill="#A9A9A9"/><path d="M90,125 L110,125 M85,140 L115,140 M90,155 L110,155" stroke="#808080" stroke-width="3" stroke-linecap="round"/><circle cx="100" cy="80" r="45" fill="#A9A9A9"/><path d="M60,50 L80,40 L75,70 Z" fill="#A9A9A9"/><path d="M65,55 L75,48 L72,65 Z" fill="#FFC0CB"/><path d="M140,50 L120,40 L125,70 Z" fill="#A9A9A9"/><path d="M135,55 L125,48 L128,65 Z" fill="#FFC0CB"/><circle cx="82" cy="75" r="7" fill="#FFF"/><circle cx="82" cy="75" r="4" fill="#000"/><circle cx="118" cy="75" r="7" fill="#FFF"/><circle cx="118" cy="75" r="4" fill="#000"/><polygon points="100,85 96,80 104,80" fill="#FFC0CB"/><path d="M90,92 C95,97 100,97 100,92 C100,97 105,97 110,92" stroke="#000" stroke-width="1.5" fill="none"/><path d="M75,85 L55,82 M75,90 L55,90 M75,95 L55,98" stroke="#000" stroke-width="1"/><path d="M125,85 L145,82 M125,90 L145,90 M125,95 L145,98" stroke="#000" stroke-width="1"/><path d="M130,160 C160,160 160,120 150,110 C145,105 135,110 140,115 C145,120 145,145 130,150 Z" fill="#A9A9A9"/></svg>`,
+  /* 2: Vaca/Cow */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="140" rx="60" ry="45" fill="#FFF" stroke="#E0E0E0" stroke-width="1"/><path d="M60,120 C50,110 40,130 50,145 C60,160 70,140 60,120 Z" fill="#333"/><path d="M130,125 C145,115 160,135 150,150 C140,165 120,150 130,125 Z" fill="#333"/><path d="M95,160 C100,170 110,170 115,160 Z" fill="#333"/><rect x="70" y="170" width="20" height="25" rx="5" fill="#FFF" stroke="#E0E0E0" stroke-width="1"/><rect x="70" y="185" width="20" height="10" rx="2" fill="#333"/><rect x="110" y="170" width="20" height="25" rx="5" fill="#FFF" stroke="#E0E0E0" stroke-width="1"/><rect x="110" y="185" width="20" height="10" rx="2" fill="#333"/><circle cx="100" cy="70" r="45" fill="#FFF" stroke="#E0E0E0" stroke-width="1"/><path d="M70,45 C60,60 70,80 85,75 Z" fill="#333"/><ellipse cx="60" cy="55" rx="15" ry="10" fill="#FFF" transform="rotate(-30 60 55)" stroke="#E0E0E0" stroke-width="1"/><ellipse cx="60" cy="55" rx="10" ry="6" fill="#FFC0CB" transform="rotate(-30 60 55)"/><ellipse cx="140" cy="55" rx="15" ry="10" fill="#FFF" transform="rotate(30 140 55)" stroke="#E0E0E0" stroke-width="1"/><ellipse cx="140" cy="55" rx="10" ry="6" fill="#FFC0CB" transform="rotate(30 140 55)"/><path d="M80,30 C75,20 85,10 90,25 Z" fill="#F0E68C"/><path d="M120,30 C125,20 115,10 110,25 Z" fill="#F0E68C"/><circle cx="85" cy="65" r="6" fill="#000"/><circle cx="87" cy="63" r="2" fill="#FFF"/><circle cx="115" cy="65" r="6" fill="#000"/><circle cx="117" cy="63" r="2" fill="#FFF"/><ellipse cx="100" cy="90" rx="25" ry="18" fill="#FFC0CB"/><circle cx="92" cy="88" r="3" fill="#A52A2A"/><circle cx="108" cy="88" r="3" fill="#A52A2A"/><path d="M90,98 C95,103 105,103 110,98" stroke="#A52A2A" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`,
+  /* 3: Cavalo/Horse */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M60,100 C60,80 150,80 150,110 L140,160 C135,175 65,175 60,160 Z" fill="#A0522D"/><path d="M150,110 C160,100 160,140 150,150" stroke="#333" stroke-width="8" stroke-linecap="round" fill="none"/><rect x="70" y="165" width="18" height="25" rx="4" fill="#A0522D"/><rect x="70" y="182" width="18" height="8" rx="2" fill="#5D4037"/><rect x="120" y="165" width="18" height="25" rx="4" fill="#A0522D"/><rect x="120" y="182" width="18" height="8" rx="2" fill="#5D4037"/><path d="M65,95 L85,55 L115,65 L105,105 Z" fill="#A0522D"/><path d="M85,55 C75,65 75,90 85,100" stroke="#333" stroke-width="6" stroke-linecap="round" fill="none"/><ellipse cx="115" cy="55" rx="35" ry="25" fill="#A0522D" transform="rotate(-15 115 55)"/><path d="M95,30 L102,45 L90,48 Z" fill="#A0522D"/><path d="M115,25 L118,40 L108,42 Z" fill="#A0522D"/><path d="M100,35 C105,25 120,30 115,40" stroke="#333" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="125" cy="50" r="6" fill="#000"/><circle cx="127" cy="48" r="2" fill="#FFF"/><ellipse cx="138" cy="65" rx="12" ry="10" fill="#CD853F" transform="rotate(-15 138 65)"/><circle cx="138" cy="62" r="2.5" fill="#5D4037"/><path d="M135,70 C138,73 142,72 144,69" stroke="#5D4037" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`,
+  /* 4: Porco/Pig */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="120" r="65" fill="#FFC0CB"/><rect x="70" y="170" width="20" height="20" rx="5" fill="#FFB6C1"/><rect x="110" y="170" width="20" height="20" rx="5" fill="#FFB6C1"/><circle cx="100" cy="80" r="50" fill="#FFC0CB"/><path d="M55,50 C45,30 75,25 75,45 Z" fill="#FFB6C1" stroke="#FF99AA" stroke-width="1"/><path d="M145,50 C155,30 125,25 125,45 Z" fill="#FFB6C1" stroke="#FF99AA" stroke-width="1"/><circle cx="75" cy="75" r="7" fill="#000"/><circle cx="77" cy="73" r="2.5" fill="#FFF"/><circle cx="125" cy="75" r="7" fill="#000"/><circle cx="127" cy="73" r="2.5" fill="#FFF"/><circle cx="100" cy="100" r="20" fill="#FFB6C1" stroke="#FF99AA" stroke-width="2"/><ellipse cx="92" cy="100" rx="4" ry="6" fill="#FF69B4"/><ellipse cx="108" cy="100" rx="4" ry="6" fill="#FF69B4"/><path d="M90,125 C95,130 105,130 110,125" stroke="#FF69B4" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="65" cy="95" r="6" fill="#FF99AA" opacity="0.7"/><circle cx="135" cy="95" r="6" fill="#FF99AA" opacity="0.7"/><path d="M165,120 C180,110 180,130 170,135 C165,138 160,130 165,125" stroke="#FFB6C1" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+  /* 5: Galinha/Chicken */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M100,60 C60,60 50,120 50,140 C50,170 80,180 100,180 C120,180 150,170 150,140 C150,120 140,60 100,60 Z" fill="#FFF" stroke="#E0E0E0" stroke-width="1"/><path d="M55,110 C40,120 45,150 60,150 Z" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="1"/><path d="M145,110 C160,120 155,150 140,150 Z" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="1"/><path d="M85,45 C80,30 90,20 100,30 C110,20 120,30 115,45 Z" fill="#FF4500"/><circle cx="85" cy="85" r="6" fill="#000"/><circle cx="87" cy="83" r="2" fill="#FFF"/><circle cx="115" cy="85" r="6" fill="#000"/><circle cx="117" cy="83" r="2" fill="#FFF"/><path d="M100,95 L92,105 L108,105 Z" fill="#FFA500"/><path d="M95,110 C95,120 105,120 105,110 Z" fill="#FF4500"/><path d="M85,180 L80,195 M85,180 L85,198 M85,180 L90,195" stroke="#FFA500" stroke-width="3" stroke-linecap="round"/><path d="M115,180 L110,195 M115,180 L115,198 M115,180 L120,195" stroke="#FFA500" stroke-width="3" stroke-linecap="round"/><circle cx="75" cy="100" r="4" fill="#FFB6C1" opacity="0.6"/><circle cx="125" cy="100" r="4" fill="#FFB6C1" opacity="0.6"/></svg>`,
+  /* 6: Pato/Duck */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M70,100 C40,100 40,160 80,170 C120,180 160,160 160,130 C160,100 130,90 110,95 Z" fill="#FFD700"/><path d="M90,120 C75,125 75,150 95,155 C110,150 115,130 100,120 Z" fill="#FFEC8B"/><path d="M90,100 L85,70 L115,70 L110,100 Z" fill="#FFD700"/><circle cx="100" cy="60" r="35" fill="#FFD700"/><circle cx="88" cy="55" r="6" fill="#000"/><circle cx="90" cy="53" r="2" fill="#FFF"/><circle cx="112" cy="55" r="6" fill="#000"/><circle cx="114" cy="53" r="2" fill="#FFF"/><path d="M100,70 C85,70 80,85 100,90 C120,85 115,70 100,70 Z" fill="#FF8C00"/><ellipse cx="100" cy="78" rx="3" ry="1.5" fill="#CD6600" opacity="0.5"/><path d="M80,172 C80,185 70,190 80,195" stroke="#FF8C00" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M120,172 C120,185 130,190 120,195" stroke="#FF8C00" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`,
+  /* 7: Leão/Lion */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M100,20 C120,20 135,25 150,35 C165,45 175,60 178,80 C180,100 175,120 165,135 C155,150 140,160 120,163 L100,165 L80,163 C60,160 45,150 35,135 C25,120 20,100 22,80 C25,60 35,45 50,35 C65,25 80,20 100,20 Z" fill="#D2691E"/><path d="M70,130 L130,130 L125,170 C125,185 75,185 75,170 Z" fill="#F0E68C"/><circle cx="85" cy="175" r="12" fill="#DAA520"/><circle cx="115" cy="175" r="12" fill="#DAA520"/><circle cx="100" cy="90" r="50" fill="#F0E68C"/><circle cx="65" cy="55" r="12" fill="#DAA520"/><circle cx="135" cy="55" r="12" fill="#DAA520"/><circle cx="80" cy="85" r="8" fill="#FFF"/><circle cx="80" cy="85" r="5" fill="#000"/><circle cx="82" cy="83" r="1.5" fill="#FFF"/><circle cx="120" cy="85" r="8" fill="#FFF"/><circle cx="120" cy="85" r="5" fill="#000"/><circle cx="122" cy="83" r="1.5" fill="#FFF"/><polygon points="100,100 94,93 106,93" fill="#A52A2A"/><path d="M100,100 L100,110 C95,115 90,115 90,110 M100,110 C105,115 110,115 110,110" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="70" cy="105" r="6" fill="#FF7F50" opacity="0.5"/><circle cx="130" cy="105" r="6" fill="#FF7F50" opacity="0.5"/></svg>`,
+  /* 8: Elefante/Elephant */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="130" rx="65" ry="50" fill="#A9A9A9"/><rect x="65" y="160" width="25" height="30" rx="5" fill="#808080"/><rect x="110" y="160" width="25" height="30" rx="5" fill="#808080"/><ellipse cx="55" cy="80" rx="35" ry="45" fill="#A9A9A9" transform="rotate(-10 55 80)"/><ellipse cx="58" cy="80" rx="25" ry="35" fill="#FFC0CB" transform="rotate(-10 58 80)" opacity="0.7"/><ellipse cx="145" cy="80" rx="35" ry="45" fill="#A9A9A9" transform="rotate(10 145 80)"/><ellipse cx="142" cy="80" rx="25" ry="35" fill="#FFC0CB" transform="rotate(10 142 80)" opacity="0.7"/><circle cx="100" cy="80" r="50" fill="#A9A9A9"/><path d="M75,75 C80,70 85,70 90,75" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M110,75 C115,70 120,70 125,75" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M100,95 C100,130 70,140 70,120 C70,110 80,110 80,120 C80,125 90,120 90,105 Z" fill="#A9A9A9" stroke="#808080" stroke-width="1"/><path d="M88,110 H92 M85,117 H90" stroke="#808080" stroke-width="1" stroke-linecap="round"/><circle cx="70" cy="95" r="5" fill="#FFB6C1" opacity="0.6"/><circle cx="130" cy="95" r="5" fill="#FFB6C1" opacity="0.6"/></svg>`,
+  /* 9: Macaco/Monkey */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M75,120 C75,100 125,100 125,120 L120,160 C120,175 80,175 75,160 Z" fill="#8B4513"/><ellipse cx="100" cy="140" rx="18" ry="22" fill="#F5F5DC"/><circle cx="80" cy="170" r="10" fill="#8B4513"/><circle cx="120" cy="170" r="10" fill="#8B4513"/><path d="M125,140 C150,140 160,110 145,100 C135,90 125,100 135,105 C145,110 135,130 125,130" stroke="#8B4513" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="100" cy="75" r="45" fill="#8B4513"/><circle cx="60" cy="65" r="15" fill="#8B4513"/><circle cx="60" cy="65" r="9" fill="#F5F5DC"/><circle cx="140" cy="65" r="15" fill="#8B4513"/><circle cx="140" cy="65" r="9" fill="#F5F5DC"/><path d="M100,50 C80,50 70,65 70,80 C70,100 85,110 100,110 C115,110 130,100 130,80 C130,65 120,50 100,50 Z" fill="#F5F5DC"/><circle cx="88" cy="75" r="6" fill="#000"/><circle cx="90" cy="73" r="2" fill="#FFF"/><circle cx="112" cy="75" r="6" fill="#000"/><circle cx="114" cy="73" r="2" fill="#FFF"/><ellipse cx="100" cy="88" rx="5" ry="3" fill="#8B4513" opacity="0.7"/><path d="M90,95 C95,100 105,100 110,95" stroke="#000" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="78" cy="92" r="4" fill="#FFB6C1"/><circle cx="122" cy="92" r="4" fill="#FFB6C1"/></svg>`,
+];
+
 const ANIMALS = [
-  { emoji:'🐶', pt:'Cachorro', en:'Dog',      gen:'o' },
-  { emoji:'🐱', pt:'Gato',     en:'Cat',      gen:'o' },
-  { emoji:'🐮', pt:'Vaca',     en:'Cow',      gen:'a' },
-  { emoji:'🐴', pt:'Cavalo',   en:'Horse',    gen:'o' },
-  { emoji:'🐷', pt:'Porco',    en:'Pig',      gen:'o' },
-  { emoji:'🐔', pt:'Galinha',  en:'Chicken',  gen:'a' },
-  { emoji:'🦆', pt:'Pato',     en:'Duck',     gen:'o' },
-  { emoji:'🦁', pt:'Leão',     en:'Lion',     gen:'o' },
-  { emoji:'🐘', pt:'Elefante', en:'Elephant', gen:'o' },
-  { emoji:'🐵', pt:'Macaco',   en:'Monkey',   gen:'o' },
+  { pt:'Cachorro', en:'Dog',      gen:'o' },
+  { pt:'Gato',     en:'Cat',      gen:'o' },
+  { pt:'Vaca',     en:'Cow',      gen:'a' },
+  { pt:'Cavalo',   en:'Horse',    gen:'o' },
+  { pt:'Porco',    en:'Pig',      gen:'o' },
+  { pt:'Galinha',  en:'Chicken',  gen:'a' },
+  { pt:'Pato',     en:'Duck',     gen:'o' },
+  { pt:'Leão',     en:'Lion',     gen:'o' },
+  { pt:'Elefante', en:'Elephant', gen:'o' },
+  { pt:'Macaco',   en:'Monkey',   gen:'o' },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -384,10 +410,11 @@ const FlashGame = {
     const L     = LANG[this.lang];
     const name  = this.lang === 'pt' ? a.pt : a.en;
 
+    const svg = ANIMAL_SVGS[this.step];
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
     document.getElementById('flashFront').style.background = color;
-    document.getElementById('flashEmoji').textContent = a.emoji;
-    document.getElementById('flashBackEmoji').textContent = a.emoji;
+    document.getElementById('flashEmoji').innerHTML = svg;
+    document.getElementById('flashBackEmoji').innerHTML = svg;
     document.getElementById('flashName').textContent = name;
 
     const total = ANIMALS.length;
@@ -492,10 +519,9 @@ const ClickGame = {
     const optionsEl = document.getElementById('clickOptions');
     optionsEl.innerHTML = '';
     opts.forEach(ai => {
-      const a   = ANIMALS[ai];
       const btn = document.createElement('button');
       btn.className = 'click-opt';
-      btn.textContent = a.emoji;
+      btn.innerHTML = ANIMAL_SVGS[ai];
 
       const xOv = document.createElement('span');
       xOv.className = 'x-overlay';
