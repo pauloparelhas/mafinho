@@ -147,6 +147,52 @@
 }
 .click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
 .click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
+/* ── TELA G: Separar ── */
+#sSort {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:12px 12px 8px; gap:10px;
+}
+#sSort .back-link { margin-bottom:0; }
+.sort-instruction {
+  font-size:var(--lg); font-weight:900; text-align:center;
+  line-height:1.4; padding:4px 12px;
+  color:var(--text);
+}
+.sort-color-word {
+  display:inline-block; padding:2px 14px; border-radius:12px;
+  color:white; font-weight:900;
+}
+.sort-grid {
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  gap:12px; max-width:360px; padding:8px;
+  flex:1; align-content:center;
+}
+.sort-item {
+  width:80px; height:80px; border-radius:var(--radlg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.6rem; cursor:pointer;
+  background:var(--surface); border:3px solid var(--border);
+  box-shadow:0 3px 12px var(--shadow);
+  transition:transform .15s, opacity .25s;
+  -webkit-tap-highlight-color:transparent;
+}
+.sort-item:active { transform:scale(0.92); }
+@keyframes sortPop {
+  0%   { transform:scale(1); opacity:1; }
+  40%  { transform:scale(1.3); opacity:1; }
+  100% { transform:scale(0); opacity:0; }
+}
+.sort-item.found { animation:sortPop .45s ease forwards; pointer-events:none; }
+@keyframes sortShake {
+  0%,100% { transform:translateX(0); }
+  20%     { transform:translateX(-6px); }
+  40%     { transform:translateX(6px); }
+  60%     { transform:translateX(-4px); }
+  80%     { transform:translateX(4px); }
+}
+.sort-item.wrong { animation:sortShake .4s ease; }
+.sort-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 </style>
 </head>
 <body>
@@ -190,10 +236,10 @@
       <span class="g-title" id="hubClicar">Clicar</span>
       <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
     </div>
-    <div class="game-card coming">
+    <div class="game-card ready" onclick="Nav.goLang('sort')">
       <span class="g-icon">📦</span>
       <span class="g-title" id="hubSeparar">Separar</span>
-      <span class="g-badge badge-soon" id="badgeSeparar">Em breve</span>
+      <span class="g-badge badge-ready" id="badgeSeparar">Disponível</span>
     </div>
   </div>
 </div>
@@ -262,6 +308,14 @@
   <p class="click-round" id="clickRoundBadge"></p>
   <p class="click-instruction" id="clickInstruction"></p>
   <div class="click-options" id="clickOptions"></div>
+</div>
+
+<!-- ═══ TELA G: Separar ═══ -->
+<div id="sSort">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="sortBackLabel">Cores</span></button>
+  <p class="sort-instruction" id="sortInstruction"></p>
+  <div class="sort-grid" id="sortGrid"></div>
+  <p class="sort-round" id="sortRoundBadge"></p>
 </div>
 
 <!-- ═══ TELA D: Celebração ═══ -->
@@ -388,6 +442,11 @@ const LANG = {
     hubSub:'Aprenda as cores!',
     badgeFlash:'Disponível', hubArrastar:'Arrastar', badgeArrastar:'Disponível',
     hubClicar:'Clicar', badgeClicar:'Disponível', hubSeparar:'Separar',
+    badgeSeparar:'Disponível', sortBackLabel:'Cores',
+    sortCmd:'Toque nos objetos',
+    sortCelSub:'Você separou todas as cores!',
+    sortCelSpoken:'Parabéns! Você separou todas as cores! Que organizadinho!',
+    sortRound:'Rodada',
     badgeSoon:'Em breve', backLabel:'Cores', clickBackLabel:'Cores',
     clickCmd:'Aperte na cor',
     tapHint:'Toque para descobrir!', nextHint:'▶ próxima cor',
@@ -421,6 +480,11 @@ const LANG = {
     hubSub:'Learn the colors!',
     badgeFlash:'Available', hubArrastar:'Drag', badgeArrastar:'Available',
     hubClicar:'Click', badgeClicar:'Available', hubSeparar:'Sort',
+    badgeSeparar:'Available', sortBackLabel:'Colors',
+    sortCmd:'Tap the',
+    sortCelSub:'You sorted all the colors!',
+    sortCelSpoken:'Hooray! You sorted all the colors! So organized!',
+    sortRound:'Round',
     badgeSoon:'Coming soon', backLabel:'Colors', clickBackLabel:'Colors',
     clickCmd:'Tap the color',
     tapHint:'Tap to find out!', nextHint:'▶ next color',
@@ -462,6 +526,9 @@ Nav.startGame = function(lang) {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(lang);
+  } else if (this.currentGame === 'sort') {
+    this._show('sSort');
+    SortGame.start(lang);
   } else {
     this._show('sGame');
     Game.start(lang);
@@ -476,6 +543,9 @@ Nav.restartGame = function() {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(ClickGame.lang);
+  } else if (this.currentGame === 'sort') {
+    this._show('sSort');
+    SortGame.start(SortGame.lang);
   } else {
     this._show('sGame');
     Game.restart();
@@ -493,8 +563,9 @@ Nav._applyLang = function(lang) {
   document.getElementById('hubArrastar').textContent   = L.hubArrastar;
   document.getElementById('badgeArrastar').textContent = L.badgeArrastar;
   document.getElementById('hubClicar').textContent     = L.hubClicar;
-  document.getElementById('hubSeparar').textContent    = L.hubSeparar;
-  document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
+  document.getElementById('hubSeparar').textContent      = L.hubSeparar;
+  document.getElementById('badgeSeparar').textContent    = L.badgeSeparar;
+  document.getElementById('sortBackLabel').textContent   = L.sortBackLabel;
   document.getElementById('backLabel').textContent     = L.backLabel;
   document.getElementById('tapHint').textContent       = L.tapHint;
   document.getElementById('btnRestart').textContent    = L.restart;
@@ -886,8 +957,133 @@ const ClickGame = {
   },
 };
 
+/* ═══════════════════════════════════════════════
+   SORT GAME — Separar objetos por cor
+═══════════════════════════════════════════════ */
+const SortGame = {
+  lang:'pt', step:0, totalSteps:4, remaining:0, _locked:false, _colorSequence:[],
+
+  start(lang) {
+    this.lang = lang;
+    this.step = 0;
+    this._locked = false;
+    /* 4 cores aleatórias sem repetição (excluindo branco por contraste) */
+    this._colorSequence = shuffle([0,1,2,3,4,5,6,7]).slice(0, this.totalSteps);
+    TTS.init();
+    this._render();
+  },
+
+  _render() {
+    const targetIdx = this._colorSequence[this.step];
+    const target    = COLORS[targetIdx];
+    const L         = LANG[this.lang];
+    const targetName = this.lang === 'pt' ? target.pt : target.en;
+
+    /* Round badge */
+    document.getElementById('sortRoundBadge').textContent =
+      L.sortRound + ' ' + (this.step + 1) + ' / ' + this.totalSteps;
+
+    /* Instrução: "Toque nos objetos VERMELHOS!" */
+    const inst = document.getElementById('sortInstruction');
+    inst.innerHTML = L.sortCmd +
+      ' <span class="sort-color-word" style="background:' + target.bg +
+      (target.text === '#333' ? ';color:#333' : '') + '">' +
+      targetName + '</span>!';
+
+    /* Montar objetos: 2 da cor alvo + 4-6 distratores (2 de cada cor errada) */
+    const wrongPool = this._colorSequence.filter(i => i !== targetIdx);
+    const distractors = shuffle(wrongPool).slice(0, 3);
+
+    const items = [];
+    /* Objetos corretos */
+    COLOR_OBJECTS[targetIdx].forEach(em => items.push({ ci: targetIdx, em }));
+    /* Distratores: 2 objetos de cada cor errada (3 cores × 2 = 6) */
+    distractors.forEach(ci => {
+      COLOR_OBJECTS[ci].forEach(em => items.push({ ci, em }));
+    });
+
+    const shuffled = shuffle(items);
+    const grid = document.getElementById('sortGrid');
+    grid.innerHTML = '';
+
+    this.remaining = COLOR_OBJECTS[targetIdx].length;
+
+    shuffled.forEach(({ ci, em }) => {
+      const el = document.createElement('div');
+      el.className = 'sort-item';
+      el.dataset.colorIdx = ci;
+      if (em.startsWith('<svg')) {
+        el.innerHTML = em;
+        el.style.padding = '6px';
+      } else {
+        el.textContent = em;
+      }
+      el.addEventListener('click', () => {
+        if (this._locked) return;
+        if (parseInt(el.dataset.colorIdx) === targetIdx) {
+          this._onCorrect(el, targetIdx);
+        } else {
+          this._onWrong(el);
+        }
+      });
+      grid.appendChild(el);
+    });
+
+    /* Voz: instrução */
+    const spoken = L.sortCmd + ' ' + targetName;
+    setTimeout(() => TTS.speak(spoken), 250);
+  },
+
+  _onCorrect(el, colorIdx) {
+    el.classList.add('found');
+    SFX.playCorrect();
+    const name = this.lang === 'pt' ? COLORS[colorIdx].pt : COLORS[colorIdx].en;
+    TTS.speak(name);
+    this.remaining--;
+    if (this.remaining <= 0) {
+      this._locked = true;
+      /* Todos encontrados — elogio e próxima rodada */
+      setTimeout(() => {
+        const L   = LANG[this.lang];
+        const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+        const t   = document.getElementById('encToast');
+        t.textContent = enc.text;
+        t.classList.add('show');
+        TTS.speak(enc.spoken);
+        setTimeout(() => t.classList.remove('show'), 3200);
+        setTimeout(() => {
+          this._locked = false;
+          this.step++;
+          if (this.step >= this.totalSteps) this._celebrate();
+          else                              this._render();
+        }, 3000);
+      }, 500);
+    }
+  },
+
+  _onWrong(el) {
+    SFX.playWrong();
+    el.classList.add('wrong');
+    setTimeout(() => el.classList.remove('wrong'), 450);
+  },
+
+  _celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.sortCelSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.sortCelSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('colors_sort_progresso', JSON.stringify({
+      completed:true, date:new Date().toISOString()
+    }));
+    Nav._show('sCelebrate');
+  },
+};
+
 /* ── BOOT ── */
-Nav.boot(['sHub','sLang','sGame','sDrag','sClick','sCelebrate']);
+Nav.boot(['sHub','sLang','sGame','sDrag','sClick','sSort','sCelebrate']);
 </script>
 </body>
 </html>
