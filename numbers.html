@@ -222,6 +222,48 @@
 .click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
 .click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 
+/* ── TELA H: Arrastar ── */
+#sDrag {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:12px 12px 8px; gap:10px;
+  touch-action:none;
+}
+#sDrag .back-link { margin-bottom:0; }
+.drag-target {
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+  gap:10px; max-width:320px; padding:16px;
+  min-height:120px; align-content:center;
+  border:4px dashed rgba(0,0,0,0.18);
+  border-radius:var(--radlg);
+  background:var(--surface);
+  transition:transform .15s, border-style .1s, box-shadow .15s;
+}
+.drag-target.over {
+  transform:scale(1.04);
+  border-style:solid;
+  box-shadow:0 0 0 4px rgba(255,255,255,0.5) inset, 0 8px 24px rgba(0,0,0,0.25);
+}
+.drag-instruction {
+  font-size:var(--xl); font-weight:900; text-align:center;
+  color:var(--country-accent);
+}
+.drag-num-cards {
+  display:flex; gap:14px; justify-content:center;
+  width:100%; max-width:420px;
+}
+.drag-num-card {
+  width:100px; height:100px; border-radius:var(--radlg);
+  font-size:3.2rem; font-weight:900;
+  font-family:'Nunito', sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  cursor:grab; user-select:none; touch-action:none;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  color:white;
+  -webkit-tap-highlight-color:transparent;
+  transition:opacity .2s, box-shadow .15s;
+}
+.drag-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
 /* ── Trace mode (caligrafia) ── */
 #sPaint.trace-mode .paint-palette { display:none; }
 #sPaint.trace-mode .paint-area { border-color:var(--c-blue); }
@@ -277,6 +319,11 @@
       <span class="g-icon">🎯</span>
       <span class="g-title" id="hubClicar">Clicar</span>
       <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('drag')">
+      <span class="g-icon">🤚</span>
+      <span class="g-title" id="hubArrastar">Arrastar</span>
+      <span class="g-badge badge-ready" id="badgeArrastar">Disponível</span>
     </div>
   </div>
 </div>
@@ -380,6 +427,15 @@
   <p class="click-round" id="clickRoundBadge"></p>
 </div>
 
+<!-- ═══ TELA H: Arrastar ═══ -->
+<div id="sDrag">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="dragBackLabel">Números</span></button>
+  <div class="drag-target" id="dragTarget"></div>
+  <p class="drag-instruction" id="dragInstruction">Quantos tem?</p>
+  <div class="drag-num-cards" id="dragNumCards"></div>
+  <p class="drag-round" id="dragRoundBadge"></p>
+</div>
+
 <!-- ═══ TELA D: Celebração ═══ -->
 <div id="sCelebrate">
   <div class="stars">⭐⭐⭐⭐⭐</div>
@@ -463,6 +519,11 @@ const LANG = {
     badgeClicar:'Disponível',
     clickCelSub:'Você acertou todos os números!',
     clickCelSpoken:'Parabéns! Você acertou todos os números! Que esperto!',
+    hubArrastar:'Arrastar', badgeArrastar:'Disponível',
+    dragBackLabel:'Números', dragQuestion:'Quantos tem? Arraste!',
+    dragRound:'Rodada',
+    dragCelSub:'Você arrastou todos os números!',
+    dragCelSpoken:'Parabéns! Você arrastou todos os números! Que incrível!',
     numWords:['Um','Dois','Três','Quatro','Cinco','Seis','Sete','Oito','Nove','Dez'],
     whatNumber:'Que número é esse?',
     itsNumber:'{n}!',
@@ -507,6 +568,11 @@ const LANG = {
     badgeClicar:'Available',
     clickCelSub:'You got all the numbers right!',
     clickCelSpoken:'Hooray! You got all the numbers right! So smart!',
+    hubArrastar:'Drag', badgeArrastar:'Available',
+    dragBackLabel:'Numbers', dragQuestion:'How many? Drag it!',
+    dragRound:'Round',
+    dragCelSub:'You dragged all the numbers!',
+    dragCelSpoken:'Hooray! You dragged all the numbers! Amazing!',
     numWords:['One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten'],
     whatNumber:'What number is this?',
     itsNumber:'{n}!',
@@ -531,7 +597,7 @@ const LANG = {
 /* ═══════════════════════════════════════════════
    NAV — overrides específicos de Números
 ═══════════════════════════════════════════════ */
-Nav._onLeave = function() { CountGame.abort(); PaintGame.abort(); ClickGame._locked = false; speechSynthesis && speechSynthesis.cancel(); };
+Nav._onLeave = function() { CountGame.abort(); PaintGame.abort(); ClickGame._locked = false; DragGame._cleanup(); speechSynthesis && speechSynthesis.cancel(); };
 
 Nav.startGame = function(lang) {
   this._applyLang(lang);
@@ -548,6 +614,9 @@ Nav.startGame = function(lang) {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(lang);
+  } else if (this.currentGame === 'drag') {
+    this._show('sDrag');
+    DragGame.start(lang);
   } else {
     this._show('sCount');
     CountGame.start(lang);
@@ -565,6 +634,9 @@ Nav.restartGame = function() {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(ClickGame.lang);
+  } else if (this.currentGame === 'drag') {
+    this._show('sDrag');
+    DragGame.start(DragGame.lang);
   } else {
     this._show('sCount');
     CountGame.start(CountGame.lang);
@@ -596,6 +668,9 @@ Nav._applyLang = function(lang) {
   set('paintBackLabel', L.paintBackLabel);
   set('clickBackLabel', L.clickBackLabel || L.backLabel);
   set('badgeClicar',    L.badgeClicar);
+  set('dragBackLabel',  L.dragBackLabel || L.backLabel);
+  set('hubArrastar',    L.hubArrastar);
+  set('badgeArrastar',  L.badgeArrastar);
   set('btnRestart',     L.restart);
   set('btnBackHub',     L.backHub);
   document.querySelectorAll('.badge-soon').forEach(el => el.textContent = L.badgeSoon);
@@ -1412,8 +1487,229 @@ const ClickGame = {
   },
 };
 
+/* ═══════════════════════════════════════════════
+   DRAG GAME — Arrastar número para quantidade
+═══════════════════════════════════════════════ */
+const DragGame = {
+  lang:'pt', sequence:[], step:0, totalSteps:5, activeGhost:null, _themeOffset:0,
+
+  start(lang) {
+    this.lang = lang;
+    this.step = 0;
+    this.sequence = shuffle([...Array(10).keys()]).slice(0, this.totalSteps);
+    this._themeOffset = Math.floor(Math.random() * THEMES.length);
+    document.body.style.touchAction = 'none';
+    document.body.style.overflow = 'hidden';
+    TTS.init();
+    this._render();
+  },
+
+  _cleanup() {
+    if (this.activeGhost) { this.activeGhost.remove(); this.activeGhost = null; }
+    document.body.style.touchAction = '';
+    document.body.style.overflow = '';
+  },
+
+  _render() {
+    const numIdx = this.sequence[this.step];
+    const num    = numIdx + 1;
+    const color  = NUM_COLORS[numIdx];
+    const theme  = THEMES[(numIdx + this._themeOffset) % THEMES.length];
+    const L      = LANG[this.lang];
+
+    /* Round badge */
+    document.getElementById('dragRoundBadge').textContent =
+      L.dragRound + ' ' + (this.step + 1) + ' / ' + this.totalSteps;
+
+    /* Target area: N objetos */
+    const target = document.getElementById('dragTarget');
+    target.innerHTML = '';
+    target.classList.remove('over');
+    target.dataset.numIdx = numIdx;
+    const objSize = num <= 3 ? '3rem' : num <= 6 ? '2.4rem' : '1.8rem';
+    for (let j = 0; j < num; j++) {
+      const s = document.createElement('span');
+      s.textContent = theme;
+      s.style.fontSize = objSize;
+      target.appendChild(s);
+    }
+
+    /* Instrução */
+    document.getElementById('dragInstruction').textContent = L.dragQuestion;
+
+    /* 3 cards: 1 correto + 2 errados */
+    const pool  = [...Array(10).keys()].filter(i => i !== numIdx);
+    const wrong = shuffle(pool).slice(0, 2);
+    const opts  = shuffle([numIdx, ...wrong]);
+
+    const cardsEl = document.getElementById('dragNumCards');
+    cardsEl.innerHTML = '';
+    opts.forEach(ni => {
+      const card = document.createElement('div');
+      card.className = 'drag-num-card';
+      card.dataset.numIdx = ni;
+      card.style.background = NUM_COLORS[ni];
+      card.textContent = ni + 1;
+      this._setupDrag(card);
+      cardsEl.appendChild(card);
+    });
+
+    /* Voz */
+    setTimeout(() => TTS.speak(L.dragQuestion), 250);
+  },
+
+  _setupDrag(card) {
+    let ghostEl = null, startX = 0, startY = 0;
+
+    card.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (card.style.visibility === 'hidden') return;
+      if (this.activeGhost) { this.activeGhost.remove(); this.activeGhost = null; }
+      const rect = card.getBoundingClientRect();
+      startX = e.clientX;
+      startY = e.clientY;
+      ghostEl = card.cloneNode(true);
+      ghostEl.style.cssText = [
+        'position:fixed',
+        'left:' + rect.left + 'px',
+        'top:' + rect.top + 'px',
+        'width:' + rect.width + 'px',
+        'height:' + rect.height + 'px',
+        'pointer-events:none',
+        'z-index:500',
+        'opacity:0.92',
+        'transition:none',
+        'box-shadow:0 10px 30px rgba(0,0,0,0.35)',
+        'transform:scale(1.12)',
+        'border-radius:var(--radlg)',
+        'display:flex', 'align-items:center', 'justify-content:center',
+        'font-size:3.2rem', 'font-weight:900', 'color:white',
+        'font-family:Nunito,sans-serif',
+        'background:' + NUM_COLORS[parseInt(card.dataset.numIdx)],
+      ].join(';');
+      document.body.appendChild(ghostEl);
+      this.activeGhost = ghostEl;
+      card.style.opacity = '0.3';
+      card.setPointerCapture(e.pointerId);
+    });
+
+    card.addEventListener('pointermove', e => {
+      if (!ghostEl) return;
+      e.preventDefault();
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      ghostEl.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(1.15)';
+      ghostEl.style.display = 'none';
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      ghostEl.style.display = '';
+      const tgt = document.getElementById('dragTarget');
+      if (under && (under === tgt || tgt.contains(under))) {
+        tgt.classList.add('over');
+      } else {
+        tgt.classList.remove('over');
+      }
+    });
+
+    card.addEventListener('pointerup', e => {
+      if (!ghostEl) return;
+      const tgt = document.getElementById('dragTarget');
+      tgt.classList.remove('over');
+      ghostEl.style.display = 'none';
+      const under = document.elementFromPoint(e.clientX, e.clientY);
+      ghostEl.style.display = '';
+      const cardNumIdx   = parseInt(card.dataset.numIdx);
+      const targetNumIdx = parseInt(tgt.dataset.numIdx);
+      const hitTarget = under && (under === tgt || tgt.contains(under));
+
+      if (hitTarget && cardNumIdx === targetNumIdx) {
+        ghostEl.remove(); ghostEl = null; this.activeGhost = null;
+        card.style.opacity = '1';
+        this._onCorrect(card, cardNumIdx + 1);
+      } else {
+        /* Volta ao lugar */
+        const g = ghostEl;
+        g.style.transition = 'transform 0.28s ease';
+        g.style.transform = 'translate(0,0) scale(1)';
+        setTimeout(() => {
+          g.remove();
+          if (this.activeGhost === g) this.activeGhost = null;
+          card.style.opacity = '1';
+        }, 280);
+        ghostEl = null;
+        if (hitTarget) {
+          /* Errou: feedback neutro */
+          SFX.playWrong();
+        }
+      }
+    });
+
+    card.addEventListener('pointercancel', () => {
+      if (!ghostEl) return;
+      ghostEl.remove();
+      if (this.activeGhost === ghostEl) this.activeGhost = null;
+      ghostEl = null;
+      card.style.opacity = '1';
+      document.getElementById('dragTarget').classList.remove('over');
+    });
+  },
+
+  _onCorrect(card, num) {
+    const L    = LANG[this.lang];
+    const name = L.numWords[num - 1];
+    const enc  = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+    SFX.playCorrect();
+
+    /* Estrela animada */
+    const tgt     = document.getElementById('dragTarget');
+    const tgtRect = tgt.getBoundingClientRect();
+    const star    = document.createElement('div');
+    star.textContent = '⭐';
+    star.style.cssText = [
+      'position:fixed',
+      'left:' + (tgtRect.left + tgtRect.width / 2) + 'px',
+      'top:' + (tgtRect.top + 10) + 'px',
+      'font-size:3rem', 'pointer-events:none', 'z-index:600',
+      'transform:translateX(-50%)',
+    ].join(';');
+    document.body.appendChild(star);
+    star.animate([
+      { opacity:1, transform:'translateX(-50%) scale(0.7) translateY(0)' },
+      { opacity:0, transform:'translateX(-50%) scale(1.6) translateY(-70px)' },
+    ], { duration:600, easing:'ease-out' }).onfinish = () => star.remove();
+
+    /* Toast */
+    const t = document.getElementById('encToast');
+    t.textContent = enc.text;
+    t.classList.add('show');
+    setTimeout(() => TTS.speak(name + '! ' + enc.spoken), 200);
+    setTimeout(() => t.classList.remove('show'), 3800);
+
+    /* Próxima rodada */
+    setTimeout(() => {
+      this.step++;
+      if (this.step >= this.totalSteps) this._celebrate();
+      else                              this._render();
+    }, 3500);
+  },
+
+  _celebrate() {
+    this._cleanup();
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.dragCelSpoken), 400);
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.dragCelSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('numbers_drag_progresso', JSON.stringify({
+      completed:true, date:new Date().toISOString()
+    }));
+    Nav._show('sCelebrate');
+  },
+};
+
 /* ── BOOT ── */
-Nav.boot(['sHub','sLang','sCount','sPaint','sFlash','sClick','sCelebrate']);
+Nav.boot(['sHub','sLang','sCount','sPaint','sFlash','sClick','sDrag','sCelebrate']);
 </script>
 </body>
 </html>
