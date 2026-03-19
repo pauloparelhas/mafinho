@@ -55,7 +55,10 @@ const MF = {
     this._soundOn = !this._soundOn;
     localStorage.setItem('mf-sound', this._soundOn ? 'on' : 'off');
     this._updateSoundBtn();
-    if (!this._soundOn) speechSynthesis && speechSynthesis.cancel();
+    if (!this._soundOn) {
+      speechSynthesis && speechSynthesis.cancel();
+      if (TTS._audio) { TTS._audio.pause(); TTS._audio = null; TTS._pulse(false); }
+    }
   },
   _updateSoundBtn() {
     const b = document.getElementById('btnSound');
@@ -156,7 +159,8 @@ const MF = {
 };
 
 /* ═══════════════════════════════════════════════════
-   TTS — Web Speech API
+   TTS — Áudio pré-gerado (voz da mãe) + Web Speech API (fallback)
+   voiceMode: 'mae' (áudio clonado) ou 'sistema' (Web Speech API)
    speak(): fala + atualiza lastText + pulse no btnSpeak
    speakAndWait(): retorna Promise que resolve ao terminar
    replay(): repete lastText
@@ -167,8 +171,19 @@ const TTS = {
   unlocked:  false,
   langCode:  'pt-BR',
   lastText:  '',
+  voiceMode: 'mae',      // 'mae' = áudio pré-gerado, 'sistema' = Web Speech API
+  _manifest: null,        // manifest.json carregado
+  _manifestLoaded: false,
+  _audio: null,           // Audio element atual (para cancelar)
 
   init() {
+    // Carrega preferência de voz
+    this.voiceMode = localStorage.getItem('mf-voice') || 'mae';
+    this._updateVoiceBtn();
+
+    // Carrega manifest de áudios pré-gerados
+    this._loadManifest();
+
     if (!this.supported) {
       document.getElementById('soundBanner').classList.add('hidden');
       return;
@@ -179,6 +194,55 @@ const TTS = {
     /* Tenta ativar imediatamente — o user acabou de tocar no botão de idioma,
        então o browser geralmente permite speechSynthesis neste ponto */
     if (!this.unlocked) this.activate();
+  },
+
+  /* ── Manifest de áudios pré-gerados ── */
+  _loadManifest() {
+    fetch('audio/manifest.json')
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => { this._manifest = data; this._manifestLoaded = true; })
+      .catch(() => { this._manifestLoaded = true; /* sem manifest, usa fallback */ });
+  },
+
+  /* ── Normalização de texto para lookup no manifest ── */
+  _normalize(text) {
+    return text.trim();
+  },
+
+  /* ── Busca áudio pré-gerado para o texto ── */
+  _findAudio(text) {
+    if (this.voiceMode !== 'mae' || !this._manifest) return null;
+    const lang = this.langCode.startsWith('pt') ? 'pt' : 'en';
+    const map = this._manifest[lang];
+    if (!map) return null;
+    const key = this._normalize(text);
+    return map[key] || null;
+  },
+
+  /* ── Toca arquivo de áudio ── */
+  _playAudioFile(path) {
+    return new Promise((resolve, reject) => {
+      if (this._audio) { this._audio.pause(); this._audio = null; }
+      const audio = new Audio(path);
+      this._audio = audio;
+      this._pulse(true);
+      audio.onended = () => { this._audio = null; this._pulse(false); resolve(); };
+      audio.onerror = () => { this._audio = null; this._pulse(false); reject(); };
+      audio.play().catch(reject);
+    });
+  },
+
+  /* ── Toggle voz mae/sistema ── */
+  toggleVoice() {
+    this.voiceMode = this.voiceMode === 'mae' ? 'sistema' : 'mae';
+    localStorage.setItem('mf-voice', this.voiceMode);
+    this._updateVoiceBtn();
+  },
+  _updateVoiceBtn() {
+    const b = document.getElementById('btnVoice');
+    if (!b) return;
+    b.textContent = this.voiceMode === 'mae' ? '👩' : '🤖';
+    b.title = this.voiceMode === 'mae' ? 'Voz da Mamãe' : 'Voz do Sistema';
   },
 
   setLang(code) { this.langCode = code; },
@@ -195,9 +259,9 @@ const TTS = {
     return null;
   },
 
-  speak(text) {
-    this.lastText = text;
-    if (!this.supported || !this.unlocked || !MF._soundOn) return;
+  /* ── Web Speech API (voz do sistema) ── */
+  _speakSynth(text) {
+    if (!this.supported || !this.unlocked) return;
     speechSynthesis.cancel();
     const utt   = new SpeechSynthesisUtterance(text);
     utt.lang    = this.langCode;
@@ -210,20 +274,21 @@ const TTS = {
     speechSynthesis.speak(utt);
   },
 
-  speakAndWait(text) {
+  _speakSynthAndWait(text, rate = 0.85, pitch = 1.0) {
     return new Promise(resolve => {
-      this.lastText = text;
-      if (!this.supported || !this.unlocked || !MF._soundOn) {
+      if (!this.supported || !this.unlocked) {
         setTimeout(resolve, Math.max(400, text.length * 80));
         return;
       }
+      speechSynthesis.cancel();
       const utt   = new SpeechSynthesisUtterance(text);
       utt.lang    = this.langCode;
-      utt.rate    = 0.85;
+      utt.rate    = rate;
+      utt.pitch   = pitch;
+      if (pitch !== 1.0) utt.volume = 1.0;
       const voice = this.getBestVoice();
       if (voice) utt.voice = voice;
       this._pulse(true);
-      this.lastText = text;
       let done = false;
       const finish = () => { if (!done) { done = true; this._pulse(false); resolve(); } };
       utt.onend   = finish;
@@ -233,31 +298,56 @@ const TTS = {
     });
   },
 
+  /* ── API pública ── */
+
+  speak(text) {
+    this.lastText = text;
+    if (!MF._soundOn) return;
+
+    // Tenta áudio pré-gerado (voz da mãe)
+    const audioPath = this._findAudio(text);
+    if (audioPath) {
+      this._playAudioFile(audioPath).catch(() => this._speakSynth(text));
+      return;
+    }
+
+    // Fallback: Web Speech API
+    this._speakSynth(text);
+  },
+
+  speakAndWait(text) {
+    this.lastText = text;
+    if (!MF._soundOn) {
+      return new Promise(resolve => setTimeout(resolve, Math.max(400, text.length * 80)));
+    }
+
+    // Tenta áudio pré-gerado (voz da mãe)
+    const audioPath = this._findAudio(text);
+    if (audioPath) {
+      return this._playAudioFile(audioPath)
+        .catch(() => this._speakSynthAndWait(text));
+    }
+
+    // Fallback: Web Speech API
+    return this._speakSynthAndWait(text);
+  },
+
   /* Fala com empolgação (mais lento, pitch alto) — para destaque */
   speakExcitedAndWait(text) {
-    return new Promise(resolve => {
-      this.lastText = text;
-      if (!this.supported || !this.unlocked || !MF._soundOn) {
-        setTimeout(resolve, Math.max(400, text.length * 100));
-        return;
-      }
-      speechSynthesis.cancel();
-      const utt   = new SpeechSynthesisUtterance(text);
-      utt.lang    = this.langCode;
-      utt.rate    = 0.80;
-      utt.pitch   = 1.12;
-      utt.volume  = 1.0;
-      const voice = this.getBestVoice();
-      if (voice) utt.voice = voice;
-      this._pulse(true);
-      this.lastText = text;
-      let done = false;
-      const finish = () => { if (!done) { done = true; this._pulse(false); resolve(); } };
-      utt.onend   = finish;
-      utt.onerror = finish;
-      setTimeout(finish, 4000);
-      speechSynthesis.speak(utt);
-    });
+    this.lastText = text;
+    if (!MF._soundOn) {
+      return new Promise(resolve => setTimeout(resolve, Math.max(400, text.length * 100)));
+    }
+
+    // Tenta áudio pré-gerado (voz da mãe) — mesma gravação
+    const audioPath = this._findAudio(text);
+    if (audioPath) {
+      return this._playAudioFile(audioPath)
+        .catch(() => this._speakSynthAndWait(text, 0.80, 1.12));
+    }
+
+    // Fallback: Web Speech API com empolgação
+    return this._speakSynthAndWait(text, 0.80, 1.12);
   },
 
   activate() {

@@ -1,0 +1,40 @@
+╔══════════════════════════════════════════════════════════╗
+║  GUIA DE GRAVAÇÃO — Voz da Mamãe para o Mafinho Explora ║
+╚══════════════════════════════════════════════════════════╝
+
+INSTRUÇÕES:
+- Ambiente SILENCIOSO (sem TV, sem ventilador, sem trânsito)
+- Microfone do celular serve (gravar pelo app de gravador de voz)
+- Falar NATURALMENTE, como se estivesse falando com o Mafinho
+- Variar entonação: perguntas, afirmações, empolgação
+- NÃO precisa ser perfeito, pode regravar se errar
+- Duração ideal: 1 a 2 minutos de fala contínua
+- Salvar como .wav ou .m4a (qualquer formato)
+- NÃO precisa gravar em inglês — o modelo gera automaticamente
+
+═══════════════════════════════════════════════════════════
+
+TEXTO PARA LER (em português, com calma e carinho):
+
+"Qual é o vermelho? Muito bem! Isso é um cachorro!
+Vamos contar? Um, dois, três, quatro, cinco.
+Que lindo! Essa é a estrela. Parabéns, você acertou!
+
+Qual cor é esta? É o azul! Eba, que esperto!
+Olha o gatinho! Quem é esse animal?
+É a vaca! Que inteligente!
+
+Seis, sete, oito, nove, dez.
+Que criança boa! Você conhece todos os números!
+Qual forma é essa? É o círculo!
+
+Arrasou! Mandou bem! Que maravilha!
+Isso aí, muito bem! Boa, boa, boa!
+Parabéns, você pintou todas as formas! Que artista!"
+
+═══════════════════════════════════════════════════════════
+
+APÓS GRAVAR:
+- Salvar o arquivo como "sample_mae.wav" (ou .m4a)
+- Colocar na pasta: audio/sample_mae.wav
+- Avisar o Paulo para rodar o gerador de vozes
