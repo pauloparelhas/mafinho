@@ -78,6 +78,28 @@
 .click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
 .click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 
+/* ── SVG sizing (formas) ── */
+.card-emoji svg  { width:140px; height:140px; }
+.click-opt svg   { width:72px; height:72px; }
+.find-item svg   { width:48px; height:48px; }
+.find-target-word svg { width:26px; height:26px; vertical-align:middle; display:inline-block; }
+
+@media (min-width:600px) {
+  .card-emoji svg  { width:200px; height:200px; }
+  .click-opt       { width:140px; height:140px; }
+  .click-opt svg   { width:100px; height:100px; }
+  .find-item       { width:100px; height:100px; font-size:3.2rem; }
+  .find-item svg   { width:64px; height:64px; }
+}
+@media (min-width:1024px) {
+  .card-emoji svg  { width:240px; height:240px; }
+  .card-scene      { height:400px; }
+  .click-opt       { width:170px; height:170px; }
+  .click-opt svg   { width:120px; height:120px; }
+  .find-item       { width:110px; height:110px; }
+  .find-item svg   { width:76px; height:76px; }
+}
+
 /* ── Encontrar ── */
 #sFind {
   flex:1; display:none; flex-direction:column;
@@ -298,20 +320,41 @@
 /* ═══════════════════════════════════════════════
    DADOS — Formas
 ═══════════════════════════════════════════════ */
+/* Pastel backgrounds p/ flash cards — formas coloridas se destacam */
 const SHAPE_COLORS = [
-  '#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA',
-  '#00897B','#F06292','#F9A825'
+  '#FFCDD2','#BBDEFB','#C8E6C9','#FFF9C4',
+  '#FCE4EC','#E1BEE7','#FFE0B2','#B2DFDB'
 ];
 
 const SHAPES = [
-  { emoji:'⭕', pt:'Círculo',   en:'Circle',    draw:'circle' },
-  { emoji:'🟦', pt:'Quadrado',  en:'Square',    draw:'square' },
-  { emoji:'🔺', pt:'Triângulo', en:'Triangle',  draw:'triangle' },
-  { emoji:'⭐', pt:'Estrela',   en:'Star',      draw:'star' },
-  { emoji:'❤️', pt:'Coração',   en:'Heart',     draw:'heart' },
-  { emoji:'🔷', pt:'Losango',   en:'Diamond',   draw:'diamond' },
-  { emoji:'🟫', pt:'Retângulo', en:'Rectangle', draw:'rectangle' },
-  { emoji:'🥚', pt:'Oval',      en:'Oval',      draw:'oval' },
+  { emoji:'⭕', pt:'Círculo',   en:'Circle',    draw:'circle',    gen:'o' },
+  { emoji:'🟦', pt:'Quadrado',  en:'Square',    draw:'square',    gen:'o' },
+  { emoji:'🔺', pt:'Triângulo', en:'Triangle',  draw:'triangle',  gen:'o' },
+  { emoji:'⭐', pt:'Estrela',   en:'Star',      draw:'star',      gen:'a' },
+  { emoji:'❤️', pt:'Coração',   en:'Heart',     draw:'heart',     gen:'o' },
+  { emoji:'🔷', pt:'Losango',   en:'Diamond',   draw:'diamond',   gen:'o' },
+  { emoji:'🟫', pt:'Retângulo', en:'Rectangle', draw:'rectangle', gen:'o' },
+  { emoji:'🥚', pt:'Oval',      en:'Oval',      draw:'oval',      gen:'o' },
+];
+
+/* SVGs das formas — tamanhos visuais consistentes, retângulo claramente retangular */
+const SHAPE_SVGS = [
+  /* 0: Círculo */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="78" fill="#E53935" stroke="#B71C1C" stroke-width="5"/><ellipse cx="72" cy="68" rx="24" ry="16" fill="white" opacity="0.18" transform="rotate(-20 72 68)"/></svg>`,
+  /* 1: Quadrado */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="22" width="156" height="156" rx="10" fill="#1E88E5" stroke="#0D47A1" stroke-width="5"/><rect x="36" y="36" width="42" height="28" rx="8" fill="white" opacity="0.18"/></svg>`,
+  /* 2: Triângulo */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><polygon points="100,18 188,175 12,175" fill="#43A047" stroke="#1B5E20" stroke-width="5" stroke-linejoin="round"/><polygon points="100,48 130,100 70,100" fill="white" opacity="0.12"/></svg>`,
+  /* 3: Estrela */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><polygon points="100,12 122,74 188,74 134,114 154,176 100,142 46,176 66,114 12,74 78,74" fill="#F9A825" stroke="#F57F17" stroke-width="4" stroke-linejoin="round"/></svg>`,
+  /* 4: Coração */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M100,175 C45,125 5,85 35,50 C55,28 82,38 100,62 C118,38 145,28 165,50 C195,85 155,125 100,175Z" fill="#E91E63" stroke="#880E4F" stroke-width="4.5"/><ellipse cx="60" cy="56" rx="14" ry="10" fill="white" opacity="0.2" transform="rotate(-30 60 56)"/></svg>`,
+  /* 5: Losango */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><polygon points="100,12 180,100 100,188 20,100" fill="#8E24AA" stroke="#4A148C" stroke-width="5" stroke-linejoin="round"/><polygon points="100,42 140,100 100,120 60,100" fill="white" opacity="0.1"/></svg>`,
+  /* 6: Retângulo — proporção 1.83:1, claramente retangular */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="52" width="176" height="96" rx="10" fill="#FB8C00" stroke="#E65100" stroke-width="5"/><rect x="24" y="62" width="40" height="22" rx="6" fill="white" opacity="0.18"/></svg>`,
+  /* 7: Oval */
+  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><ellipse cx="100" cy="100" rx="88" ry="58" fill="#00897B" stroke="#004D40" stroke-width="5"/><ellipse cx="70" cy="78" rx="26" ry="14" fill="white" opacity="0.15" transform="rotate(-15 70 78)"/></svg>`,
 ];
 
 /* Desenha forma no canvas. cx,cy = centro, s = tamanho (~250px) */
@@ -359,7 +402,7 @@ function drawShape(ctx, type, cx, cy, s) {
       ctx.closePath();
       break;
     case 'rectangle':
-      ctx.rect(cx - r, cy - r * 0.6, s, s * 0.6);
+      ctx.rect(cx - r, cy - r * 0.52, s, s * 0.52);
       break;
     case 'oval':
       ctx.ellipse(cx, cy, r, r * 0.62, 0, 0, Math.PI * 2);
@@ -505,8 +548,8 @@ const FlashGame = {
     const name=this.lang==='pt'?s.pt:s.en;
     document.getElementById('flashCard3d').classList.toggle('flipped',this.flipped);
     document.getElementById('flashFront').style.background=color;
-    document.getElementById('flashEmoji').textContent=s.emoji;
-    document.getElementById('flashBackEmoji').textContent=s.emoji;
+    document.getElementById('flashEmoji').innerHTML=SHAPE_SVGS[this.step];
+    document.getElementById('flashBackEmoji').innerHTML=SHAPE_SVGS[this.step];
     document.getElementById('flashName').textContent=name;
     const total=SHAPES.length;
     document.getElementById('flashProgress').textContent=(this.step+1)+' / '+total;
@@ -559,17 +602,25 @@ const ClickGame = {
     const ti=this.sequence[this.step],target=SHAPES[ti],L=LANG[this.lang];
     const name=this.lang==='pt'?target.pt:target.en;
     document.getElementById('clickRoundBadge').textContent=(this.step+1)+' / '+this.totalSteps;
-    document.getElementById('clickInstruction').textContent=L.clickCmd+' '+name+'?';
+    let instruction, spoken;
+    if(this.lang==='pt'){
+      instruction='Qual é '+target.gen+' '+name+'?';
+      spoken='Qual é '+target.gen+' '+name;
+    } else {
+      instruction=L.clickCmd+' '+name+'?';
+      spoken=L.clickCmd+' '+name;
+    }
+    document.getElementById('clickInstruction').textContent=instruction;
     const pool=[...Array(SHAPES.length).keys()].filter(i=>i!==ti);
     const opts=shuffle([ti,...shuffle(pool).slice(0,2)]);
     const el=document.getElementById('clickOptions');el.innerHTML='';
     opts.forEach(si=>{
-      const btn=document.createElement('button');btn.className='click-opt';btn.textContent=SHAPES[si].emoji;
+      const btn=document.createElement('button');btn.className='click-opt';btn.innerHTML=SHAPE_SVGS[si];
       const xo=document.createElement('span');xo.className='x-overlay';xo.textContent='✖';btn.appendChild(xo);
       btn.addEventListener('click',()=>{if(this._locked)return;si===ti?this._onCorrect(ti):this._onWrong(btn);});
       el.appendChild(btn);
     });
-    setTimeout(()=>TTS.speak(L.clickCmd+' '+name),250);
+    setTimeout(()=>TTS.speak(spoken),250);
   },
   _onCorrect(idx){
     this._locked=true;const L=LANG[this.lang],name=this.lang==='pt'?SHAPES[idx].pt:SHAPES[idx].en;
@@ -605,27 +656,43 @@ const FindGame = {
     const ti=this._seq[this.step],target=SHAPES[ti],L=LANG[this.lang];
     const name=this.lang==='pt'?target.pt:target.en;
     document.getElementById('findRoundBadge').textContent=L.findRound+' '+(this.step+1)+' / '+this.totalSteps;
-    document.getElementById('findInstruction').innerHTML=
-      L.findCmd+' <span class="find-target-word">'+target.emoji+' '+name+'</span>!';
+    const miniSvg=SHAPE_SVGS[ti];
+    let findText;
+    if(this.lang==='pt'){
+      /* "Toque nos Círculos" / "Toque nas Estrelas" */
+      const artPlural = target.gen==='o' ? 'nos' : 'nas';
+      const namePlural = name.endsWith('l') ? name.slice(0,-1)+'is' : name+'s';
+      findText = 'Toque '+artPlural+' <span class="find-target-word">'+miniSvg+' '+namePlural+'</span>!';
+    } else {
+      findText = L.findCmd+' <span class="find-target-word">'+miniSvg+' '+name+'s</span>!';
+    }
+    document.getElementById('findInstruction').innerHTML=findText;
     /* 3 alvos + 5 distratores */
     const wrongPool=this._seq.filter(i=>i!==ti);
     const distractorIdx=shuffle([...Array(SHAPES.length).keys()].filter(i=>i!==ti)).slice(0,5);
     const items=[];
-    for(let j=0;j<3;j++) items.push({si:ti,emoji:target.emoji});
-    distractorIdx.forEach(si=>items.push({si,emoji:SHAPES[si].emoji}));
+    for(let j=0;j<3;j++) items.push({si:ti});
+    distractorIdx.forEach(si=>items.push({si}));
     const shuffled=shuffle(items);
     const grid=document.getElementById('findGrid');grid.innerHTML='';
     this.remaining=3;
-    shuffled.forEach(({si,emoji})=>{
+    shuffled.forEach(({si})=>{
       const el=document.createElement('div');el.className='find-item';el.dataset.shapeIdx=si;
-      el.textContent=emoji;
+      el.innerHTML=SHAPE_SVGS[si];
       el.addEventListener('click',()=>{
         if(this._locked)return;
         parseInt(el.dataset.shapeIdx)===ti?this._onCorrect(el,ti):this._onWrong(el);
       });
       grid.appendChild(el);
     });
-    setTimeout(()=>TTS.speak(L.findCmd+' '+name),250);
+    /* Fala coerente com texto escrito */
+    if(this.lang==='pt'){
+      const artPlural = target.gen==='o' ? 'nos' : 'nas';
+      const namePlural = name.endsWith('l') ? name.slice(0,-1)+'is' : name+'s';
+      setTimeout(()=>TTS.speak('Toque '+artPlural+' '+namePlural),250);
+    } else {
+      setTimeout(()=>TTS.speak(L.findCmd+' '+name+'s'),250);
+    }
   },
   _onCorrect(el,idx){
     el.classList.add('found');SFX.playCorrect();
@@ -835,7 +902,11 @@ const PaintGame = {
     if(this._aborted)return;
     const colorIdx=this.PALETTE.indexOf(this.currentColor);
     const colorName=(L.paintColors||[])[colorIdx]||'';
-    await TTS.speakAndWait(name+(colorName?' '+colorName:''));
+    /* EN: "red circle" (adj before noun) / PT: "círculo vermelho" (noun before adj) */
+    const spokenPaint = this.lang==='en' && colorName
+      ? colorName+' '+name
+      : name+(colorName?' '+colorName:'');
+    await TTS.speakAndWait(spokenPaint);
     if(this._aborted)return;
 
     const milestone=Math.floor((this.step+1)*4/this.sequence.length);
