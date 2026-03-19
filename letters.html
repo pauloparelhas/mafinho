@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light" data-country="br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+<title>Letras — Mafinho v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;700;800;900&display=swap"
+      rel="stylesheet" media="print" onload="this.media='all'"/>
+<link rel="stylesheet" href="base.css"/>
+<style>
+/* ═══════════════════════════════════════════
+   CSS ESPECÍFICO — letters.html
+═══════════════════════════════════════════ */
+
+/* Hub: cor do tópico Letras */
+.hub-hero { border-bottom-color:var(--c-purple); }
+.game-card.ready { border-color:var(--c-purple); }
+
+/* ── TELA: Flashcard ── */
+#sFlash {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:20px 16px 32px; gap:0;
+}
+.card-row   { display:flex; align-items:center; gap:14px; width:100%; max-width:520px; }
+.card-scene { flex:1; height:320px; perspective:1000px; min-width:0; }
+.card-3d {
+  width:100%; height:100%; position:relative;
+  transform-style:preserve-3d; transition:transform .5s;
+  cursor:pointer; border-radius:28px;
+}
+.card-3d.flipped { transform:rotateY(180deg); }
+.card-face {
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius:28px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px; padding:24px;
+}
+.card-back  { transform:rotateY(180deg); background:var(--surface); border:5px solid var(--border); }
+.card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; color:inherit; }
+.flash-letter {
+  font-size:9rem; font-weight:900; line-height:1;
+  font-family:'Nunito', sans-serif;
+}
+.flash-letter-front {
+  font-size:12rem; font-weight:900; line-height:1;
+  font-family:'Nunito', sans-serif;
+  opacity:0.25;
+}
+.flash-name { font-size:2.4rem; font-weight:900; text-align:center; line-height:1.1; }
+.flash-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; margin-top:16px; }
+#sFlash .card-nav { max-width:520px; }
+#sFlash .progress-bar-wrap { max-width:520px; }
+
+/* ── TELA: Pintar ── */
+#sPaint {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:4px 12px 4px; gap:4px;
+}
+#sPaint .back-link { min-height:52px; margin-bottom:0; }
+.paint-area {
+  position:relative;
+  width:100%; max-width:340px;
+  height:320px;
+  border-radius:var(--radlg);
+  background:var(--surface);
+  border:3px solid var(--border);
+  box-shadow:0 4px 16px var(--shadow);
+  overflow:hidden;
+  touch-action:none;
+}
+.paint-area canvas {
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+}
+#outlineCanvas { z-index:1; }
+#paintCanvas   { z-index:2; cursor:crosshair; }
+.paint-palette {
+  display:flex; gap:8px; justify-content:center;
+  padding:4px 0;
+}
+.paint-swatch {
+  width:64px; height:64px; border-radius:50%;
+  border:4px solid transparent;
+  cursor:pointer; margin:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s, border-color .15s;
+  box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+.paint-swatch:active { transform:scale(0.91); }
+.paint-swatch.active {
+  border-color:white;
+  box-shadow:0 0 0 3px var(--text), 0 4px 14px rgba(0,0,0,0.35);
+  transform:scale(1.15);
+}
+#sPaint .card-nav { max-width:340px; }
+#sPaint .progress-bar-wrap { max-width:340px; }
+.paint-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
+.enc-toast.paint-pos {
+  top:auto; bottom:150px;
+  font-size:var(--md);
+}
+
+/* ── TELA: Clicar ── */
+#sClick {
+  flex:1; display:none; flex-direction:column;
+  align-items:center; padding:12px 12px 8px; gap:10px;
+}
+#sClick .back-link { margin-bottom:0; }
+.click-letter-display {
+  font-size:10rem; font-weight:900; line-height:1;
+  font-family:'Nunito', sans-serif;
+  text-align:center;
+}
+.click-instruction {
+  font-size:var(--xl); font-weight:900; text-align:center;
+  color:var(--country-accent);
+}
+.click-options {
+  display:flex; gap:14px; justify-content:center;
+  width:100%; max-width:420px;
+}
+.click-opt {
+  width:100px; height:100px; border:none; border-radius:var(--radlg);
+  font-size:3.2rem; font-weight:900; cursor:pointer;
+  font-family:'Nunito', sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  position:relative; overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s;
+  color:white;
+}
+.click-opt:active { transform:scale(0.94); }
+.click-opt .x-overlay {
+  position:absolute; inset:0; background:rgba(0,0,0,0.65);
+  display:flex; align-items:center; justify-content:center;
+  font-size:3rem; color:white; border-radius:inherit;
+  opacity:0; pointer-events:none;
+}
+@keyframes xShake {
+  0%  { transform:translate(0,0) rotate(0deg);   opacity:1; }
+  15% { transform:translate(-10px,0) rotate(-7deg); }
+  30% { transform:translate(10px,0)  rotate(7deg);  }
+  45% { transform:translate(-8px,0)  rotate(-5deg); }
+  60% { transform:translate(8px,0)   rotate(5deg);  }
+  75% { transform:translate(-4px,0)  rotate(-2deg); }
+  88% { opacity:1; }
+  100%{ transform:translate(0,0) rotate(0deg); opacity:0; }
+}
+.click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
+.click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
+/* Toggle vogais/todas */
+.click-mode-toggle {
+  display:flex; gap:8px; justify-content:center;
+  margin-bottom:4px;
+}
+.mode-btn {
+  height:46px; min-width:90px; border:none; border-radius:14px;
+  font-size:1rem; font-weight:800; cursor:pointer; font-family:inherit;
+  background:var(--sur2); color:var(--text); border:2px solid var(--border);
+  -webkit-tap-highlight-color:transparent; transition:transform .12s;
+}
+.mode-btn:active { transform:scale(0.91); }
+.mode-btn.active { background:var(--country-accent); color:white; border-color:transparent; }
+</style>
+</head>
+<body>
+
+<div class="theme-stripe"></div>
+<span class="corner-deco tl" id="dc1">⭐</span>
+<span class="corner-deco tr" id="dc2">⭐</span>
+<span class="corner-deco bl" id="dc3">⭐</span>
+<span class="corner-deco br" id="dc4">⭐</span>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <a id="navLogo" href="#" class="nav-btn btn-home" onclick="MF.confirmHome(event)" title="Início">🏠</a>
+  <span class="nav-title">🔤 <span id="navTitle">Letras</span></span>
+  <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
+  <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
+  <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
+  <button class="nav-btn btn-voice" id="btnVoice" onclick="TTS.toggleVoice()" title="Voz">👩</button>
+  <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
+</nav>
+
+<!-- ═══ TELA A: Hub ═══ -->
+<div id="sHub">
+  <div class="hub-hero">
+    <span class="hub-hero-icon">🔤</span>
+    <h1>Letras</h1>
+    <p id="hubSub">Aprenda o alfabeto!</p>
+  </div>
+  <div class="hub-grid">
+    <div class="game-card ready" onclick="Nav.goLang('flash')">
+      <span class="g-icon">💡</span>
+      <span class="g-title" id="hubFlash">Flashcards</span>
+      <span class="g-badge badge-ready" id="badgeFlash">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('paint')">
+      <span class="g-icon">🎨</span>
+      <span class="g-title" id="hubPintar">Pintar</span>
+      <span class="g-badge badge-ready" id="badgePintar">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('click')">
+      <span class="g-icon">🎯</span>
+      <span class="g-title" id="hubClicar">Clicar</span>
+      <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TELA B: Idioma ═══ -->
+<div id="sLang">
+  <div class="lang-intro">
+    <h1>🔤 Mafinho Explora!</h1>
+    <p>Escolha o idioma · Choose the language</p>
+  </div>
+  <div class="lang-cards">
+    <button class="lang-card lang-card-br" onclick="Nav.startGame('pt')">
+      <span class="lang-flag">🇧🇷</span>
+      <span class="lang-name">Português</span>
+      <span class="lang-sub">Brasil</span>
+    </button>
+    <button class="lang-card lang-card-ca" onclick="Nav.startGame('en')">
+      <span class="lang-flag">🇨🇦</span>
+      <span class="lang-name">English</span>
+      <span class="lang-sub">Canada</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ TELA: Flashcard ═══ -->
+<div id="sFlash">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="flashBackLabel">Letras</span></button>
+  <div class="card-row">
+    <div class="card-scene">
+      <div class="card-3d" id="flashCard3d" onclick="FlashGame.flip()">
+        <div class="card-face" id="flashFront" style="color:white;">
+          <span class="flash-letter-front" id="flashLetterFront">A</span>
+          <span class="card-tap-hint" id="flashTapHint">Qual letra?</span>
+        </div>
+        <div class="card-face card-back">
+          <span class="flash-letter" id="flashLetter">A</span>
+          <span class="flash-name" id="flashName">Á</span>
+          <span class="card-tap-hint" id="flashNextHint" style="opacity:0.55;font-size:1rem;">▶ próxima letra</span>
+        </div>
+      </div>
+    </div>
+    <button class="btn-speak-side" id="flashSpeak" onclick="TTS.replay()">🔊</button>
+  </div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="flashPrev" onclick="FlashGame.prev()">◀</button>
+    <button class="btn-nav btn-next" id="flashNext" onclick="FlashGame.next()">▶</button>
+  </div>
+  <div class="flash-progress" id="flashProgress">1 / 26</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="flashBar" style="width:4%"></div>
+  </div>
+</div>
+
+<!-- ═══ TELA: Pintar ═══ -->
+<div id="sPaint">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="paintBackLabel">Letras</span></button>
+  <div class="paint-area" id="paintArea">
+    <canvas id="outlineCanvas"></canvas>
+    <canvas id="paintCanvas"></canvas>
+  </div>
+  <div class="paint-palette" id="paintPalette"></div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="paintPrev" onclick="PaintGame.prev()">◀</button>
+    <button class="ctrl-btn" id="paintShuffleBtn" onclick="PaintGame.toggleShuffle()" title="Embaralhar">🔀</button>
+    <button class="btn-nav btn-next" id="paintNext" onclick="PaintGame.next()">▶</button>
+  </div>
+  <div class="paint-progress" id="paintProgress">1 / 26</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="paintBar" style="width:4%"></div>
+  </div>
+</div>
+
+<!-- ═══ TELA: Clicar ═══ -->
+<div id="sClick">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="clickBackLabel">Letras</span></button>
+  <div class="click-mode-toggle" id="clickModeToggle">
+    <button class="mode-btn active" id="modeVowels" onclick="ClickGame.setMode('vowels')">
+      <span id="modeVowelsLabel">Vogais</span>
+    </button>
+    <button class="mode-btn" id="modeAll" onclick="ClickGame.setMode('all')">
+      <span id="modeAllLabel">Todas</span>
+    </button>
+  </div>
+  <p class="click-instruction" id="clickInstruction">Qual é o A?</p>
+  <div class="click-options" id="clickOptions"></div>
+  <p class="click-round" id="clickRoundBadge"></p>
+</div>
+
+<!-- ═══ TELA: Celebração ═══ -->
+<div id="sCelebrate">
+  <div class="stars">⭐⭐⭐⭐⭐</div>
+  <div class="cel-emoji">🎉</div>
+  <div class="cel-title" id="celTitle">Muito bem!</div>
+  <div class="cel-sub" id="celSub">Você conhece todas as letras!</div>
+  <button class="btn-big" onclick="Nav.restartGame()" id="btnRestart">Recomeçar 🔄</button>
+  <button class="btn-mid" onclick="Nav.backToHub()" id="btnBackHub">← Letras</button>
+</div>
+
+<!-- Toast encorajamento -->
+<div class="enc-toast" id="encToast">⭐ Muito bem!</div>
+
+<!-- Banner ativar som -->
+<button class="sound-banner" id="soundBanner" onclick="TTS.activate()">
+  🔊 Toque aqui para ativar o som!
+</button>
+
+<!-- Overlay: travar tela -->
+<div class="mf-overlay" id="lockOverlay">
+  <div class="mf-modal">
+    <div class="mf-modal-icon">🔒</div>
+    <div class="mf-modal-msg">Desbloquear tela?</div>
+    <div class="mf-modal-btns">
+      <button class="mf-btn-yes" onclick="MF._unlock()">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('lockOverlay').classList.remove('show')">❌ Não</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay: menu de navegação (conteúdo gerado por base.js) -->
+<div class="mf-overlay" id="homeOverlay"></div>
+
+<script src="base.js"></script>
+<script>
+/* ═══════════════════════════════════════════════
+   DADOS — LETRAS
+═══════════════════════════════════════════════ */
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const VOWELS  = ['A','E','I','O','U'];
+
+const LETTER_COLORS = [
+  '#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA',
+  '#00897B','#F06292','#F9A825','#E53935','#1E88E5',
+  '#43A047','#FB8C00','#8E24AA','#00897B','#F06292',
+  '#F9A825','#E53935','#1E88E5','#43A047','#FB8C00',
+  '#8E24AA','#00897B','#F06292','#F9A825','#E53935',
+  '#1E88E5'
+];
+
+const PAINT_COLORS = [
+  {hex:'#E53935', pt:'vermelho', en:'red'},
+  {hex:'#1E88E5', pt:'azul',    en:'blue'},
+  {hex:'#43A047', pt:'verde',   en:'green'},
+  {hex:'#F9A825', pt:'amarelo', en:'yellow'},
+  {hex:'#8E24AA', pt:'roxo',    en:'purple'},
+];
+
+/* ═══════════════════════════════════════════════
+   TEXTOS PT / EN
+═══════════════════════════════════════════════ */
+const LANG = {
+  pt: {
+    country:'br', tts:'pt-BR',
+    navTitle:'Letras', navBadge:'🇧🇷 PT', corners:'⭐',
+    hubSub:'Aprenda o alfabeto!',
+    hubFlash:'Flashcards', badgeFlash:'Disponível',
+    hubPintar:'Pintar', badgePintar:'Disponível',
+    hubClicar:'Clicar', badgeClicar:'Disponível',
+    backLabel:'Letras',
+    flashBackLabel:'Letras', flashTapHint:'Qual letra?',
+    flashNextHint:'▶ próxima letra', flashQuestion:'Qual letra é essa?',
+    flashCelSub:'Você conhece todas as letras!',
+    flashCelSpoken:'Parabéns! Você conhece todas as letras! Que criança esperta!',
+    paintBackLabel:'Letras',
+    paintColors:['vermelho','azul','verde','amarelo','roxo'],
+    paintCelSub:'Você pintou todas as letras!',
+    paintCelSpoken:'Parabéns! Você pintou todas as letras! Que artista!',
+    paintMilestones:['Que artista incrível!','Pintando super bem!','Que talento!','Mandou bem demais!'],
+    clickBackLabel:'Letras',
+    clickQuestion:'Qual é o',
+    clickCelSub:'Você acertou todas as letras!',
+    clickCelSpoken:'Parabéns! Você acertou todas as letras! Que esperto!',
+    modeVowels:'Vogais', modeAll:'Todas',
+    clickRound:'Rodada',
+    celTitle:'Muito bem!',
+    celSpoken:'Parabéns! Você conhece todas as letras! Que criança esperta!',
+    restart:'Recomeçar 🔄', backHub:'← Letras',
+    letterNames:['Á','Bê','Cê','Dê','É','Éfe','Gê','Agá','I','Jota','Cá','Éle','Éme','Éne','Ó','Pê','Quê','Érre','Ésse','Tê','U','Vê','Dáblio','Xis','Ípsilon','Zê'],
+    encourage:[
+      {text:'Isso! Muito bem! ⭐',   spoken:'Isso! Muito bem!'},
+      {text:'Parabéns! 🌟',          spoken:'Parabéns!'},
+      {text:'Uau! Que esperto! 🎉',  spoken:'Uau! Que esperto!'},
+      {text:'Eba! Acertou! ⭐',      spoken:'Eba! Acertou!'},
+      {text:'Que inteligente! 🌟',   spoken:'Que inteligente!'},
+      {text:'Muito bem! 🎉',         spoken:'Muito bem!'},
+      {text:'Boa! Boa! Boa! ⭐',     spoken:'Boa! Boa! Boa!'},
+      {text:'Que criança boa! 🌟',   spoken:'Que criança boa!'},
+      {text:'Eba! Que legal! 🎉',    spoken:'Eba! Que legal!'},
+      {text:'Que maravilha! 🌟',     spoken:'Que maravilha!'},
+    ],
+  },
+  en: {
+    country:'ca', tts:'en-US',
+    navTitle:'Letters', navBadge:'🇨🇦 EN', corners:'🍁',
+    hubSub:'Learn the alphabet!',
+    hubFlash:'Flashcards', badgeFlash:'Available',
+    hubPintar:'Paint', badgePintar:'Available',
+    hubClicar:'Click', badgeClicar:'Available',
+    backLabel:'Letters',
+    flashBackLabel:'Letters', flashTapHint:'What letter?',
+    flashNextHint:'▶ next letter', flashQuestion:'What letter is this?',
+    flashCelSub:'You know all the letters!',
+    flashCelSpoken:'Hooray! You know all the letters! What a smart child!',
+    paintBackLabel:'Letters',
+    paintColors:['red','blue','green','yellow','purple'],
+    paintCelSub:'You painted all the letters!',
+    paintCelSpoken:'Hooray! You painted all the letters! What an artist!',
+    paintMilestones:['Amazing artist!','Painting so well!','What talent!','So awesome!'],
+    clickBackLabel:'Letters',
+    clickQuestion:'Where is the',
+    clickCelSub:'You got all the letters right!',
+    clickCelSpoken:'Hooray! You got all the letters right! So smart!',
+    modeVowels:'Vowels', modeAll:'All',
+    clickRound:'Round',
+    celTitle:'Well done!',
+    celSpoken:'Hooray! You know all the letters! What a smart child!',
+    restart:'Restart 🔄', backHub:'← Letters',
+    letterNames:['Ei','Bi','Si','Di','I','Ef','Ji','Eitch','Ai','Jei','Kei','El','Em','En','Ou','Pi','Kiu','Ar','Es','Ti','Iu','Vi','Dabeliu','Ex','Uai','Zi'],
+    encourage:[
+      {text:'Good job! ⭐',        spoken:'Good job!'},
+      {text:'Well done! 🌟',       spoken:'Well done!'},
+      {text:'Yay! You did it! 🎉', spoken:'Yay! You did it!'},
+      {text:'Wonderful! ⭐',       spoken:'Wonderful!'},
+      {text:'Hooray! 🌟',          spoken:'Hooray!'},
+      {text:'So smart! 🎉',        spoken:'So smart!'},
+      {text:'Amazing! ⭐',         spoken:'Amazing!'},
+      {text:'You got it! 🎉',      spoken:'You got it!'},
+      {text:'Superstar! ⭐',       spoken:'Superstar!'},
+      {text:'Awesome! 🎉',         spoken:'Awesome!'},
+    ],
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   NAV — overrides específicos de Letras
+═══════════════════════════════════════════════ */
+Nav._onLeave = function() { PaintGame.abort(); ClickGame._locked = false; speechSynthesis && speechSynthesis.cancel(); };
+
+Nav.startGame = function(lang) {
+  this._applyLang(lang);
+  document.getElementById('navLangBadge').style.display = '';
+  if (this.currentGame === 'paint') {
+    this._show('sPaint');
+    PaintGame.start(lang);
+  } else if (this.currentGame === 'click') {
+    this._show('sClick');
+    ClickGame.start(lang);
+  } else {
+    this._show('sFlash');
+    FlashGame.start(lang);
+  }
+};
+
+Nav.restartGame = function() {
+  document.getElementById('sCelebrate').classList.remove('show');
+  if (this.currentGame === 'paint') {
+    this._show('sPaint');
+    PaintGame.start(PaintGame.lang);
+  } else if (this.currentGame === 'click') {
+    this._show('sClick');
+    ClickGame.start(ClickGame.lang);
+  } else {
+    this._show('sFlash');
+    FlashGame.start(FlashGame.lang);
+  }
+};
+
+Nav._applyLang = function(lang) {
+  const L = LANG[lang];
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  document.documentElement.dataset.country = L.country;
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+  set('navTitle',       L.navTitle);
+  set('navLangBadge',   L.navBadge);
+  set('hubSub',         L.hubSub);
+  set('hubFlash',       L.hubFlash);
+  set('badgeFlash',     L.badgeFlash);
+  set('hubPintar',      L.hubPintar);
+  set('badgePintar',    L.badgePintar);
+  set('hubClicar',      L.hubClicar);
+  set('badgeClicar',    L.badgeClicar);
+  set('flashBackLabel', L.flashBackLabel);
+  set('flashTapHint',   L.flashTapHint);
+  set('flashNextHint',  L.flashNextHint);
+  set('paintBackLabel', L.paintBackLabel);
+  set('clickBackLabel', L.clickBackLabel);
+  set('modeVowelsLabel', L.modeVowels);
+  set('modeAllLabel',    L.modeAll);
+  set('btnRestart',     L.restart);
+  set('btnBackHub',     L.backHub);
+  this._setCorners(L.corners);
+  TTS.setLang(L.tts);
+};
+
+/* ═══════════════════════════════════════════════
+   FLASHCARD — Conhecer as letras
+═══════════════════════════════════════════════ */
+const FlashGame = {
+  lang:'pt', step:0, flipped:false, encCount:0,
+
+  start(lang) {
+    this.lang    = lang;
+    this.step    = 0;
+    this.flipped = false;
+    this.encCount = 0;
+    TTS.init();
+    this._render();
+  },
+
+  _render() {
+    const L = LANG[this.lang];
+    const letter = LETTERS[this.step];
+    const color  = LETTER_COLORS[this.step];
+    const name   = L.letterNames[this.step];
+
+    /* Frente: letra grande + "Qual letra?" */
+    const front = document.getElementById('flashFront');
+    front.style.background = color;
+    document.getElementById('flashLetterFront').textContent = letter;
+
+    /* Verso: letra + nome */
+    document.getElementById('flashLetter').textContent = letter;
+    document.getElementById('flashLetter').style.color = color;
+    document.getElementById('flashName').textContent = name;
+
+    /* Reset flip */
+    document.getElementById('flashCard3d').classList.remove('flipped');
+    this.flipped = false;
+
+    /* Progress */
+    const total = LETTERS.length;
+    document.getElementById('flashProgress').textContent = `${this.step + 1} / ${total}`;
+    document.getElementById('flashBar').style.width = `${((this.step + 1) / total) * 100}%`;
+
+    TTS.speak(L.flashQuestion);
+  },
+
+  flip() {
+    const card = document.getElementById('flashCard3d');
+    this.flipped = !this.flipped;
+    card.classList.toggle('flipped', this.flipped);
+    const L = LANG[this.lang];
+
+    if (this.flipped) {
+      SFX.playCorrect();
+      const name = L.letterNames[this.step];
+      TTS.speakExcitedAndWait(name + '!').then(() => {
+        this.encCount++;
+        if (this.encCount % 3 === 0) {
+          const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+          const toast = document.getElementById('encToast');
+          toast.textContent = enc.text;
+          toast.classList.add('show');
+          TTS.speakAndWait(enc.spoken).then(() => {
+            setTimeout(() => toast.classList.remove('show'), 1500);
+          });
+        }
+      });
+    } else {
+      TTS.speak(L.flashQuestion);
+    }
+  },
+
+  next() {
+    if (this.step < LETTERS.length - 1) {
+      this.step++;
+      this._render();
+    } else {
+      /* Celebração */
+      const L = LANG[this.lang];
+      localStorage.setItem('letters_flash_progresso', JSON.stringify({
+        completed:true, date:new Date().toISOString()
+      }));
+      document.getElementById('celTitle').textContent = L.celTitle;
+      document.getElementById('celSub').textContent = L.flashCelSub;
+      Nav._show('sCelebrate');
+      SFX.playCorrect();
+      TTS.speakExcitedAndWait(L.flashCelSpoken);
+    }
+  },
+
+  prev() {
+    if (this.step > 0) {
+      this.step--;
+      this._render();
+    }
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   PAINT — Pintar as letras (placeholder — subetapa 3)
+═══════════════════════════════════════════════ */
+const PaintGame = {
+  lang:'pt', step:0, sequence:[], shuffled:false,
+  _aborted:false, _completed:false,
+  _painting:false, _lastX:0, _lastY:0,
+  _w:0, _h:0, _dpr:1,
+  _oCanvas:null, _pCanvas:null,
+  _oCtx:null, _pCtx:null,
+  _strokeCanvas:null, _sCtx:null,
+  _maskCanvas:null, _mCtx:null,
+  _totalMaskPx:0, _bound:false,
+  BRUSH:72, THRESHOLD:0.95,
+  currentColor:'#E53935',
+
+  start(lang) {
+    this.lang = lang;
+    this.step = 0;
+    this._aborted = false;
+    this._completed = false;
+    this._buildSequence();
+    TTS.init();
+    this._setupCanvas();
+    this._render();
+  },
+
+  abort() { this._aborted = true; },
+
+  _buildSequence() {
+    this.sequence = this.shuffled ? shuffle([...Array(26).keys()]) : [...Array(26).keys()];
+  },
+
+  toggleShuffle() {
+    this.shuffled = !this.shuffled;
+    const btn = document.getElementById('paintShuffleBtn');
+    if (btn) btn.classList.toggle('active', this.shuffled);
+    this._buildSequence();
+    this.step = 0;
+    this._render();
+  },
+
+  _setupCanvas() {
+    if (this._bound) return;
+    this._bound = true;
+    const area = document.getElementById('paintArea');
+    this._oCanvas = document.getElementById('outlineCanvas');
+    this._pCanvas = document.getElementById('paintCanvas');
+    this._oCtx = this._oCanvas.getContext('2d');
+    this._pCtx = this._pCanvas.getContext('2d');
+
+    /* Offscreen canvases */
+    this._strokeCanvas = document.createElement('canvas');
+    this._sCtx = this._strokeCanvas.getContext('2d');
+    this._maskCanvas = document.createElement('canvas');
+    this._mCtx = this._maskCanvas.getContext('2d');
+
+    const resize = () => {
+      const rect = area.getBoundingClientRect();
+      this._w = rect.width;
+      this._h = rect.height;
+      this._dpr = window.devicePixelRatio || 1;
+      [this._oCanvas, this._pCanvas, this._strokeCanvas, this._maskCanvas].forEach(c => {
+        c.width  = this._w * this._dpr;
+        c.height = this._h * this._dpr;
+      });
+      if (!this._aborted) this._render();
+    };
+    resize();
+    new ResizeObserver(resize).observe(area);
+
+    /* Pointer events */
+    const pc = this._pCanvas;
+    pc.addEventListener('pointerdown', e => this._down(e));
+    pc.addEventListener('pointermove', e => this._move(e));
+    pc.addEventListener('pointerup',   e => this._up(e));
+    pc.addEventListener('pointercancel', e => this._up(e));
+  },
+
+  _render() {
+    if (this._aborted) return;
+    this._completed = false;
+    const L = LANG[this.lang];
+    const idx = this.sequence[this.step];
+    const letter = LETTERS[idx];
+    const color = LETTER_COLORS[idx];
+    const dpr = this._dpr;
+    const w = this._w * dpr;
+    const h = this._h * dpr;
+
+    /* Clear all canvases */
+    this._oCtx.clearRect(0, 0, w, h);
+    this._pCtx.clearRect(0, 0, w, h);
+    this._sCtx.clearRect(0, 0, w, h);
+    this._mCtx.clearRect(0, 0, w, h);
+
+    /* Draw letter outline (guide) */
+    this._oCtx.save();
+    this._oCtx.font = `900 ${280 * dpr / 1}px Nunito, sans-serif`;
+    this._oCtx.textAlign = 'center';
+    this._oCtx.textBaseline = 'middle';
+    this._oCtx.fillStyle = 'rgba(0,0,0,0.08)';
+    this._oCtx.fillText(letter, w / 2, h / 2);
+    this._oCtx.restore();
+
+    /* Draw mask (reference shape for fill detection) */
+    this._mCtx.save();
+    this._mCtx.font = `900 ${280 * dpr / 1}px Nunito, sans-serif`;
+    this._mCtx.textAlign = 'center';
+    this._mCtx.textBaseline = 'middle';
+    this._mCtx.fillStyle = '#000';
+    this._mCtx.fillText(letter, w / 2, h / 2);
+    this._mCtx.restore();
+
+    /* Count mask pixels */
+    const maskData = this._mCtx.getImageData(0, 0, w, h).data;
+    let maskPx = 0;
+    for (let i = 3; i < maskData.length; i += 8) { if (maskData[i] > 30) maskPx++; }
+    this._totalMaskPx = maskPx;
+
+    /* Build palette */
+    this._buildPalette();
+
+    /* Progress */
+    const total = LETTERS.length;
+    document.getElementById('paintProgress').textContent = `${this.step + 1} / ${total}`;
+    document.getElementById('paintBar').style.width = `${((this.step + 1) / total) * 100}%`;
+
+    /* Speak letter name */
+    const name = L.letterNames[idx];
+    TTS.speak(name);
+  },
+
+  _buildPalette() {
+    const L = LANG[this.lang];
+    const palette = document.getElementById('paintPalette');
+    palette.innerHTML = '';
+    PAINT_COLORS.forEach((c, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'paint-swatch' + (i === 0 ? ' active' : '');
+      btn.style.background = c.hex;
+      btn.title = L.paintColors[i];
+      btn.onclick = () => {
+        this.currentColor = c.hex;
+        palette.querySelectorAll('.paint-swatch').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      palette.appendChild(btn);
+    });
+    this.currentColor = PAINT_COLORS[0].hex;
+  },
+
+  _down(e) {
+    if (this._completed) return;
+    this._painting = true;
+    const {x, y} = this._pos(e);
+    this._lastX = x;
+    this._lastY = y;
+    const dpr = this._dpr;
+    /* Dot */
+    [this._pCtx, this._sCtx].forEach(ctx => {
+      ctx.beginPath();
+      ctx.arc(x * dpr, y * dpr, this.BRUSH * dpr / 2, 0, Math.PI * 2);
+      ctx.fillStyle = this.currentColor;
+      ctx.fill();
+    });
+  },
+
+  _move(e) {
+    if (!this._painting || this._completed) return;
+    const {x, y} = this._pos(e);
+    const dpr = this._dpr;
+    [this._pCtx, this._sCtx].forEach(ctx => {
+      ctx.beginPath();
+      ctx.moveTo(this._lastX * dpr, this._lastY * dpr);
+      ctx.lineTo(x * dpr, y * dpr);
+      ctx.strokeStyle = this.currentColor;
+      ctx.lineWidth = this.BRUSH * dpr;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    });
+    this._lastX = x;
+    this._lastY = y;
+  },
+
+  _up(e) {
+    if (!this._painting) return;
+    this._painting = false;
+    this._checkFill();
+  },
+
+  _pos(e) {
+    const rect = this._pCanvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  },
+
+  _checkFill() {
+    if (this._completed || this._totalMaskPx === 0) return;
+    const dpr = this._dpr;
+    const w = this._w * dpr;
+    const h = this._h * dpr;
+    const mask   = this._mCtx.getImageData(0, 0, w, h).data;
+    const stroke = this._sCtx.getImageData(0, 0, w, h).data;
+
+    let painted = 0;
+    /* Sample every 2 pixels (1/4 total) */
+    for (let y = 0; y < h; y += 2) {
+      for (let x = 0; x < w; x += 2) {
+        const i = (y * w + x) * 4;
+        if (mask[i + 3] <= 30) continue;
+        const r = stroke[i], g = stroke[i+1], b = stroke[i+2], a = stroke[i+3];
+        if (a > 30) {
+          const dist = Math.sqrt(r*r + g*g + b*b);
+          if (dist > 30) painted++;
+        }
+      }
+    }
+
+    const ratio = painted / this._totalMaskPx;
+    if (ratio >= this.THRESHOLD) this._onComplete();
+  },
+
+  _onComplete() {
+    this._completed = true;
+    const L = LANG[this.lang];
+    const idx = this.sequence[this.step];
+
+    /* Auto-fill remaining */
+    const dpr = this._dpr;
+    const w = this._w * dpr;
+    const h = this._h * dpr;
+    this._pCtx.save();
+    this._pCtx.globalCompositeOperation = 'destination-over';
+    this._pCtx.font = `900 ${280 * dpr}px Nunito, sans-serif`;
+    this._pCtx.textAlign = 'center';
+    this._pCtx.textBaseline = 'middle';
+    this._pCtx.fillStyle = this.currentColor;
+    this._pCtx.fillText(LETTERS[idx], w / 2, h / 2);
+    this._pCtx.restore();
+
+    SFX.playCorrect();
+    const name = L.letterNames[idx];
+    TTS.speakExcitedAndWait(name + '!').then(() => {
+      /* Milestone every 5 letters */
+      if ((this.step + 1) % 5 === 0 && this.step < 25) {
+        const ms = L.paintMilestones[Math.floor(Math.random() * L.paintMilestones.length)];
+        const toast = document.getElementById('encToast');
+        toast.textContent = ms;
+        toast.classList.add('show', 'paint-pos');
+        TTS.speakAndWait(ms).then(() => {
+          setTimeout(() => toast.classList.remove('show', 'paint-pos'), 1500);
+        });
+      }
+    });
+  },
+
+  next() {
+    if (this.step < LETTERS.length - 1) {
+      this.step++;
+      this._render();
+    } else {
+      const L = LANG[this.lang];
+      localStorage.setItem('letters_paint_progresso', JSON.stringify({
+        completed:true, date:new Date().toISOString()
+      }));
+      document.getElementById('celTitle').textContent = L.celTitle;
+      document.getElementById('celSub').textContent = L.paintCelSub;
+      Nav._show('sCelebrate');
+      SFX.playCorrect();
+      TTS.speakExcitedAndWait(L.paintCelSpoken);
+    }
+  },
+
+  prev() {
+    if (this.step > 0) {
+      this.step--;
+      this._render();
+    }
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   CLICAR — Qual é a letra? (3 opções)
+   Modo: vogais (5 letras, 5 rodadas) ou todas (26 letras, 5 rodadas)
+═══════════════════════════════════════════════ */
+const ClickGame = {
+  lang:'pt', mode:'vowels', sequence:[], step:0, totalSteps:5, _locked:false,
+
+  start(lang) {
+    this.lang = lang;
+    this.step = 0;
+    this._locked = false;
+    this._buildSequence();
+    TTS.init();
+    this._updateModeButtons();
+    this._render();
+  },
+
+  setMode(mode) {
+    this.mode = mode;
+    this._updateModeButtons();
+    this.step = 0;
+    this._buildSequence();
+    this._render();
+  },
+
+  _updateModeButtons() {
+    document.getElementById('modeVowels').classList.toggle('active', this.mode === 'vowels');
+    document.getElementById('modeAll').classList.toggle('active', this.mode === 'all');
+  },
+
+  _buildSequence() {
+    if (this.mode === 'vowels') {
+      this.sequence = shuffle([...Array(5).keys()]); /* Indices into VOWELS */
+      this.totalSteps = 5;
+    } else {
+      this.sequence = shuffle([...Array(26).keys()]).slice(0, 5);
+      this.totalSteps = 5;
+    }
+  },
+
+  _render() {
+    if (this._locked) return;
+    const L = LANG[this.lang];
+    const pool = this.mode === 'vowels' ? VOWELS : LETTERS;
+    const poolColors = this.mode === 'vowels'
+      ? [0, 4, 8, 14, 20].map(i => LETTER_COLORS[i])
+      : LETTER_COLORS;
+    const idx = this.sequence[this.step];
+    const target = pool[idx];
+    const targetColor = poolColors[idx];
+
+    /* Instruction */
+    document.getElementById('clickInstruction').textContent = `${L.clickQuestion} ${target}?`;
+
+    /* 3 options: 1 correct + 2 wrong */
+    const wrongPool = pool.filter((_, i) => i !== idx);
+    const wrongs = shuffle(wrongPool).slice(0, 2);
+    const options = shuffle([
+      { letter:target, color:targetColor, correct:true },
+      ...wrongs.map(l => {
+        const li = LETTERS.indexOf(l);
+        return { letter:l, color:LETTER_COLORS[li], correct:false };
+      })
+    ]);
+
+    const container = document.getElementById('clickOptions');
+    container.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'click-opt';
+      btn.style.background = opt.color;
+      btn.innerHTML = `<span>${opt.letter}</span><span class="x-overlay">✖</span>`;
+      btn.onclick = () => this._answer(btn, opt.correct, target);
+      container.appendChild(btn);
+    });
+
+    /* Round badge */
+    document.getElementById('clickRoundBadge').textContent =
+      `${L.clickRound} ${this.step + 1} / ${this.totalSteps}`;
+
+    /* Speak question */
+    TTS.speak(`${L.clickQuestion} ${target}?`);
+  },
+
+  _answer(btn, correct, target) {
+    if (this._locked) return;
+
+    if (!correct) {
+      SFX.playWrong();
+      btn.classList.add('wrong');
+      setTimeout(() => btn.classList.remove('wrong'), 720);
+      return;
+    }
+
+    /* Correct! */
+    this._locked = true;
+    SFX.playCorrect();
+    const L = LANG[this.lang];
+    const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
+    const toast = document.getElementById('encToast');
+    toast.textContent = enc.text;
+    toast.classList.add('show');
+
+    const li = LETTERS.indexOf(target);
+    const name = L.letterNames[li];
+    TTS.speakAndWait(name + '! ' + enc.spoken).then(() => {
+      setTimeout(() => toast.classList.remove('show'), 1500);
+    });
+
+    setTimeout(() => {
+      this._locked = false;
+      this.step++;
+      if (this.step >= this.totalSteps) {
+        localStorage.setItem('letters_click_progresso', JSON.stringify({
+          completed:true, date:new Date().toISOString()
+        }));
+        document.getElementById('celTitle').textContent = L.celTitle;
+        document.getElementById('celSub').textContent = L.clickCelSub;
+        Nav._show('sCelebrate');
+        SFX.playCorrect();
+        TTS.speakExcitedAndWait(L.clickCelSpoken);
+      } else {
+        this._render();
+      }
+    }, 3500);
+  },
+};
+
+/* ═══════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════ */
+MF.currentGameId = 'letters';
+Nav.boot(['sHub','sLang','sFlash','sPaint','sClick','sCelebrate']);
+</script>
+</body>
+</html>
