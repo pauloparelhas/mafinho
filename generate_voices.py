@@ -271,7 +271,13 @@ def _plural_pt(word):
 
 
 def generate_audio(phrases, sample_path, output_dir, test_mode=False):
-    """Gera arquivos de áudio usando XTTS-v2."""
+    """Gera arquivos de áudio usando XTTS-v2.
+
+    sample_path pode ser:
+      - Um arquivo único (ex: audio/sample_mae.wav) → usado para PT e EN
+      - Caminho base sem extensão → tenta sample_mae_pt.wav e sample_mae_en.wav
+        Se só encontrar o PT, usa ele para ambos (cross-language cloning)
+    """
 
     try:
         from TTS.api import TTS as CoquiTTS
@@ -287,12 +293,47 @@ def generate_audio(phrases, sample_path, output_dir, test_mode=False):
         print("Execute: pip install pydub")
         sys.exit(1)
 
-    if not os.path.exists(sample_path):
-        print(f"ERRO: Amostra de voz não encontrada: {sample_path}")
-        print("Coloque o arquivo .wav da mãe em: audio/sample_mae.wav")
-        sys.exit(1)
+    # Resolve amostra(s) de voz — aceita 1 arquivo ou 2 separados por idioma
+    samples = {}
+    if os.path.exists(sample_path):
+        # Arquivo único → usa para ambos
+        samples['pt'] = sample_path
+        samples['en'] = sample_path
+        print(f"Amostra unica: {sample_path} (usada para PT e EN)")
+    else:
+        # Tenta variantes por idioma: sample_mae_pt.wav, sample_mae_en.wav
+        base, ext = os.path.splitext(sample_path)
+        for lang_code in ['pt', 'en']:
+            for try_ext in [ext, '.wav', '.m4a', '.mp3', '.ogg']:
+                candidate = f"{base}_{lang_code}{try_ext}"
+                if os.path.exists(candidate):
+                    samples[lang_code] = candidate
+                    break
 
-    print("Carregando modelo XTTS-v2 (primeira vez faz download de ~2GB)...")
+        if 'pt' not in samples and 'en' not in samples:
+            print(f"ERRO: Nenhuma amostra de voz encontrada.")
+            print(f"  Tentei: {sample_path}")
+            print(f"  Tentei: {base}_pt.wav, {base}_en.wav, etc.")
+            print(f"\nColoque a amostra em uma dessas opcoes:")
+            print(f"  audio/sample_mae.wav          (arquivo unico)")
+            print(f"  audio/sample_mae_pt.wav       (so portugues)")
+            print(f"  audio/sample_mae_pt.wav + audio/sample_mae_en.wav (ambos)")
+            sys.exit(1)
+
+        # Se só tem PT, usa para EN também (cross-language cloning)
+        if 'pt' in samples and 'en' not in samples:
+            samples['en'] = samples['pt']
+            print(f"Amostra PT: {samples['pt']}")
+            print(f"Amostra EN: usando PT (cross-language cloning)")
+        elif 'en' in samples and 'pt' not in samples:
+            samples['pt'] = samples['en']
+            print(f"Amostra EN: {samples['en']}")
+            print(f"Amostra PT: usando EN (cross-language cloning)")
+        else:
+            print(f"Amostra PT: {samples['pt']}")
+            print(f"Amostra EN: {samples['en']}")
+
+    print("\nCarregando modelo XTTS-v2 (primeira vez faz download de ~2GB)...")
     tts = CoquiTTS("tts_models/multilingual/multi-dataset/xtts_v2")
 
     # Cria diretórios
@@ -325,7 +366,7 @@ def generate_audio(phrases, sample_path, output_dir, test_mode=False):
 
             # Pula se já existe
             if os.path.exists(mp3_path):
-                print(f"  [{done}/{total}] SKIP (já existe): {text[:40]}")
+                print(f"  [{done}/{total}] SKIP (ja existe): {text[:40]}")
                 manifest[lang][text] = rel_path
                 continue
 
@@ -334,7 +375,7 @@ def generate_audio(phrases, sample_path, output_dir, test_mode=False):
             try:
                 tts.tts_to_file(
                     text=text,
-                    speaker_wav=sample_path,
+                    speaker_wav=samples[lang],
                     language=lang_map[lang],
                     file_path=wav_path,
                 )

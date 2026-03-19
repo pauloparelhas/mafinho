@@ -1,40 +1,62 @@
-╔══════════════════════════════════════════════════════════╗
-║  GUIA DE GRAVAÇÃO — Voz da Mamãe para o Mafinho Explora ║
-╚══════════════════════════════════════════════════════════╝
+================================================================
+  GUIA DE GRAVACAO - Voz da Mamae para o Mafinho Explora
+================================================================
 
-INSTRUÇÕES:
-- Ambiente SILENCIOSO (sem TV, sem ventilador, sem trânsito)
+INSTRUCOES:
+- Ambiente SILENCIOSO (sem TV, sem ventilador, sem transito)
 - Microfone do celular serve (gravar pelo app de gravador de voz)
 - Falar NATURALMENTE, como se estivesse falando com o Mafinho
-- Variar entonação: perguntas, afirmações, empolgação
-- NÃO precisa ser perfeito, pode regravar se errar
-- Duração ideal: 1 a 2 minutos de fala contínua
-- Salvar como .wav ou .m4a (qualquer formato)
-- NÃO precisa gravar em inglês — o modelo gera automaticamente
+- Variar entonacao: perguntas, respostas empolgadas, elogios
+- NAO precisa ser perfeito - se errar, pode continuar
+- Salvar como .wav ou .m4a (qualquer formato serve)
+- Pode gravar tudo num arquivo so, ou 2 separados (PT e EN)
 
-═══════════════════════════════════════════════════════════
+DURACAO: ~1-2 min por idioma (2-4 min no total)
 
-TEXTO PARA LER (em português, com calma e carinho):
+================================================================
+  PARTE 1 - PORTUGUES (ler com calma e carinho)
+================================================================
 
-"Qual é o vermelho? Muito bem! Isso é um cachorro!
-Vamos contar? Um, dois, três, quatro, cinco.
-Que lindo! Essa é a estrela. Parabéns, você acertou!
+"Qual e o vermelho? Muito bem! Isso e um cachorro!
+Vamos contar? Um, dois, tres, quatro, cinco.
+Que lindo! Essa e a estrela. Parabens, voce acertou!
 
-Qual cor é esta? É o azul! Eba, que esperto!
-Olha o gatinho! Quem é esse animal?
-É a vaca! Que inteligente!
+Qual cor e esta? E o azul! Eba, que esperto!
+Olha o gatinho! Quem e esse animal?
+E a vaca! Que inteligente!
 
 Seis, sete, oito, nove, dez.
-Que criança boa! Você conhece todos os números!
-Qual forma é essa? É o círculo!
+Que crianca boa! Voce conhece todos os numeros!
+Qual forma e essa? E o circulo!
 
 Arrasou! Mandou bem! Que maravilha!
-Isso aí, muito bem! Boa, boa, boa!
-Parabéns, você pintou todas as formas! Que artista!"
+Isso ai, muito bem! Boa, boa, boa!
+Parabens, voce pintou todas as formas! Que artista!"
 
-═══════════════════════════════════════════════════════════
+================================================================
+  PARTE 2 - INGLES (ler logo em seguida, mesmo tom carinhoso)
+================================================================
 
-APÓS GRAVAR:
-- Salvar o arquivo como "sample_mae.wav" (ou .m4a)
-- Colocar na pasta: audio/sample_mae.wav
+"What color is this? It's red! Great job!
+Let's count! One, two, three, four, five.
+Who is this animal? It's the dog! So smart!
+
+Six, seven, eight, nine, ten.
+What shape is this? It's the circle!
+You got it! Well done! Wonderful!
+
+Where is the star? Awesome! What a good kid!
+Congratulations, you know all the colors!
+Yay, you painted all the shapes! What an artist!"
+
+================================================================
+  APOS GRAVAR
+================================================================
+
+- Salvar o(s) arquivo(s) como:
+    sample_mae_pt.wav   (ou .m4a)
+    sample_mae_en.wav   (ou .m4a)
+  Ou tudo junto como:
+    sample_mae.wav
+- Colocar na pasta: audio/
 - Avisar o Paulo para rodar o gerador de vozes
