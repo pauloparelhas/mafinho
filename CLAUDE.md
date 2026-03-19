@@ -250,5 +250,32 @@ Perguntar ao usuário após cada parte antes de continuar.
 
 ---
 
+---
+
+## BACKLOG FUTURO
+
+### Configurações customizáveis
+- **Bandeira do idioma EN**: atualmente fixa 🇨🇦 (Maple Bear). Futuro: permitir configurar para 🇺🇸, 🇬🇧, etc. via `localStorage('mf-en-flag')` ou config JSON.
+- **Registro de jogos**: centralizado em `MF.GAMES` (base.js). Novos jogos devem ser adicionados lá para aparecerem automaticamente no menu de navegação.
+
+### Estrutura de assets escalável
+```
+app_marcelo/
+├── img/
+│   ├── animals/     ← PNGs 512x512 gerados por svg_animals.py
+│   ├── shapes/      ← (futuro) PNGs de formas
+│   └── objects/     ← (futuro) PNGs de objetos
+├── svg_animals.py   ← pipeline SVG→PNG (PyMuPDF)
+```
+- Cada tópico visual terá seu `svg_{topico}.py` para gerar PNGs
+- SVGs inline nos HTMLs para carregamento rápido, PNGs como fallback/export
+- PyMuPDF NÃO suporta `<radialGradient>` / `<linearGradient>` — usar shapes sólidas sobrepostas
+
+### Próximos tópicos planejados
+- Objetos (🧸) — vocabulário do dia-a-dia
+- Dias da Semana (📅) — conceito temporal básico
+
+---
+
 *Baseado na sistematica do Projeto Serafina (Maple Bear Y2) e adaptado para criança de 2 anos.*
 *Fase 2 iniciada em 16/03/2026 — padrão de referência: `colors.html`.*

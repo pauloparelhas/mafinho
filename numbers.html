@@ -471,17 +471,8 @@
   </div>
 </div>
 
-<!-- Overlay: confirmar saída -->
-<div class="mf-overlay" id="homeOverlay">
-  <div class="mf-modal">
-    <div class="mf-modal-icon">🏠</div>
-    <div class="mf-modal-msg">Sair do jogo?</div>
-    <div class="mf-modal-btns">
-      <button class="mf-btn-yes" onclick="window.location.href='index.html'">✅ Sim</button>
-      <button class="mf-btn-no"  onclick="document.getElementById('homeOverlay').classList.remove('show')">❌ Ficar</button>
-    </div>
-  </div>
-</div>
+<!-- Overlay: menu de navegação (conteúdo gerado por base.js) -->
+<div class="mf-overlay" id="homeOverlay"></div>
 
 <script src="base.js"></script>
 <script>
@@ -1844,6 +1835,7 @@ const DragGame = {
 };
 
 /* ── BOOT ── */
+MF.currentGameId = 'numbers';
 Nav.boot(['sHub','sLang','sCount','sPaint','sFlash','sClick','sDrag','sCelebrate']);
 </script>
 </body>

@@ -223,22 +223,13 @@
     <div class="mf-modal-icon">🔒</div>
     <div class="mf-modal-msg">Desbloquear tela?</div>
     <div class="mf-modal-btns">
-      <button onclick="MF.unlock()" class="mf-modal-btn yes">Sim</button>
-      <button onclick="MF.cancelUnlock()" class="mf-modal-btn no">Não</button>
+      <button class="mf-btn-yes" onclick="MF._unlock()">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('lockOverlay').classList.remove('show')">❌ Não</button>
     </div>
   </div>
 </div>
-<!-- Overlay: sair -->
-<div class="mf-overlay" id="homeOverlay">
-  <div class="mf-modal">
-    <div class="mf-modal-icon">🏠</div>
-    <div class="mf-modal-msg">Voltar ao início?</div>
-    <div class="mf-modal-btns">
-      <button onclick="MF.goHome()" class="mf-modal-btn yes">Sim</button>
-      <button onclick="MF.cancelHome()" class="mf-modal-btn no">Não</button>
-    </div>
-  </div>
-</div>
+<!-- Overlay: menu de navegação (conteúdo gerado por base.js) -->
+<div class="mf-overlay" id="homeOverlay"></div>
 
 <script src="base.js"></script>
 <script>
@@ -592,6 +583,7 @@ const ClickGame = {
 };
 
 /* ── BOOT ── */
+MF.currentGameId = 'animals';
 Nav.boot(['sHub','sLang','sFlash','sClick','sCelebrate']);
 </script>
 </body>

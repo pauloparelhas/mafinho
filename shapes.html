@@ -312,8 +312,8 @@
 
 <div class="enc-toast" id="encToast">⭐ Muito bem!</div>
 <button class="sound-banner" id="soundBanner" onclick="TTS.activate()">🔊 Toque aqui para ativar o som!</button>
-<div class="mf-overlay" id="lockOverlay"><div class="mf-modal"><div class="mf-modal-icon">🔒</div><div class="mf-modal-msg">Desbloquear tela?</div><div class="mf-modal-btns"><button onclick="MF.unlock()" class="mf-modal-btn yes">Sim</button><button onclick="MF.cancelUnlock()" class="mf-modal-btn no">Não</button></div></div></div>
-<div class="mf-overlay" id="homeOverlay"><div class="mf-modal"><div class="mf-modal-icon">🏠</div><div class="mf-modal-msg">Voltar ao início?</div><div class="mf-modal-btns"><button onclick="MF.goHome()" class="mf-modal-btn yes">Sim</button><button onclick="MF.cancelHome()" class="mf-modal-btn no">Não</button></div></div></div>
+<div class="mf-overlay" id="lockOverlay"><div class="mf-modal"><div class="mf-modal-icon">🔒</div><div class="mf-modal-msg">Desbloquear tela?</div><div class="mf-modal-btns"><button class="mf-btn-yes" onclick="MF._unlock()">✅ Sim</button><button class="mf-btn-no" onclick="document.getElementById('lockOverlay').classList.remove('show')">❌ Não</button></div></div></div>
+<div class="mf-overlay" id="homeOverlay"></div>
 
 <script src="base.js"></script>
 <script>
@@ -939,6 +939,7 @@ const PaintGame = {
 };
 
 /* ── BOOT ── */
+MF.currentGameId = 'shapes';
 Nav.boot(['sHub','sLang','sFlash','sClick','sFind','sPaint','sCelebrate']);
 </script>
 </body>

@@ -81,11 +81,78 @@ const MF = {
     document.exitFullscreen?.().catch(() => {});
   },
 
-  /* ── Confirmar saída ── */
+  /* ── Lock helpers (chamados pelos overlays) ── */
+  unlock()       { this._unlock(); },
+  cancelUnlock() { document.getElementById('lockOverlay').classList.remove('show'); },
+
+  /* ── Registro de jogos para menu de navegação ── */
+  GAMES: [
+    { id:'colors',  icon:'🎨', pt:'Cores',    en:'Colors',  href:'colors.html'  },
+    { id:'numbers', icon:'🔢', pt:'Números',   en:'Numbers', href:'numbers.html' },
+    { id:'animals', icon:'🐾', pt:'Animais',   en:'Animals', href:'animals.html' },
+    { id:'shapes',  icon:'🔷', pt:'Formas',    en:'Shapes',  href:'shapes.html'  },
+  ],
+  currentGameId: null,
+
+  /* ── Menu de navegação cross-game ── */
   confirmHome(e) {
     e && e.preventDefault();
-    document.getElementById('homeOverlay').classList.add('show');
-  }
+    const overlay = document.getElementById('homeOverlay');
+    const lang = localStorage.getItem('mf-lang') || 'pt';
+    const games = this.GAMES;
+    const curIdx = games.findIndex(g => g.id === this.currentGameId);
+
+    let html = '<div class="mf-modal game-menu-modal">';
+    html += '<div class="mf-modal-icon">🎮</div>';
+    html += '<div class="mf-modal-msg">' + (lang === 'en' ? 'Games' : 'Jogos') + '</div>';
+
+    /* Grid de jogos */
+    html += '<div class="game-menu-grid">';
+    games.forEach((g, i) => {
+      const isCurrent = i === curIdx;
+      const cls = 'game-menu-item' + (isCurrent ? ' current' : '');
+      const name = lang === 'en' ? g.en : g.pt;
+      if (isCurrent) {
+        html += '<div class="' + cls + '"><span class="gm-icon">' + g.icon + '</span><span class="gm-name">' + name + '</span></div>';
+      } else {
+        html += '<a href="' + g.href + '" class="' + cls + '"><span class="gm-icon">' + g.icon + '</span><span class="gm-name">' + name + '</span></a>';
+      }
+    });
+    html += '</div>';
+
+    /* Prev / Next dentro do mesmo grupo */
+    if (curIdx >= 0) {
+      html += '<div class="game-menu-nav">';
+      if (curIdx > 0) {
+        const prev = games[curIdx - 1];
+        const pName = lang === 'en' ? prev.en : prev.pt;
+        html += '<a href="' + prev.href + '" class="game-menu-btn gm-prev">◀ ' + pName + '</a>';
+      } else {
+        html += '<span class="game-menu-btn gm-disabled"></span>';
+      }
+      if (curIdx < games.length - 1) {
+        const next = games[curIdx + 1];
+        const nName = lang === 'en' ? next.en : next.pt;
+        html += '<a href="' + next.href + '" class="game-menu-btn gm-next">' + nName + ' ▶</a>';
+      } else {
+        html += '<span class="game-menu-btn gm-disabled"></span>';
+      }
+      html += '</div>';
+    }
+
+    /* Botões: Início + Ficar */
+    html += '<div class="mf-modal-btns">';
+    html += '<button class="mf-btn-yes" onclick="window.location.href=\'index.html\'">🏠 ' + (lang === 'en' ? 'Home' : 'Início') + '</button>';
+    html += '<button class="mf-btn-no" onclick="document.getElementById(\'homeOverlay\').classList.remove(\'show\')">❌ ' + (lang === 'en' ? 'Stay' : 'Ficar') + '</button>';
+    html += '</div></div>';
+
+    overlay.innerHTML = html;
+    overlay.classList.add('show');
+  },
+
+  /* Compat — chamado por overlays antigos */
+  goHome()     { window.location.href = 'index.html'; },
+  cancelHome() { document.getElementById('homeOverlay').classList.remove('show'); }
 };
 
 /* ═══════════════════════════════════════════════════
