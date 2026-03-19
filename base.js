@@ -176,6 +176,9 @@ const TTS = {
     speechSynthesis.getVoices();
     speechSynthesis.addEventListener('voiceschanged', () => speechSynthesis.getVoices());
     document.addEventListener('pointerdown', () => this.activate(), {once:true});
+    /* Tenta ativar imediatamente — o user acabou de tocar no botão de idioma,
+       então o browser geralmente permite speechSynthesis neste ponto */
+    if (!this.unlocked) this.activate();
   },
 
   setLang(code) { this.langCode = code; },
@@ -193,6 +196,7 @@ const TTS = {
   },
 
   speak(text) {
+    this.lastText = text;
     if (!this.supported || !this.unlocked || !MF._soundOn) return;
     speechSynthesis.cancel();
     const utt   = new SpeechSynthesisUtterance(text);
@@ -203,12 +207,12 @@ const TTS = {
     this._pulse(true);
     utt.onend   = () => this._pulse(false);
     utt.onerror = () => this._pulse(false);
-    this.lastText = text;
     speechSynthesis.speak(utt);
   },
 
   speakAndWait(text) {
     return new Promise(resolve => {
+      this.lastText = text;
       if (!this.supported || !this.unlocked || !MF._soundOn) {
         setTimeout(resolve, Math.max(400, text.length * 80));
         return;
@@ -232,6 +236,7 @@ const TTS = {
   /* Fala com empolgação (mais lento, pitch alto) — para destaque */
   speakExcitedAndWait(text) {
     return new Promise(resolve => {
+      this.lastText = text;
       if (!this.supported || !this.unlocked || !MF._soundOn) {
         setTimeout(resolve, Math.max(400, text.length * 100));
         return;
