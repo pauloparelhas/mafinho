@@ -14,13 +14,22 @@ Requisitos:
 """
 
 import argparse
+import glob as globmod
 import json
 import os
 import re
 import sys
 import time
 
-# ─── Todas as frases do Mafinho Explora ───────────────────────────────
+# Garante que ffmpeg do winget esteja no PATH (Windows)
+if sys.platform == 'win32':
+    _winget_ffmpeg = globmod.glob(
+        os.path.expanduser("~/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg*/*/bin")
+    )
+    if _winget_ffmpeg and _winget_ffmpeg[0] not in os.environ.get("PATH", ""):
+        os.environ["PATH"] = _winget_ffmpeg[0] + ";" + os.environ.get("PATH", "")
+
+# ---- Todas as frases do Mafinho Explora ----
 
 # Números (nomes)
 NUM_PT = ['Um', 'Dois', 'Três', 'Quatro', 'Cinco', 'Seis', 'Sete', 'Oito', 'Nove', 'Dez']
@@ -40,6 +49,11 @@ ANIMALS_GEN = ['o', 'o', 'a', 'o', 'o', 'a', 'o', 'o', 'o', 'o']
 SHAPES_PT = ['Círculo', 'Quadrado', 'Triângulo', 'Estrela', 'Coração', 'Losango', 'Retângulo', 'Oval']
 SHAPES_EN = ['Circle', 'Square', 'Triangle', 'Star', 'Heart', 'Diamond', 'Rectangle', 'Oval']
 SHAPES_GEN = ['o', 'o', 'o', 'a', 'o', 'o', 'o', 'o']
+
+# Letras (A-Z maiúsculas)
+LETTERS = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+LETTERS_NAMES_PT = ['Á','Bê','Cê','Dê','É','Éfe','Gê','Agá','I','Jota','Cá','Éle','Éme','Éne','Ó','Pê','Quê','Érre','Ésse','Tê','U','Vê','Dáblio','Xis','Ípsilon','Zê']
+LETTERS_NAMES_EN = ['Ei','Bi','Si','Di','I','Ef','Ji','Eitch','Ai','Jei','Kei','El','Em','En','Ou','Pi','Kiu','Ar','Es','Ti','Iu','Vi','Dabeliu','Ex','Uai','Zi']
 
 # Cores usadas no jogo de pintar (5 cores)
 PAINT_COLORS_PT = ['Vermelho', 'Azul', 'Verde', 'Amarelo', 'Roxo']
@@ -171,13 +185,19 @@ def build_phrase_list():
         add('pt', 'animais', f'Qual é {gen} {pt}?')
         add('en', 'animals', f'Where is the {en}?')
 
+    # Arrastar animais (silhueta)
+    add('pt', 'animais', 'Arraste para a sombra!')
+    add('en', 'animals', 'Drag to the shadow!')
+
     anim_cel_pt = [
         'Parabéns! Você conhece todos os animais! Que esperto!',
         'Parabéns! Você acertou todos os animais! Muito bem!',
+        'Parabéns! Você encontrou todas as sombras! Que esperto!',
     ]
     anim_cel_en = [
         'Congratulations! You know all the animals! So smart!',
         'Congratulations! You got all the animals right! Great job!',
+        'Congratulations! You found all the shadows! Amazing!',
     ]
     for pt, en in zip(anim_cel_pt, anim_cel_en):
         add('pt', 'animais', pt)
@@ -231,6 +251,41 @@ def build_phrase_list():
         add('pt', 'formas', pt)
         add('en', 'shapes', en)
 
+    # ─── LETRAS ───
+    # PT: usa nome por extenso (Á, Bê, Cê...) — TTS pt-BR fala corretamente
+    # EN: usa a LETRA sozinha (A, B, C...) — TTS en lê a letra corretamente
+    #     NÃO usar nomes por extenso (Ei, Bi, Si) pois o TTS lê como palavra
+    for letter, pt_name in zip(LETTERS, LETTERS_NAMES_PT):
+        add('pt', 'letras', pt_name)
+        add('en', 'letters', letter)
+        add('pt', 'letras', f'{pt_name}!')
+        add('en', 'letters', f'{letter}!')
+        # "Qual é o A?" / "Where is the A?"
+        add('pt', 'letras', f'Qual é o {letter}?')
+        add('en', 'letters', f'Where is the {letter}?')
+
+    add('pt', 'letras', 'Qual letra é essa?')
+    add('en', 'letters', 'What letter is this?')
+
+    # Pintar letras
+    for pt_c, en_c in zip(PAINT_COLORS_PT, PAINT_COLORS_EN):
+        add('pt', 'letras', f'Pinte de {pt_c.lower()}!')
+        add('en', 'letters', f'Paint it {en_c.lower()}!')
+
+    let_cel_pt = [
+        'Parabéns! Você conhece todas as letras! Que criança esperta!',
+        'Parabéns! Você pintou todas as letras! Que artista!',
+        'Parabéns! Você acertou todas as letras! Que esperto!',
+    ]
+    let_cel_en = [
+        'Congratulations! You know all the letters! What a smart child!',
+        'Congratulations! You painted all the letters! What an artist!',
+        'Congratulations! You got all the letters right! So smart!',
+    ]
+    for pt, en in zip(let_cel_pt, let_cel_en):
+        add('pt', 'letras', pt)
+        add('en', 'letters', en)
+
     # ─── ENCORAJAMENTOS (compartilhados) ───
     for pt, en in zip(ENCOURAGE_PT, ENCOURAGE_EN):
         add('pt', 'geral', pt)
@@ -244,7 +299,7 @@ def _slugify(text):
     s = text.lower().strip()
     # Remove pontuação
     s = re.sub(r'[!?¿¡.,;:\'"""()…]', '', s)
-    # Acentos comuns → base
+    # Acentos comuns -> base
     replacements = {
         'á': 'a', 'à': 'a', 'ã': 'a', 'â': 'a',
         'é': 'e', 'ê': 'e', 'í': 'i', 'ó': 'o',
@@ -253,7 +308,7 @@ def _slugify(text):
     }
     for old, new in replacements.items():
         s = s.replace(old, new)
-    # Espaços → underscore
+    # Espaços -> underscore
     s = re.sub(r'\s+', '_', s)
     # Remove caracteres restantes que não sejam alfanumericos ou _
     s = re.sub(r'[^a-z0-9_]', '', s)
@@ -270,12 +325,33 @@ def _plural_pt(word):
     return word + 's'
 
 
+def _ensure_wav(path):
+    """Converte arquivo de áudio para WAV 22050Hz mono se necessário."""
+    if path.lower().endswith('.wav'):
+        return path
+    wav_path = os.path.splitext(path)[0] + '_converted.wav'
+    if os.path.exists(wav_path):
+        return wav_path
+    try:
+        from pydub import AudioSegment
+        print(f"  Convertendo {os.path.basename(path)} -> WAV 22kHz mono...")
+        audio = AudioSegment.from_file(path)
+        audio = audio.set_frame_rate(22050).set_channels(1)
+        audio.export(wav_path, format='wav')
+        print(f"  Convertido: {wav_path}")
+        return wav_path
+    except Exception as e:
+        print(f"  ERRO ao converter {path}: {e}")
+        print(f"  Tente instalar ffmpeg: winget install Gyan.FFmpeg")
+        sys.exit(1)
+
+
 def generate_audio(phrases, sample_path, output_dir, test_mode=False):
     """Gera arquivos de áudio usando XTTS-v2.
 
     sample_path pode ser:
-      - Um arquivo único (ex: audio/sample_mae.wav) → usado para PT e EN
-      - Caminho base sem extensão → tenta sample_mae_pt.wav e sample_mae_en.wav
+      - Um arquivo único (ex: audio/sample_mae.wav) -> usado para PT e EN
+      - Caminho base sem extensão -> tenta sample_mae_pt.wav e sample_mae_en.wav
         Se só encontrar o PT, usa ele para ambos (cross-language cloning)
     """
 
@@ -296,31 +372,54 @@ def generate_audio(phrases, sample_path, output_dir, test_mode=False):
     # Resolve amostra(s) de voz — aceita 1 arquivo ou 2 separados por idioma
     samples = {}
     if os.path.exists(sample_path):
-        # Arquivo único → usa para ambos
+        # Arquivo único -> usa para ambos
         samples['pt'] = sample_path
         samples['en'] = sample_path
         print(f"Amostra unica: {sample_path} (usada para PT e EN)")
     else:
-        # Tenta variantes por idioma: sample_mae_pt.wav, sample_mae_en.wav
+        # Tenta variantes por idioma em vários locais
+        search_patterns = []
         base, ext = os.path.splitext(sample_path)
         for lang_code in ['pt', 'en']:
-            for try_ext in [ext, '.wav', '.m4a', '.mp3', '.ogg']:
+            lang_names = {
+                'pt': ['portugues', 'pt', 'portuguese'],
+                'en': ['ingles', 'en', 'english', 'eng'],
+            }
+            found = False
+            # Padrão original: sample_mae_pt.wav etc
+            for try_ext in [ext, '.wav', '.m4a', '.mp3', '.mp4', '.ogg']:
                 candidate = f"{base}_{lang_code}{try_ext}"
                 if os.path.exists(candidate):
                     samples[lang_code] = candidate
+                    found = True
+                    break
+            if found:
+                continue
+            # Busca em audiosmae/ com nomes como audiomaeportugues.mp4
+            for folder in ['audiosmae', 'audiomae']:
+                if not os.path.isdir(folder):
+                    continue
+                for f in os.listdir(folder):
+                    fl = f.lower()
+                    if any(name in fl for name in lang_names[lang_code]):
+                        samples[lang_code] = os.path.join(folder, f)
+                        found = True
+                        break
+                if found:
                     break
 
         if 'pt' not in samples and 'en' not in samples:
             print(f"ERRO: Nenhuma amostra de voz encontrada.")
             print(f"  Tentei: {sample_path}")
             print(f"  Tentei: {base}_pt.wav, {base}_en.wav, etc.")
+            print(f"  Tentei: audiosmae/audiomae*.mp4")
             print(f"\nColoque a amostra em uma dessas opcoes:")
             print(f"  audio/sample_mae.wav          (arquivo unico)")
             print(f"  audio/sample_mae_pt.wav       (so portugues)")
-            print(f"  audio/sample_mae_pt.wav + audio/sample_mae_en.wav (ambos)")
+            print(f"  audiosmae/audiomaeportugues.mp4 + audiosmae/audiomaeingles.mp4")
             sys.exit(1)
 
-        # Se só tem PT, usa para EN também (cross-language cloning)
+        # Se só tem um idioma, usa para o outro (cross-language cloning)
         if 'pt' in samples and 'en' not in samples:
             samples['en'] = samples['pt']
             print(f"Amostra PT: {samples['pt']}")
@@ -332,6 +431,10 @@ def generate_audio(phrases, sample_path, output_dir, test_mode=False):
         else:
             print(f"Amostra PT: {samples['pt']}")
             print(f"Amostra EN: {samples['en']}")
+
+    # Converte amostras para WAV se necessário (MP4, M4A, etc.)
+    for lang_key in list(samples.keys()):
+        samples[lang_key] = _ensure_wav(samples[lang_key])
 
     print("\nCarregando modelo XTTS-v2 (primeira vez faz download de ~2GB)...")
     tts = CoquiTTS("tts_models/multilingual/multi-dataset/xtts_v2")
@@ -380,7 +483,7 @@ def generate_audio(phrases, sample_path, output_dir, test_mode=False):
                     file_path=wav_path,
                 )
 
-                # Converte WAV → MP3
+                # Converte WAV -> MP3
                 audio = AudioSegment.from_wav(wav_path)
                 audio.export(mp3_path, format='mp3', bitrate='128k')
                 os.remove(wav_path)  # Remove WAV para economizar espaço
@@ -413,7 +516,7 @@ def main():
     parser = argparse.ArgumentParser(description='Mafinho Explora — Voice Generator')
     parser.add_argument('--test', action='store_true', help='Gera apenas 5 frases de teste por idioma')
     parser.add_argument('--list', action='store_true', help='Lista todas as frases sem gerar áudio')
-    parser.add_argument('--sample', default='audio/sample_mae.wav', help='Caminho da amostra de voz (default: audio/sample_mae.wav)')
+    parser.add_argument('--sample', default='audio/sample_mae.wav', help='Caminho da amostra de voz (default: audio/sample_mae.wav). Aceita .wav, .mp4, .m4a, .mp3')
     parser.add_argument('--output', default='audio', help='Diretório de saída (default: audio/)')
     args = parser.parse_args()
 
