@@ -422,7 +422,7 @@ const LANG = {
     celTitle:'Well done!',
     celSpoken:'Hooray! You know all the letters! What a smart child!',
     restart:'Restart 🔄', backHub:'← Letters',
-    letterNames:['Ei','Bi','Si','Di','I','Ef','Ji','Eitch','Ai','Jei','Kei','El','Em','En','Ou','Pi','Kiu','Ar','Es','Ti','Iu','Vi','Dabeliu','Ex','Uai','Zi'],
+    letterNames:['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
     encourage:[
       {text:'Good job! ⭐',        spoken:'Good job!'},
       {text:'Well done! 🌟',       spoken:'Well done!'},
@@ -746,6 +746,18 @@ const PaintGame = {
     this.currentColor = PAINT_COLORS[0].hex;
   },
 
+  _redraw() {
+    const ctx = this._pCtx;
+    const w = this._w * this._dpr, h = this._h * this._dpr;
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(this._strokeCanvas, 0, 0, w, h);
+    /* Recortar pinceladas dentro da letra */
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.drawImage(this._maskCanvas, 0, 0, w, h);
+    ctx.globalCompositeOperation = 'source-over';
+  },
+
   _down(e) {
     if (this._completed) return;
     this._painting = true;
@@ -753,31 +765,30 @@ const PaintGame = {
     this._lastX = x;
     this._lastY = y;
     const dpr = this._dpr;
-    /* Dot */
-    [this._pCtx, this._sCtx].forEach(ctx => {
-      ctx.beginPath();
-      ctx.arc(x * dpr, y * dpr, this.BRUSH * dpr / 2, 0, Math.PI * 2);
-      ctx.fillStyle = this.currentColor;
-      ctx.fill();
-    });
+    /* Dot — só no stroke canvas */
+    this._sCtx.beginPath();
+    this._sCtx.arc(x * dpr, y * dpr, this.BRUSH * dpr / 2, 0, Math.PI * 2);
+    this._sCtx.fillStyle = this.currentColor;
+    this._sCtx.fill();
+    this._redraw();
   },
 
   _move(e) {
     if (!this._painting || this._completed) return;
     const {x, y} = this._pos(e);
     const dpr = this._dpr;
-    [this._pCtx, this._sCtx].forEach(ctx => {
-      ctx.beginPath();
-      ctx.moveTo(this._lastX * dpr, this._lastY * dpr);
-      ctx.lineTo(x * dpr, y * dpr);
-      ctx.strokeStyle = this.currentColor;
-      ctx.lineWidth = this.BRUSH * dpr;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke();
-    });
+    /* Traço — só no stroke canvas */
+    this._sCtx.beginPath();
+    this._sCtx.moveTo(this._lastX * dpr, this._lastY * dpr);
+    this._sCtx.lineTo(x * dpr, y * dpr);
+    this._sCtx.strokeStyle = this.currentColor;
+    this._sCtx.lineWidth = this.BRUSH * dpr;
+    this._sCtx.lineCap = 'round';
+    this._sCtx.lineJoin = 'round';
+    this._sCtx.stroke();
     this._lastX = x;
     this._lastY = y;
+    this._redraw();
   },
 
   _up(e) {
@@ -793,23 +804,23 @@ const PaintGame = {
 
   _checkFill() {
     if (this._completed || this._totalMaskPx === 0) return;
+    this._redraw();
     const dpr = this._dpr;
     const w = this._w * dpr;
     const h = this._h * dpr;
-    const mask   = this._mCtx.getImageData(0, 0, w, h).data;
-    const stroke = this._sCtx.getImageData(0, 0, w, h).data;
+    const paintData = this._pCtx.getImageData(0, 0, w, h).data;
+    const maskData  = this._mCtx.getImageData(0, 0, w, h).data;
 
     let painted = 0;
-    /* Sample every 2 pixels (1/4 total) */
     for (let y = 0; y < h; y += 2) {
       for (let x = 0; x < w; x += 2) {
         const i = (y * w + x) * 4;
-        if (mask[i + 3] <= 30) continue;
-        const r = stroke[i], g = stroke[i+1], b = stroke[i+2], a = stroke[i+3];
-        if (a > 30) {
-          const dist = Math.sqrt(r*r + g*g + b*b);
-          if (dist > 30) painted++;
-        }
+        if (maskData[i + 3] <= 30) continue;
+        const a = paintData[i + 3];
+        if (a < 3) continue;
+        const r = paintData[i], g = paintData[i+1], b = paintData[i+2];
+        const dist = Math.sqrt(r*r + g*g + b*b);
+        if (dist > 30) painted++;
       }
     }
 
