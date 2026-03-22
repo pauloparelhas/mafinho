@@ -1,6 +1,6 @@
 # CLAUDE.md — Mafinho Explora
 ## Jogos Educativos para Criança de 2 Anos
-**Versão:** 2.0 | 16/03/2026 — Fase Profissional Estruturada
+**Versão:** 2.1 | 22/03/2026 — Fase Profissional Estruturada
 
 ---
 
@@ -192,17 +192,53 @@ Perguntar ao usuário após cada parte antes de continuar.
 
 ---
 
-## REGRA DE DOCUMENTAÇÃO
+## REGRA DE DOCUMENTAÇÃO — INVIOLÁVEL
 
-**Quando atualizar (não esperar fim de sessão):**
+**Documentação desatualizada é INACEITÁVEL.** Arquivos-chave (`CLAUDE.md`, `memory/MEMORY.md`, `memory/project_status.md`) DEVEM refletir o estado real do projeto a todo momento.
+
+**Quando atualizar (ANTES de encerrar qualquer entrega):**
+- Após cada commit que altera estado de módulos ou jogos
 - Após corrigir bug causado por padrão errado
 - Após implementar feature que vira padrão
 - Antes de passar para o próximo jogo
+- Ao final de TODA sessão, mesmo que só tenha havido limpeza/refactor
 
 **O que atualizar:**
-1. `memory/PADRAO.md` — novo padrão ou anti-padrão
-2. Este `CLAUDE.md` — novo item no checklist
-3. `memory/MEMORY.md` / `memory/project_status.md` — status atual
+1. `memory/project_status.md` — tabela de módulos, jogos, status (fonte de verdade)
+2. `memory/MEMORY.md` — índice de memórias + tabela resumo de módulos
+3. Este `CLAUDE.md` — seção ESTADO ATUAL + checklist se houver novos padrões
+4. `memory/PADRAO.md` — novo padrão ou anti-padrão (se aplicável)
+
+**Regra para agentes:**
+- O agente `arquivista` DEVE ser invocado após cada entrega para validar que toda documentação está atualizada
+- O agente `gerente` DEVE ler `memory/project_status.md` como fonte de verdade ao retomar sessão
+- Se qualquer agente detectar documentação desatualizada, deve ALERTAR imediatamente antes de prosseguir
+
+---
+
+## ESTADO ATUAL DO PROJETO (atualizar a cada commit)
+
+**Última atualização:** 22/03/2026
+
+| Módulo | Arquivo | Jogos implementados | Status |
+|---|---|---|---|
+| Colors | colors.html | Flashcard + Clicar + Arrastar | COMPLETO |
+| Numbers | numbers.html | Contar + Flashcard + Clicar + Arrastar | COMPLETO |
+| Animals | animals.html | Flashcard + Clicar + Arrastar (silhueta) | COMPLETO |
+| Shapes | shapes.html | Flashcard + Clicar + Encontrar + Pintar | COMPLETO |
+| Letters | letters.html | Flashcard + Pintar + Clicar | COMPLETO |
+| Emotions | emotions.html | Flashcard + Clicar + Encontrar | 3 jogos |
+| Objects | — | — | Não iniciado |
+| Days | — | — | Não iniciado |
+
+**Shared:** `base.css` + `base.js` (design system + MF/TTS/Nav/SFX)
+**Hub:** `index.html` (navegação entre tópicos)
+
+**Decisões técnicas ativas:**
+- btnVoice (TTS mãe) removido de todos os módulos — feature não implementada
+- base.js `voiceMode` default = `'sistema'`
+- animals.html flashcards usam fundo pastel (SVGs kawaii sobre fundo forte ficam ilegíveis)
+- emotions.html: 2 chars (boy/girl) × 4 emoções = 8 SVGs kawaii standalone
 
 ---
 
@@ -247,12 +283,20 @@ Perguntar ao usuário após cada parte antes de continuar.
 - NÃO reduzir botões abaixo de 80px (fase 2 aumentou o mínimo)
 - NÃO começar a codar sem rodar agente `pedagogico`
 - NÃO declarar pronto sem rodar agente `ti`
+- NÃO encerrar sessão ou entrega com documentação desatualizada (CLAUDE.md, MEMORY.md, project_status.md)
+- NÃO assumir que documentação de sessões anteriores está correta — verificar antes de usar
 
 ---
 
 ---
 
 ## BACKLOG FUTURO
+
+### Jogos pendentes
+- Emotions: jogos adicionais (Arrastar? a definir com usuário)
+- Colors: Separar (4º jogo, completaria o tópico)
+- Objects (🧸): tópico novo — vocabulário do dia-a-dia
+- Dias da Semana (📅): tópico novo — conceito temporal básico
 
 ### Configurações customizáveis
 - **Bandeira do idioma EN**: atualmente fixa 🇨🇦 (Maple Bear). Futuro: permitir configurar para 🇺🇸, 🇬🇧, etc. via `localStorage('mf-en-flag')` ou config JSON.
@@ -267,13 +311,8 @@ app_marcelo/
 │   └── objects/     ← (futuro) PNGs de objetos
 ├── svg_animals.py   ← pipeline SVG→PNG (PyMuPDF)
 ```
-- Cada tópico visual terá seu `svg_{topico}.py` para gerar PNGs
 - SVGs inline nos HTMLs para carregamento rápido, PNGs como fallback/export
 - PyMuPDF NÃO suporta `<radialGradient>` / `<linearGradient>` — usar shapes sólidas sobrepostas
-
-### Próximos tópicos planejados
-- Objetos (🧸) — vocabulário do dia-a-dia
-- Dias da Semana (📅) — conceito temporal básico
 
 ---
 
