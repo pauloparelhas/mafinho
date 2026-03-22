@@ -14,7 +14,6 @@
 .hub-hero { border-bottom-color:var(--c-pink); }
 .game-card.ready { border-color:var(--c-pink); }
 
-/* ── TELA C: Flashcard ── */
 #sFlash {
   flex:1; display:none; flex-direction:column;
   align-items:center; padding:20px 16px 32px; gap:0;
@@ -55,7 +54,6 @@
 #sFlash .card-nav { max-width:520px; }
 #sFlash .progress-bar-wrap { max-width:520px; }
 
-/* ── TELA D: Clicar ── */
 #sClick {
   flex:1; display:none; flex-direction:column;
   align-items:center; padding:12px 12px 8px; gap:10px;
@@ -108,18 +106,15 @@
 <span class="corner-deco bl" id="dc3">⭐</span>
 <span class="corner-deco br" id="dc4">⭐</span>
 
-<!-- ═══ NAVBAR ═══ -->
 <nav class="navbar">
   <a id="navLogo" href="#" class="nav-btn btn-home" onclick="MF.confirmHome(event)" title="Início">🏠</a>
   <span class="nav-title">😊 <span id="navTitle">Emoções</span></span>
   <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
   <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
   <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
-  <button class="nav-btn btn-voice" id="btnVoice" onclick="TTS.toggleVoice()" title="Voz">👩</button>
   <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
 </nav>
 
-<!-- ═══ TELA A: Hub ═══ -->
 <div id="sHub">
   <div class="hub-hero">
     <span class="hub-hero-icon">😊</span>
@@ -140,7 +135,6 @@
   </div>
 </div>
 
-<!-- ═══ TELA B: Idioma ═══ -->
 <div id="sLang">
   <div class="lang-intro">
     <h1>😊 Mafinho Explora!</h1>
@@ -160,7 +154,6 @@
   </div>
 </div>
 
-<!-- ═══ TELA C: Flashcard ═══ -->
 <div id="sFlash">
   <button class="back-link" onclick="Nav.backToHub()">← <span id="flashBackLabel">Emoções</span></button>
   <div class="card-row">
@@ -182,13 +175,12 @@
     <button class="btn-nav btn-prev" id="flashPrev" onclick="FlashGame.prev()">◀</button>
     <button class="btn-nav btn-next" id="flashNext" onclick="FlashGame.next()">▶</button>
   </div>
-  <div class="flash-progress" id="flashProgress">1 / 16</div>
+  <div class="flash-progress" id="flashProgress">1 / 8</div>
   <div class="progress-bar-wrap">
-    <div class="progress-bar" id="flashBar" style="width:6.25%"></div>
+    <div class="progress-bar" id="flashBar" style="width:12.5%"></div>
   </div>
 </div>
 
-<!-- ═══ TELA D: Clicar ═══ -->
 <div id="sClick">
   <button class="back-link" onclick="Nav.backToHub()">← <span id="clickBackLabel">Emoções</span></button>
   <p class="click-instruction" id="clickInstruction">Quem está feliz?</p>
@@ -196,7 +188,6 @@
   <p class="click-round" id="clickRoundBadge"></p>
 </div>
 
-<!-- ═══ TELA E: Celebração ═══ -->
 <div id="sCelebrate">
   <div class="stars">⭐⭐⭐⭐⭐</div>
   <div class="cel-emoji">🎉</div>
@@ -206,15 +197,12 @@
   <button class="btn-mid" onclick="Nav.backToHub()" id="btnBackHub">← Emoções</button>
 </div>
 
-<!-- Toast encorajamento -->
 <div class="enc-toast" id="encToast">⭐ Muito bem!</div>
 
-<!-- Banner ativar som -->
 <button class="sound-banner" id="soundBanner" onclick="TTS.activate()">
   🔊 Toque aqui para ativar o som!
 </button>
 
-<!-- Overlay: travar tela -->
 <div class="mf-overlay" id="lockOverlay">
   <div class="mf-modal">
     <div class="mf-modal-icon">🔒</div>
@@ -225,20 +213,17 @@
     </div>
   </div>
 </div>
-<!-- Overlay: menu de navegação (conteúdo gerado por base.js) -->
 <div class="mf-overlay" id="homeOverlay"></div>
 
 <script src="base.js"></script>
 <script>
 /* ═══════════════════════════════════════════════
-   DADOS — Emoções
+   DADOS — Emoções  (2 personagens × 4 emoções = 8 SVGs standalone)
 ═══════════════════════════════════════════════ */
 
 const CHARS = [
-  { pt:'menino', en:'boy',   art:'O',  gen:'m', color:'#1E88E5' },
-  { pt:'menina', en:'girl',  art:'A',  gen:'f', color:'#E91E63' },
-  { pt:'homem',  en:'man',   art:'O',  gen:'m', color:'#43A047' },
-  { pt:'mulher', en:'woman', art:'A',  gen:'f', color:'#FB8C00' },
+  { pt:'menino', en:'boy',  art:'O', gen:'m', color:'#1E88E5', pastel:'#E3F2FD' },
+  { pt:'menina', en:'girl', art:'A', gen:'f', color:'#E91E63', pastel:'#FCE4EC' },
 ];
 
 const EMOTIONS = [
@@ -250,149 +235,222 @@ const EMOTIONS = [
 
 function buildPhrase(ci, ei, lang) {
   const c = CHARS[ci], e = EMOTIONS[ei];
-  if (lang === 'pt') {
-    const adj = c.gen === 'm' ? e.pt_m : e.pt_f;
-    return c.art + ' ' + c.pt + ' está ' + adj;
-  }
+  if (lang === 'pt') return c.art + ' ' + c.pt + ' está ' + (c.gen === 'm' ? e.pt_m : e.pt_f);
   return 'The ' + c.en + ' is ' + e.en;
 }
 
-/* ── SVG: corpos dos personagens (sem rosto) ── */
-const SK = '#FFD5B8', SKS = '#C49A6C';
-
-const CHAR_BASES = [
-  /* 0: Menino — cabelo curto castanho espetado, camiseta azul, short, tênis */
-  '<circle cx="100" cy="78" r="48" fill="' + SK + '" stroke="' + SKS + '" stroke-width="2.5"/>' +
-  '<circle cx="53" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="147" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<path d="M55,62 C53,38 72,25 100,23 C128,25 147,38 145,62 L142,52 C138,38 122,28 100,27 C78,28 62,38 58,52 Z" fill="#5D3215" stroke="#3E2009" stroke-width="1.5"/>' +
-  '<path d="M72,30 L68,18 L80,28" fill="#5D3215"/><path d="M92,25 L90,12 L102,24" fill="#5D3215"/><path d="M118,28 L122,16 L110,26" fill="#5D3215"/>' +
-  '<rect x="90" y="122" width="20" height="14" rx="6" fill="' + SK + '"/>' +
+/* ── Corpos compartilhados (DRY no código, standalone no SVG final) ── */
+const BOY_BODY =
   '<ellipse cx="100" cy="158" rx="36" ry="26" fill="#1E88E5" stroke="#1565C0" stroke-width="2"/>' +
   '<path d="M88,134 C92,140 108,140 112,134" fill="#1565C0"/>' +
   '<ellipse cx="64" cy="155" rx="11" ry="16" fill="#1E88E5" stroke="#1565C0" stroke-width="1.5"/>' +
   '<ellipse cx="136" cy="155" rx="11" ry="16" fill="#1E88E5" stroke="#1565C0" stroke-width="1.5"/>' +
-  '<circle cx="64" cy="170" r="7" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<circle cx="136" cy="170" r="7" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<rect x="80" y="180" width="14" height="12" rx="5" fill="#5C6BC0"/><rect x="106" y="180" width="14" height="12" rx="5" fill="#5C6BC0"/>' +
-  '<ellipse cx="87" cy="194" rx="10" ry="4" fill="#E53935"/><ellipse cx="113" cy="194" rx="10" ry="4" fill="#E53935"/>',
+  '<circle cx="64" cy="170" r="7" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.2"/>' +
+  '<circle cx="136" cy="170" r="7" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.2"/>' +
+  '<rect x="80" y="180" width="14" height="12" rx="5" fill="#5C6BC0"/>' +
+  '<rect x="106" y="180" width="14" height="12" rx="5" fill="#5C6BC0"/>' +
+  '<ellipse cx="87" cy="194" rx="10" ry="4" fill="#E53935"/>' +
+  '<ellipse cx="113" cy="194" rx="10" ry="4" fill="#E53935"/>' +
+  '<rect x="90" y="122" width="20" height="14" rx="6" fill="#FFD5B8"/>' +
+  '<circle cx="100" cy="78" r="48" fill="#FFD5B8" stroke="#C49A6C" stroke-width="2.5"/>' +
+  '<circle cx="53" cy="80" r="8" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="147" cy="80" r="8" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<path d="M55,62 C53,38 72,25 100,23 C128,25 147,38 145,62 L142,52 C138,38 122,28 100,27 C78,28 62,38 58,52 Z" fill="#5D3215" stroke="#3E2009" stroke-width="1.5"/>' +
+  '<path d="M72,30 L68,16 L80,28" fill="#5D3215"/><path d="M92,24 L90,8 L102,22" fill="#5D3215"/><path d="M118,28 L124,14 L110,26" fill="#5D3215"/>';
 
-  /* 1: Menina — maria-chiquinhas castanhas, vestido rosa */
-  '<circle cx="100" cy="78" r="48" fill="' + SK + '" stroke="' + SKS + '" stroke-width="2.5"/>' +
-  '<circle cx="53" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="147" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<path d="M55,68 C53,42 72,28 100,26 C128,28 147,42 145,68 L145,60 C142,42 125,32 100,30 C75,32 58,42 55,60 Z" fill="#8B4513" stroke="#5C2D0A" stroke-width="1.5"/>' +
-  '<circle cx="48" cy="50" r="14" fill="#8B4513" stroke="#5C2D0A" stroke-width="1.5"/>' +
-  '<circle cx="152" cy="50" r="14" fill="#8B4513" stroke="#5C2D0A" stroke-width="1.5"/>' +
-  '<circle cx="48" cy="38" r="5" fill="#E91E63"/><circle cx="152" cy="38" r="5" fill="#E91E63"/>' +
-  '<rect x="90" y="122" width="20" height="14" rx="6" fill="' + SK + '"/>' +
-  '<path d="M64,136 L60,190 Q60,198 72,198 L128,198 Q140,198 140,190 L136,136 Q120,148 100,148 Q80,148 64,136 Z" fill="#E91E63" stroke="#C2185B" stroke-width="2"/>' +
-  '<ellipse cx="60" cy="152" rx="10" ry="15" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>' +
-  '<ellipse cx="140" cy="152" rx="10" ry="15" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>' +
-  '<circle cx="60" cy="166" r="7" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<circle cx="140" cy="166" r="7" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>',
+const GIRL_BODY =
+  '<path d="M64,136 L60,192 Q60,198 72,198 L128,198 Q140,198 140,192 L136,136 Q120,148 100,148 Q80,148 64,136 Z" fill="#E91E63" stroke="#C2185B" stroke-width="2"/>' +
+  '<ellipse cx="58" cy="150" rx="10" ry="14" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>' +
+  '<ellipse cx="142" cy="150" rx="10" ry="14" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>' +
+  '<circle cx="58" cy="163" r="7" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.2"/>' +
+  '<circle cx="142" cy="163" r="7" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.2"/>' +
+  '<rect x="90" y="122" width="20" height="14" rx="6" fill="#FFE0C8"/>' +
+  '<circle cx="100" cy="78" r="48" fill="#FFE0C8" stroke="#D4AA80" stroke-width="2.5"/>' +
+  '<circle cx="55" cy="80" r="6" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="145" cy="80" r="6" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<path d="M54,65 C52,40 72,26 100,24 C128,26 148,40 146,65 L146,58 C142,38 126,28 100,26 C74,28 58,38 54,58 Z" fill="#8B5A3A" stroke="#5C3A1E" stroke-width="1.5"/>' +
+  '<path d="M54,65 C48,90 46,120 50,155" fill="none" stroke="#8B5A3A" stroke-width="14" stroke-linecap="round"/>' +
+  '<path d="M146,65 C152,90 154,120 150,155" fill="none" stroke="#8B5A3A" stroke-width="14" stroke-linecap="round"/>' +
+  '<circle cx="38" cy="50" r="18" fill="#8B5A3A" stroke="#5C3A1E" stroke-width="1.5"/>' +
+  '<circle cx="162" cy="50" r="18" fill="#8B5A3A" stroke="#5C3A1E" stroke-width="1.5"/>' +
+  '<circle cx="50" cy="36" r="5" fill="#E91E63" stroke="#C2185B" stroke-width="1"/>' +
+  '<circle cx="150" cy="36" r="5" fill="#E91E63" stroke="#C2185B" stroke-width="1"/>' +
+  '<path d="M44,34 L50,38 L56,34" fill="#E91E63"/><path d="M144,34 L150,38 L156,34" fill="#E91E63"/>';
 
-  /* 2: Homem — cabelo curto escuro, barba rala, camiseta verde, calça */
-  '<circle cx="100" cy="78" r="48" fill="' + SK + '" stroke="' + SKS + '" stroke-width="2.5"/>' +
-  '<circle cx="53" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="147" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<path d="M55,60 C53,36 72,24 100,22 C128,24 147,36 145,60 L142,48 C138,34 122,26 100,25 C78,26 62,34 58,48 Z" fill="#2C1810" stroke="#1A0E08" stroke-width="1.5"/>' +
-  '<circle cx="88" cy="104" r="1.5" fill="#8B7355" opacity="0.5"/><circle cx="94" cy="106" r="1.5" fill="#8B7355" opacity="0.5"/>' +
-  '<circle cx="100" cy="107" r="1.5" fill="#8B7355" opacity="0.5"/><circle cx="106" cy="106" r="1.5" fill="#8B7355" opacity="0.5"/><circle cx="112" cy="104" r="1.5" fill="#8B7355" opacity="0.5"/>' +
-  '<rect x="90" y="122" width="20" height="14" rx="6" fill="' + SK + '"/>' +
-  '<ellipse cx="100" cy="160" rx="38" ry="28" fill="#43A047" stroke="#2E7D32" stroke-width="2"/>' +
-  '<path d="M88,134 C92,140 108,140 112,134" fill="#2E7D32"/>' +
-  '<ellipse cx="60" cy="158" rx="12" ry="18" fill="#43A047" stroke="#2E7D32" stroke-width="1.5"/>' +
-  '<ellipse cx="140" cy="158" rx="12" ry="18" fill="#43A047" stroke="#2E7D32" stroke-width="1.5"/>' +
-  '<circle cx="60" cy="175" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<circle cx="140" cy="175" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<rect x="78" y="184" width="16" height="12" rx="5" fill="#5D4037"/><rect x="106" y="184" width="16" height="12" rx="5" fill="#5D4037"/>',
+/* Cílios da menina (3 por olho) — usados nas emoções com olhos abertos */
+const LASH_L = '<line x1="70" y1="62" x2="66" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="78" y1="60" x2="78" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="86" y1="62" x2="90" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
+const LASH_R = '<line x1="114" y1="62" x2="110" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="122" y1="60" x2="122" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="130" y1="62" x2="134" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
+/* Cílios para olhos fechados (happy squint) */
+const LASH_CLOSED_L = '<line x1="70" y1="72" x2="66" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="80" y1="65" x2="80" y2="58" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="90" y1="72" x2="94" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
+const LASH_CLOSED_R = '<line x1="110" y1="72" x2="106" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="120" y1="65" x2="120" y2="58" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="130" y1="72" x2="134" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
+/* Cílios para olhos enormes (surprise) */
+const LASH_BIG_L = '<line x1="68" y1="60" x2="62" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="78" y1="56" x2="78" y2="48" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="88" y1="60" x2="94" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
+const LASH_BIG_R = '<line x1="112" y1="60" x2="106" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="122" y1="56" x2="122" y2="48" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="132" y1="60" x2="138" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
 
-  /* 3: Mulher — cabelo longo castanho, blusa laranja, saia roxa */
-  '<circle cx="100" cy="78" r="48" fill="' + SK + '" stroke="' + SKS + '" stroke-width="2.5"/>' +
-  '<circle cx="53" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="147" cy="80" r="8" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<path d="M55,65 C53,40 72,26 100,24 C128,26 147,40 145,65 L145,58 C142,40 125,30 100,28 C75,30 58,40 55,58 Z" fill="#6B3A2A" stroke="#4A2518" stroke-width="1.5"/>' +
-  '<path d="M55,65 C50,90 48,120 52,150" fill="none" stroke="#6B3A2A" stroke-width="12" stroke-linecap="round"/>' +
-  '<path d="M145,65 C150,90 152,120 148,150" fill="none" stroke="#6B3A2A" stroke-width="12" stroke-linecap="round"/>' +
-  '<rect x="90" y="122" width="20" height="14" rx="6" fill="' + SK + '"/>' +
-  '<ellipse cx="100" cy="155" rx="36" ry="24" fill="#FB8C00" stroke="#EF6C00" stroke-width="2"/>' +
-  '<path d="M88,134 C92,140 108,140 112,134" fill="#EF6C00"/>' +
-  '<ellipse cx="62" cy="152" rx="11" ry="16" fill="#FB8C00" stroke="#EF6C00" stroke-width="1.5"/>' +
-  '<ellipse cx="138" cy="152" rx="11" ry="16" fill="#FB8C00" stroke="#EF6C00" stroke-width="1.5"/>' +
-  '<circle cx="62" cy="167" r="7" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<circle cx="138" cy="167" r="7" fill="' + SK + '" stroke="' + SKS + '" stroke-width="1.2"/>' +
-  '<path d="M66,175 L58,198 L142,198 L134,175 Z" fill="#7B1FA2" stroke="#6A1B9A" stroke-width="1.5"/>',
+const S = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">';
+
+/* ═══════ FELIZ ═══════ */
+const HAPPY_FACE =
+  /* Olhos fechados felizes (^_^) — U invertido */
+  '<path d="M68,76 Q80,62 92,76" stroke="#1A0800" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M108,76 Q120,62 132,76" stroke="#1A0800" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
+  /* Sobrancelhas suaves */
+  '<path d="M70,64 C76,60 86,60 92,64" stroke="#4A3520" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+  '<path d="M108,64 C114,60 124,60 130,64" stroke="#4A3520" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+  /* Nariz */
+  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#E8B090"/>' +
+  /* Sorriso ENORME aberto — boca, dentes, língua */
+  '<path d="M74,92 Q100,120 126,92 Z" fill="#E85060" stroke="#C04050" stroke-width="2"/>' +
+  '<path d="M78,92 Q100,100 122,92" fill="white"/>' +
+  '<ellipse cx="100" cy="108" rx="12" ry="7" fill="#FF8A98"/>' +
+  /* Blush grande */
+  '<circle cx="58" cy="86" r="12" fill="#FFB6C1" opacity="0.5"/>' +
+  '<circle cx="142" cy="86" r="12" fill="#FFB6C1" opacity="0.5"/>';
+
+/* ═══════ TRISTE ═══════ */
+const SAD_FACE_B =
+  /* Olhos grandes aquosos, pupilas olhando pra baixo */
+  '<ellipse cx="80" cy="72" rx="12" ry="14" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="80" cy="78" r="7" fill="#3E2723"/><circle cx="80" cy="80" r="4.5" fill="#1A0800"/>' +
+  '<circle cx="83" cy="72" r="3.5" fill="white"/><circle cx="78" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
+  '<ellipse cx="120" cy="72" rx="12" ry="14" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="120" cy="78" r="7" fill="#3E2723"/><circle cx="120" cy="80" r="4.5" fill="#1A0800"/>' +
+  '<circle cx="117" cy="72" r="3.5" fill="white"/><circle cx="122" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
+  /* Sobrancelhas preocupadas (cantos internos pra cima) */
+  '<path d="M66,62 C72,66 88,66 94,60" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M106,60 C112,66 128,66 134,62" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#E8B090"/>' +
+  /* Boca: frown grande e trêmulo */
+  '<path d="M78,102 Q88,92 100,96 Q112,92 122,102" stroke="#C0605A" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+  /* Lágrimas caindo dos dois olhos */
+  '<path d="M70,84 C68,90 70,98 72,102" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<circle cx="72" cy="104" r="3.5" fill="#64B5F6" opacity="0.6"/>' +
+  '<path d="M130,86 C132,92 130,100 128,104" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<circle cx="128" cy="106" r="3" fill="#64B5F6" opacity="0.6"/>';
+
+const SAD_FACE_G =
+  '<ellipse cx="80" cy="72" rx="12" ry="14" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="80" cy="78" r="7" fill="#3E2723"/><circle cx="80" cy="80" r="4.5" fill="#1A0800"/>' +
+  '<circle cx="83" cy="72" r="3.5" fill="white"/><circle cx="78" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
+  LASH_L +
+  '<ellipse cx="120" cy="72" rx="12" ry="14" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="120" cy="78" r="7" fill="#3E2723"/><circle cx="120" cy="80" r="4.5" fill="#1A0800"/>' +
+  '<circle cx="117" cy="72" r="3.5" fill="white"/><circle cx="122" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
+  LASH_R +
+  '<path d="M66,62 C72,66 88,66 94,60" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M106,60 C112,66 128,66 134,62" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#F0C0A0"/>' +
+  '<path d="M78,102 Q88,92 100,96 Q112,92 122,102" stroke="#C0605A" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+  '<path d="M70,84 C68,90 70,98 72,102" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<circle cx="72" cy="104" r="3.5" fill="#64B5F6" opacity="0.6"/>' +
+  '<path d="M130,86 C132,92 130,100 128,104" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<circle cx="128" cy="106" r="3" fill="#64B5F6" opacity="0.6"/>';
+
+/* ═══════ COM RAIVA ═══════ */
+const ANGRY_FACE_B =
+  /* Olhos com pálpebra reta (ry menor) */
+  '<ellipse cx="80" cy="74" rx="11" ry="9" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="80" cy="76" r="5" fill="#3E2723"/><circle cx="80" cy="77" r="3" fill="#1A0800"/>' +
+  '<circle cx="83" cy="72" r="2" fill="white"/>' +
+  '<ellipse cx="120" cy="74" rx="11" ry="9" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="120" cy="76" r="5" fill="#3E2723"/><circle cx="120" cy="77" r="3" fill="#1A0800"/>' +
+  '<circle cx="117" cy="72" r="2" fill="white"/>' +
+  /* V-brows GROSSAS e agressivas cobrindo topo dos olhos */
+  '<path d="M64,68 L94,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M136,68 L106,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
+  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#E8B090"/>' +
+  /* Boca aberta com dentes cerrados */
+  '<path d="M78,94 Q100,108 122,94 Z" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
+  '<path d="M82,96 L88,100 L94,96 L100,100 L106,96 L112,100 L118,96" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>' +
+  /* Blush vermelho (flush de raiva) */
+  '<rect x="54" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
+  '<rect x="130" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
+  /* Marca de veia na testa (十 clássico anime) */
+  '<path d="M120,44 L130,44 M125,39 L125,49" stroke="#E53935" stroke-width="2.5" stroke-linecap="round"/>';
+
+const ANGRY_FACE_G =
+  '<ellipse cx="80" cy="74" rx="11" ry="9" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="80" cy="76" r="5" fill="#3E2723"/><circle cx="80" cy="77" r="3" fill="#1A0800"/>' +
+  '<circle cx="83" cy="72" r="2" fill="white"/>' +
+  LASH_L +
+  '<ellipse cx="120" cy="74" rx="11" ry="9" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="120" cy="76" r="5" fill="#3E2723"/><circle cx="120" cy="77" r="3" fill="#1A0800"/>' +
+  '<circle cx="117" cy="72" r="2" fill="white"/>' +
+  LASH_R +
+  '<path d="M64,68 L94,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M136,68 L106,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
+  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#F0C0A0"/>' +
+  '<path d="M78,94 Q100,108 122,94 Z" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
+  '<path d="M82,96 L88,100 L94,96 L100,100 L106,96 L112,100 L118,96" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<rect x="54" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
+  '<rect x="130" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
+  '<path d="M120,44 L130,44 M125,39 L125,49" stroke="#E53935" stroke-width="2.5" stroke-linecap="round"/>';
+
+/* ═══════ SURPRESO/A ═══════ */
+const SURPRISED_FACE_B =
+  /* Olhos ENORMES perfeitamente redondos, pupilas minúsculas */
+  '<circle cx="80" cy="72" r="16" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="80" cy="73" r="4" fill="#3E2723"/><circle cx="80" cy="74" r="2.5" fill="#1A0800"/>' +
+  '<circle cx="84" cy="68" r="3.5" fill="white"/><circle cx="77" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
+  '<circle cx="120" cy="72" r="16" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
+  '<circle cx="120" cy="73" r="4" fill="#3E2723"/><circle cx="120" cy="74" r="2.5" fill="#1A0800"/>' +
+  '<circle cx="116" cy="68" r="3.5" fill="white"/><circle cx="123" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
+  /* Sobrancelhas levantadas MUITO alto */
+  '<path d="M64,50 C74,42 86,42 96,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M104,50 C114,42 126,42 136,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<ellipse cx="100" cy="86" rx="3" ry="2" fill="#E8B090"/>' +
+  /* Boca O perfeita bem aberta */
+  '<ellipse cx="100" cy="100" rx="11" ry="13" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
+  '<ellipse cx="100" cy="102" rx="7" ry="8" fill="#903030"/>' +
+  /* Blush */
+  '<circle cx="56" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
+  '<circle cx="144" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
+  /* Linhas de choque ao redor */
+  '<line x1="42" y1="50" x2="32" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<line x1="40" y1="64" x2="28" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<line x1="158" y1="50" x2="168" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<line x1="160" y1="64" x2="172" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>';
+
+const SURPRISED_FACE_G =
+  '<circle cx="80" cy="72" r="16" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="80" cy="73" r="4" fill="#3E2723"/><circle cx="80" cy="74" r="2.5" fill="#1A0800"/>' +
+  '<circle cx="84" cy="68" r="3.5" fill="white"/><circle cx="77" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
+  LASH_BIG_L +
+  '<circle cx="120" cy="72" r="16" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
+  '<circle cx="120" cy="73" r="4" fill="#3E2723"/><circle cx="120" cy="74" r="2.5" fill="#1A0800"/>' +
+  '<circle cx="116" cy="68" r="3.5" fill="white"/><circle cx="123" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
+  LASH_BIG_R +
+  '<path d="M64,50 C74,42 86,42 96,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<path d="M104,50 C114,42 126,42 136,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
+  '<ellipse cx="100" cy="86" rx="3" ry="2" fill="#F0C0A0"/>' +
+  '<ellipse cx="100" cy="100" rx="11" ry="13" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
+  '<ellipse cx="100" cy="102" rx="7" ry="8" fill="#903030"/>' +
+  '<circle cx="56" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
+  '<circle cx="144" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
+  '<line x1="42" y1="50" x2="32" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<line x1="40" y1="64" x2="28" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<line x1="158" y1="50" x2="168" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
+  '<line x1="160" y1="64" x2="172" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>';
+
+/* ── 8 SVGs completos: CHAR_SVGS[charIdx][emotionIdx] ── */
+const CHAR_SVGS = [
+  /* Boy: happy, sad, angry, surprised */
+  [
+    S + BOY_BODY + HAPPY_FACE + '</svg>',
+    S + BOY_BODY + SAD_FACE_B + '</svg>',
+    S + BOY_BODY + ANGRY_FACE_B + '</svg>',
+    S + BOY_BODY + SURPRISED_FACE_B + '</svg>',
+  ],
+  /* Girl: happy, sad, angry, surprised */
+  [
+    S + GIRL_BODY + HAPPY_FACE + LASH_CLOSED_L + LASH_CLOSED_R + '</svg>',
+    S + GIRL_BODY + SAD_FACE_G + '</svg>',
+    S + GIRL_BODY + ANGRY_FACE_G + '</svg>',
+    S + GIRL_BODY + SURPRISED_FACE_G + '</svg>',
+  ],
 ];
 
-/* ── SVG: expressões faciais (olhos, sobrancelhas, nariz, boca, blush) ── */
-const EMOTION_FACES = [
-  /* 0: Feliz — olhos normais, arcos relaxados, sorriso U largo, blush rosa */
-  '<ellipse cx="80" cy="72" rx="10" ry="11" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="81" cy="74" r="6" fill="#3E2723"/><circle cx="82" cy="75" r="3.5" fill="#1A0800"/>' +
-  '<circle cx="84" cy="70" r="2.8" fill="white"/>' +
-  '<ellipse cx="120" cy="72" rx="10" ry="11" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="119" cy="74" r="6" fill="#3E2723"/><circle cx="118" cy="75" r="3.5" fill="#1A0800"/>' +
-  '<circle cx="116" cy="70" r="2.8" fill="white"/>' +
-  '<path d="M68,62 C74,58 86,58 92,62" stroke="#4A3520" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M108,62 C114,58 126,58 132,62" stroke="#4A3520" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="86" rx="3.5" ry="2.5" fill="#E8B090"/>' +
-  '<path d="M86,96 Q100,112 114,96" stroke="#C0605A" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="64" cy="88" r="9" fill="#FFB6C1" opacity="0.4"/><circle cx="136" cy="88" r="9" fill="#FFB6C1" opacity="0.4"/>',
-
-  /* 1: Triste — pupilas baixas, sobrancelhas preocupadas, boca invertida, lágrima */
-  '<ellipse cx="80" cy="72" rx="10" ry="11" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="81" cy="76" r="6" fill="#3E2723"/><circle cx="82" cy="77" r="3.5" fill="#1A0800"/>' +
-  '<circle cx="84" cy="72" r="2.5" fill="white"/>' +
-  '<ellipse cx="120" cy="72" rx="10" ry="11" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="119" cy="76" r="6" fill="#3E2723"/><circle cx="118" cy="77" r="3.5" fill="#1A0800"/>' +
-  '<circle cx="116" cy="72" r="2.5" fill="white"/>' +
-  '<path d="M68,60 C72,64 88,64 92,62" stroke="#4A3520" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M108,62 C112,64 128,64 132,60" stroke="#4A3520" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="86" rx="3.5" ry="2.5" fill="#E8B090"/>' +
-  '<path d="M88,100 Q100,90 112,100" stroke="#C0605A" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M90,82 Q88,88 90,94" stroke="#64B5F6" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="90" cy="94" r="2.5" fill="#64B5F6" opacity="0.7"/>',
-
-  /* 2: Com raiva — olhos estreitos, sobrancelhas V, boca tensa reta, blush vermelho */
-  '<ellipse cx="80" cy="72" rx="10" ry="9" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="81" cy="73" r="5.5" fill="#3E2723"/><circle cx="82" cy="74" r="3.2" fill="#1A0800"/>' +
-  '<circle cx="84" cy="70" r="2.5" fill="white"/>' +
-  '<ellipse cx="120" cy="72" rx="10" ry="9" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="119" cy="73" r="5.5" fill="#3E2723"/><circle cx="118" cy="74" r="3.2" fill="#1A0800"/>' +
-  '<circle cx="116" cy="70" r="2.5" fill="white"/>' +
-  '<path d="M68,64 C74,58 86,56 92,58" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M108,58 C114,56 126,58 132,64" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="86" rx="3.5" ry="2.5" fill="#E8B090"/>' +
-  '<path d="M88,98 L112,98" stroke="#C0605A" stroke-width="2.8" stroke-linecap="round"/>' +
-  '<circle cx="64" cy="88" r="8" fill="#FF8A80" opacity="0.4"/><circle cx="136" cy="88" r="8" fill="#FF8A80" opacity="0.4"/>',
-
-  /* 3: Surpreso — olhos arregalados, pupilas pequenas, sobrancelhas altas, boca O aberta */
-  '<ellipse cx="80" cy="72" rx="11" ry="13" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="81" cy="73" r="5" fill="#3E2723"/><circle cx="82" cy="74" r="3" fill="#1A0800"/>' +
-  '<circle cx="84" cy="69" r="2.8" fill="white"/>' +
-  '<ellipse cx="120" cy="72" rx="11" ry="13" fill="white" stroke="' + SKS + '" stroke-width="1.5"/>' +
-  '<circle cx="119" cy="73" r="5" fill="#3E2723"/><circle cx="118" cy="74" r="3" fill="#1A0800"/>' +
-  '<circle cx="116" cy="69" r="2.8" fill="white"/>' +
-  '<path d="M68,58 C74,52 86,52 92,58" stroke="#4A3520" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M108,58 C114,52 126,52 132,58" stroke="#4A3520" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="86" rx="3.5" ry="2.5" fill="#E8B090"/>' +
-  '<ellipse cx="100" cy="98" rx="8" ry="10" fill="#C0605A" stroke="#A04040" stroke-width="1.5"/>' +
-  '<circle cx="64" cy="88" r="9" fill="#FFB6C1" opacity="0.4"/><circle cx="136" cy="88" r="9" fill="#FFB6C1" opacity="0.4"/>',
-];
-
-function buildSvg(ci, ei) {
-  return '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
-    CHAR_BASES[ci] + EMOTION_FACES[ei] + '</svg>';
-}
-
-function buildAllCombos() {
-  const combos = [];
-  for (let c = 0; c < CHARS.length; c++)
-    for (let e = 0; e < EMOTIONS.length; e++)
-      combos.push([c, e]);
-  return combos;
-}
+function getSvg(ci, ei) { return CHAR_SVGS[ci][ei]; }
 
 /* ═══════════════════════════════════════════════
    TEXTOS PT / EN
@@ -404,7 +462,6 @@ const LANG = {
     hubSub:'Como você está?',
     hubFlash:'Flashcards', badgeFlash:'Disponível',
     hubClicar:'Clicar', badgeClicar:'Disponível',
-    backLabel:'Emoções',
     flashBackLabel:'Emoções', flashTapHint:'Como está?',
     flashQuestion:'Como essa pessoa está?',
     flashCelSub:'Você conhece todas as emoções!',
@@ -432,7 +489,6 @@ const LANG = {
     hubSub:'How are you feeling?',
     hubFlash:'Flashcards', badgeFlash:'Available',
     hubClicar:'Click', badgeClicar:'Available',
-    backLabel:'Emotions',
     flashBackLabel:'Emotions', flashTapHint:'How do they feel?',
     flashQuestion:'How is this person feeling?',
     flashCelSub:'You know all the emotions!',
@@ -457,7 +513,7 @@ const LANG = {
 };
 
 /* ═══════════════════════════════════════════════
-   NAV — overrides específicos de Emoções
+   NAV overrides
 ═══════════════════════════════════════════════ */
 Nav.startGame = function(lang) {
   this._applyLang(lang);
@@ -504,8 +560,7 @@ Nav._applyLang = function(lang) {
 };
 
 /* ═══════════════════════════════════════════════
-   FLASH GAME — Flashcard de emoções
-   Mostra personagem + emoção → criança toca → ouve a frase
+   FLASH GAME — 8 combos (2 chars × 4 emoções)
 ═══════════════════════════════════════════════ */
 const FlashGame = {
   lang:'pt', step:0, flipped:false, encCount:0,
@@ -516,20 +571,24 @@ const FlashGame = {
     this.step = 0;
     this.flipped = false;
     this.encCount = 0;
-    this.sequence = shuffle(buildAllCombos());
+    const combos = [];
+    for (let c = 0; c < CHARS.length; c++)
+      for (let e = 0; e < EMOTIONS.length; e++)
+        combos.push([c, e]);
+    this.sequence = shuffle(combos);
     TTS.init();
     this._render();
   },
 
   _render() {
     const [ci, ei] = this.sequence[this.step];
-    const color = CHARS[ci].color;
     const L     = LANG[this.lang];
     const phrase = buildPhrase(ci, ei, this.lang);
-    const svg   = buildSvg(ci, ei);
+    const svg   = getSvg(ci, ei);
 
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
-    document.getElementById('flashFront').style.background = color;
+    /* Fundo pastel discreto — não compete com a ilustração */
+    document.getElementById('flashFront').style.background = CHARS[ci].pastel;
     document.getElementById('flashEmoji').innerHTML = svg;
     document.getElementById('flashBackEmoji').innerHTML = svg;
     document.getElementById('flashName').textContent = phrase;
@@ -596,9 +655,8 @@ const FlashGame = {
 };
 
 /* ═══════════════════════════════════════════════
-   CLICK GAME — Quem está com essa emoção?
-   Mostra 3 personagens com emoções diferentes.
-   Criança toca o que tem a emoção pedida.
+   CLICK GAME — "Quem está triste?"
+   3 opções misturando chars e emoções
 ═══════════════════════════════════════════════ */
 const ClickGame = {
   lang:'pt', step:0, totalSteps:5, _locked:false,
@@ -615,20 +673,20 @@ const ClickGame = {
 
   _buildRounds() {
     this._rounds = [];
-    const emoSeq = shuffle([...Array(EMOTIONS.length).keys()]);
+    const emoSeq = shuffle([0,1,2,3,0]); /* 5 rodadas: todas as 4 emoções + 1 repetição */
     for (let r = 0; r < this.totalSteps; r++) {
-      const targetEmo = emoSeq[r % emoSeq.length];
-      const charPool = shuffle([...Array(CHARS.length).keys()]).slice(0, 3);
-      const correctIdx = Math.floor(Math.random() * 3);
-      const otherEmos = shuffle(
-        [...Array(EMOTIONS.length).keys()].filter(e => e !== targetEmo)
-      );
+      const targetEmo = emoSeq[r];
+      const correctChar = Math.floor(Math.random() * CHARS.length);
+      const correctOpt = { ci: correctChar, ei: targetEmo };
+      const otherEmos = shuffle([0,1,2,3].filter(e => e !== targetEmo));
       let oi = 0;
-      const options = charPool.map((ci, i) => ({
-        ci,
-        ei: i === correctIdx ? targetEmo : otherEmos[oi++]
-      }));
-      this._rounds.push({ targetEmo, options, correctIdx });
+      const wrongOpts = [
+        { ci: Math.floor(Math.random() * CHARS.length), ei: otherEmos[oi++] },
+        { ci: Math.floor(Math.random() * CHARS.length), ei: otherEmos[oi++] },
+      ];
+      const allOpts = shuffle([correctOpt, ...wrongOpts]);
+      const correctIdx = allOpts.indexOf(correctOpt);
+      this._rounds.push({ targetEmo, options: allOpts, correctIdx });
     }
   },
 
@@ -641,16 +699,14 @@ const ClickGame = {
       (this.step + 1) + ' / ' + this.totalSteps;
 
     const emoWord = this.lang === 'pt' ? emo.pt : emo.en;
-    const instruction = L.clickCmd + ' ' + emoWord + '?';
-    const spoken = L.clickCmd + ' ' + emoWord;
-    document.getElementById('clickInstruction').textContent = instruction;
+    document.getElementById('clickInstruction').textContent = L.clickCmd + ' ' + emoWord + '?';
 
     const optionsEl = document.getElementById('clickOptions');
     optionsEl.innerHTML = '';
     round.options.forEach((opt, i) => {
       const btn = document.createElement('button');
       btn.className = 'click-opt';
-      btn.innerHTML = buildSvg(opt.ci, opt.ei);
+      btn.innerHTML = getSvg(opt.ci, opt.ei);
 
       const xOv = document.createElement('span');
       xOv.className = 'x-overlay';
@@ -665,7 +721,7 @@ const ClickGame = {
       optionsEl.appendChild(btn);
     });
 
-    setTimeout(() => TTS.speak(spoken), 250);
+    setTimeout(() => TTS.speak(L.clickCmd + ' ' + emoWord), 250);
   },
 
   _onCorrect(ci, ei) {
