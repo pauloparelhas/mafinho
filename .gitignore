@@ -18,3 +18,5 @@ audio/sample_mae.wav
 audio/sample_mae.m4a
 audio/*.wav
 __pycache__/
+.venv*/
+audiosmae/

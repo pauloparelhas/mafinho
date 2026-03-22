@@ -173,7 +173,7 @@ const TTS = {
   unlocked:  false,
   langCode:  'pt-BR',
   lastText:  '',
-  voiceMode: 'mae',      // 'mae' = áudio pré-gerado, 'sistema' = Web Speech API
+  voiceMode: 'sistema',  // 'mae' = áudio pré-gerado (não implementado), 'sistema' = Web Speech API
   _manifest: null,        // manifest.json carregado
   _manifestLoaded: false,
   _audio: null,           // Audio element atual (para cancelar)

@@ -182,7 +182,6 @@
   <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
   <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
   <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
-  <button class="nav-btn btn-voice" id="btnVoice" onclick="TTS.toggleVoice()" title="Voz">👩</button>
   <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
 </nav>
 
@@ -238,7 +237,7 @@
   <div class="card-row">
     <div class="card-scene">
       <div class="card-3d" id="flashCard3d" onclick="FlashGame.flip()">
-        <div class="card-face" id="flashFront" style="color:white;">
+        <div class="card-face" id="flashFront" style="color:var(--text);">
           <span class="card-emoji" id="flashEmoji">🐶</span>
           <span class="card-tap-hint" id="flashTapHint">Quem é?</span>
         </div>
@@ -318,6 +317,11 @@
 const ANIMAL_COLORS = [
   '#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA',
   '#00897B','#F06292','#F9A825','#E53935','#1E88E5'
+];
+/* Pastéis discretos para fundo do flashcard — não competem com o SVG */
+const ANIMAL_PASTELS = [
+  '#FFEBEE','#E3F2FD','#E8F5E9','#FFF3E0','#F3E5F5',
+  '#E0F2F1','#FCE4EC','#FFFDE7','#FFEBEE','#E3F2FD'
 ];
 
 /* SVGs kawaii elaborados — gerados por svg_animals.py */
@@ -515,7 +519,7 @@ const FlashGame = {
 
     const svg = ANIMAL_SVGS[this.step];
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
-    document.getElementById('flashFront').style.background = color;
+    document.getElementById('flashFront').style.background = ANIMAL_PASTELS[this.step];
     document.getElementById('flashEmoji').innerHTML = svg;
     document.getElementById('flashBackEmoji').innerHTML = svg;
     document.getElementById('flashName').textContent = name;
