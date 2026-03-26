@@ -4,6 +4,31 @@
 
 ---
 
+## INFRAESTRUTURA — PRINCÍPIO DE ARMAZENAMENTO INTELIGENTE
+
+### Regra fundamental
+**Nunca armazenar dependências pesadas no projeto.** Só a receita vai para a nuvem — não o bolo.
+
+| Tipo de arquivo | Onde fica | Motivo |
+|---|---|---|
+| Código, HTML, CSS, JS, imagens | Google Drive + GitHub | Leve, versionável |
+| Chaves de API (`.env`) | **Nunca na nuvem** | Segurança |
+| Bibliotecas Python (`.venv`), node_modules | **Nunca na nuvem** | Recriável, pesa GB |
+| Modelos de IA (pesos, checkpoints) | **Nunca na nuvem do projeto** | Pesa GB, baixar sob demanda |
+
+### Princípio geral (aplicável a qualquer projeto futuro)
+Quando surgir necessidade de dependências grandes (modelos de IA, bibliotecas ML, ambientes Python):
+1. Avaliar se existe API externa que resolve sem instalar nada (ex: Gemini, OpenAI, ElevenLabs)
+2. Se precisar rodar localmente: documentar em `requirements.txt` / `package.json` e manter fora da nuvem
+3. Para processamento pesado ocasional: usar Google Colab (ambiente efêmero — não ocupa Drive)
+4. O projeto na nuvem contém só código + assets finais leves
+
+### TTS — decisão tomada em 26/03/2026
+Voz clonada (XTTS-v2 / Coqui TTS) foi **abandonada** — exigia 2,7 GB de bibliotecas Python locais e modelo de 2 GB.
+**Solução adotada:** Web Speech API nativa do browser — zero dependência, zero instalação, funciona em qualquer dispositivo.
+
+---
+
 ## PROTOCOLO DE TRABALHO — INVIOLÁVEL
 
 **ANTES de implementar qualquer coisa: analisar → propor → aguardar aprovação → só então executar.**
@@ -236,8 +261,7 @@ Perguntar ao usuário após cada parte antes de continuar.
 **Hub:** `index.html` (navegação entre tópicos)
 
 **Decisões técnicas ativas:**
-- btnVoice (TTS mãe) removido de todos os módulos — feature não implementada
-- base.js `voiceMode` default = `'sistema'`
+- TTS: Web Speech API nativa — voz clonada abandonada em 26/03/2026
 - animals.html flashcards usam fundo pastel (SVGs kawaii sobre fundo forte ficam ilegíveis)
 - emotions.html: 2 chars (boy/girl) × 4 emoções = 8 SVGs kawaii standalone
 - body.html: PNG via Gemini API (generate_images.py) — sem SVG; hotspots por coordenadas % sobre full.png
