@@ -19,4 +19,6 @@ audio/sample_mae.m4a
 audio/*.wav
 __pycache__/
 .venv*/
-audiosmae/
+
+# audiosmae contém as amostras de voz usadas para clonagem (XTTS-v2)
+# Estão no repositório pois não são recriáveis automaticamente (~15 MB)
