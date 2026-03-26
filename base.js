@@ -96,6 +96,7 @@ const MF = {
     { id:'shapes',  icon:'🔷', pt:'Formas',    en:'Shapes',  href:'shapes.html'  },
     { id:'letters',  icon:'🔤', pt:'Letras',    en:'Letters',   href:'letters.html'  },
     { id:'emotions', icon:'😊', pt:'Emoções',   en:'Emotions', href:'emotions.html' },
+    { id:'body',     icon:'🫀', pt:'Corpo',     en:'Body',     href:'body.html'     },
   ],
   currentGameId: null,
 

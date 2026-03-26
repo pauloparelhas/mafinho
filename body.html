@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light" data-country="br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
+  <title>Corpo — Mafinho Explora</title>
+  <link rel="stylesheet" href="base.css">
+  <style>
+    /* ══════════════════ CORPO — CSS DO MÓDULO ══════════════════ */
+
+    /* HUB */
+    .body-hub { display:flex; flex-direction:column; gap:12px; padding:8px 14px 14px; }
+    .game-card {
+      display:flex; align-items:center; gap:16px;
+      background:var(--surface); border-radius:var(--radlg);
+      padding:18px 20px; cursor:pointer; min-height:80px;
+      box-shadow:0 2px 10px rgba(0,0,0,.1); transition:transform .15s;
+    }
+    .game-card:active { transform:scale(.97); }
+    .game-card .gc-icon  { font-size:2.4rem; flex-shrink:0; }
+    .game-card .gc-info  { flex:1; }
+    .game-card .gc-title { font-size:var(--lg); font-weight:700; }
+    .game-card .gc-badge { font-size:var(--sm); padding:3px 10px; border-radius:999px; margin-top:4px; display:inline-block; }
+    .badge-done { background:#C8E6C9; color:#1B5E20; }
+    .badge-open { background:#E3F2FD; color:#0D47A1; }
+
+    /* FLASHCARD */
+    .flash-wrap  { flex:1; display:flex; align-items:center; justify-content:center; padding:10px; }
+    .flash-3d    { width:100%; max-width:280px; aspect-ratio:3/4; perspective:800px; cursor:pointer; }
+    .flash-inner {
+      width:100%; height:100%; position:relative;
+      transform-style:preserve-3d; transition:transform .5s;
+      border-radius:var(--radlg); box-shadow:0 8px 32px rgba(0,0,0,.18);
+    }
+    .flash-inner.flipped { transform:rotateY(180deg); }
+    .flash-face {
+      position:absolute; inset:0; border-radius:var(--radlg);
+      backface-visibility:hidden; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:10px; padding:16px;
+    }
+    .flash-front { background:var(--surface); }
+    .flash-back  { transform:rotateY(180deg); }
+    .flash-img   { width:72%; max-height:55%; object-fit:contain; border-radius:12px; }
+    .flash-hint  { font-size:var(--md); color:var(--muted); }
+    .flash-name  { font-size:var(--2xl); font-weight:800; color:#fff; text-align:center; }
+    .flash-bottom {
+      display:flex; align-items:center; gap:10px; padding:0 12px 14px;
+    }
+    .flash-prog  { font-size:var(--md); color:var(--muted); font-weight:600; white-space:nowrap; }
+    .flash-bar-w { flex:1; height:10px; background:var(--surface); border-radius:999px; overflow:hidden; }
+    .flash-bar   { height:100%; border-radius:999px; transition:width .4s; background:#E53935; }
+    .flash-next  {
+      width:80px; height:80px; border-radius:50%; border:none;
+      background:#E53935; color:#fff; font-size:1.6rem; cursor:pointer; flex-shrink:0;
+    }
+
+    /* TOCAR */
+    .tocar-wrap  { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; padding:6px 12px; }
+    .tocar-inst  { font-size:var(--xl); font-weight:700; text-align:center; min-height:56px; }
+    .tocar-body-wrap { position:relative; display:inline-block; }
+    .tocar-body-img  { display:block; max-height:50vh; width:auto; max-width:min(290px,88vw); border-radius:var(--radlg); }
+    .hotspot {
+      position:absolute; background:transparent; border:none;
+      cursor:pointer; touch-action:manipulation;
+    }
+    /* debug: .hotspot { background:rgba(255,0,0,.18); border:1px dashed red; } */
+    .zone-pulse {
+      position:absolute; border-radius:50%; pointer-events:none;
+      background:rgba(255,215,0,.5); border:4px solid #FFD700;
+      animation:zPulse .7s ease-out forwards;
+    }
+    @keyframes zPulse {
+      0%   { transform:scale(.5); opacity:1; }
+      100% { transform:scale(1.5); opacity:0; }
+    }
+    @keyframes shake {
+      0%,100% { transform:translateX(0); }
+      20%     { transform:translateX(-8px); }
+      40%     { transform:translateX(8px); }
+      60%     { transform:translateX(-5px); }
+      80%     { transform:translateX(5px); }
+    }
+    .tocar-rounds { font-size:var(--md); color:var(--muted); font-weight:600; }
+
+    /* MONTAR */
+    .montar-wrap   { flex:1; display:flex; flex-direction:column; align-items:center; padding:4px 10px; gap:6px; overflow:hidden; }
+    .montar-inst   { font-size:var(--lg); font-weight:700; text-align:center; }
+    .montar-cv-wrap {
+      position:relative; width:min(190px,52vw); aspect-ratio:2/4.2;
+      max-height:42vh;
+    }
+    .montar-silhouette {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:contain; opacity:.15; filter:grayscale(1);
+    }
+    #montarCanvas  { position:absolute; inset:0; width:100%; height:100%; }
+    .asm-layer     { position:absolute; object-fit:contain; pointer-events:none; }
+    .asm-layer.placed { animation:flyIn .35s ease-out; }
+    @keyframes flyIn {
+      from { transform:scale(.35) translateY(50px); opacity:0; }
+      to   { transform:scale(1)   translateY(0);    opacity:1; }
+    }
+    .montar-chips  { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:4px 0; }
+    .asm-chip {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      background:var(--surface); border-radius:var(--rad); padding:8px 10px;
+      cursor:pointer; min-width:80px; min-height:80px; justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.12); transition:transform .15s;
+    }
+    .asm-chip:active { transform:scale(.92); }
+    .asm-chip.used   { opacity:.3; pointer-events:none; }
+    .asm-chip img    { width:44px; height:44px; object-fit:contain; }
+    .asm-chip span   { font-size:var(--sm); font-weight:600; }
+  </style>
+</head>
+<body>
+
+<div class="theme-stripe"></div>
+<span class="corner-deco tl" id="dc1">🫀</span>
+<span class="corner-deco tr" id="dc2">🫀</span>
+<span class="corner-deco bl" id="dc3">🫀</span>
+<span class="corner-deco br" id="dc4">🫀</span>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar">
+  <a id="navLogo" href="#" class="nav-btn btn-home" onclick="MF.confirmHome(event)" title="Início">🏠</a>
+  <span class="nav-title">🫀 <span id="navTitle">Corpo</span></span>
+  <button class="nav-lang-badge" id="navLangBadge" onclick="Nav.backToLang()" style="display:none;">🇧🇷 PT</button>
+  <button class="nav-btn btn-theme" id="btnTheme" onclick="MF.toggleTheme()" title="Tema">🌙</button>
+  <button class="nav-btn btn-sound" id="btnSound" onclick="MF.toggleSound()" title="Som">🔊</button>
+  <button class="nav-btn btn-lock"  id="btnLock"  onclick="MF.handleLock()"  title="Travar">🔒</button>
+</nav>
+
+<!-- ═══ HUB ═══ -->
+<div id="sHub">
+  <div class="hub-hero">
+    <span class="hub-hero-icon">🫀</span>
+    <h1 id="navTitleHub">Corpo</h1>
+    <p id="hubSub">Conheça seu corpo!</p>
+  </div>
+  <div class="body-hub">
+    <div class="game-card" onclick="Nav.goLang('flash')">
+      <span class="gc-icon">🃏</span>
+      <div class="gc-info">
+        <div class="gc-title" id="lblFlash">Flashcards</div>
+        <span class="gc-badge badge-open" id="badgeFlash">Disponível</span>
+      </div>
+    </div>
+    <div class="game-card" onclick="Nav.goLang('tocar')">
+      <span class="gc-icon">👆</span>
+      <div class="gc-info">
+        <div class="gc-title" id="lblTocar">Toque no Corpo</div>
+        <span class="gc-badge badge-open" id="badgeTocar">Disponível</span>
+      </div>
+    </div>
+    <div class="game-card" onclick="Nav.goLang('montar')">
+      <span class="gc-icon">🧩</span>
+      <div class="gc-info">
+        <div class="gc-title" id="lblMontar">Monte o Boneco</div>
+        <span class="gc-badge badge-open" id="badgeMontar">Disponível</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ IDIOMA ═══ -->
+<div id="sLang">
+  <div class="lang-intro">
+    <h1>🫀 Mafinho Explora!</h1>
+    <p>Escolha o idioma · Choose the language</p>
+  </div>
+  <div class="lang-cards">
+    <button class="lang-card lang-card-br" onclick="Nav.startGame('pt')">
+      <span class="lang-flag">🇧🇷</span>
+      <span class="lang-name">Português</span>
+      <span class="lang-sub">Brasil</span>
+    </button>
+    <button class="lang-card lang-card-ca" onclick="Nav.startGame('en')">
+      <span class="lang-flag">🇨🇦</span>
+      <span class="lang-name">English</span>
+      <span class="lang-sub">Canada</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══ FLASHCARD ═══ -->
+<div id="sFlash">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="flashBackLabel">Corpo</span></button>
+  <div class="flash-wrap">
+    <div class="flash-3d" id="flashCard3d" onclick="FlashGame.flip()">
+      <div class="flash-inner" id="flashInner">
+        <div class="flash-face flash-front">
+          <img id="flashImg" class="flash-img" src="" alt="">
+          <div class="flash-hint" id="flashHint">O que é isso?</div>
+        </div>
+        <div class="flash-face flash-back" id="flashBack">
+          <div class="flash-name" id="flashName"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flash-bottom">
+    <span class="flash-prog" id="flashProg">1 / 12</span>
+    <div class="flash-bar-w"><div class="flash-bar" id="flashBar" style="width:8%"></div></div>
+    <button class="flash-next" id="flashNextBtn" onclick="FlashGame.next()">▶</button>
+  </div>
+</div>
+
+<!-- ═══ TOCAR ═══ -->
+<div id="sTocar">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="tocarBackLabel">Corpo</span></button>
+  <div class="tocar-wrap">
+    <div class="tocar-inst" id="tocarInst"></div>
+    <div class="tocar-body-wrap" id="tocarBodyWrap">
+      <img id="tocarBodyImg" class="tocar-body-img" src="img/body/full.png" alt="corpo">
+    </div>
+    <div class="tocar-rounds" id="tocarRounds">1 / 5</div>
+  </div>
+</div>
+
+<!-- ═══ MONTAR ═══ -->
+<div id="sMontar">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="montarBackLabel">Corpo</span></button>
+  <div class="montar-wrap">
+    <div class="montar-inst" id="montarInst">Monte o boneco!</div>
+    <div class="montar-cv-wrap">
+      <img class="montar-silhouette" src="img/body/full.png" alt="">
+      <div id="montarCanvas"></div>
+    </div>
+    <div class="montar-chips" id="montarChips"></div>
+  </div>
+</div>
+
+<!-- ═══ CELEBRAÇÃO ═══ -->
+<div id="sCelebrate">
+  <div class="stars">⭐⭐⭐⭐⭐</div>
+  <div class="cel-emoji">🎉</div>
+  <div class="cel-title">Incrível!</div>
+  <div class="cel-sub" id="celSub">Você conhece o corpo!</div>
+  <button class="btn-big" onclick="Nav.restartGame()">Recomeçar 🔄</button>
+  <button class="btn-mid" onclick="Nav.backToHub()">← Corpo</button>
+</div>
+
+<!-- Toast de encorajamento -->
+<div class="enc-toast" id="encToast">⭐ Muito bem!</div>
+
+<!-- Banner ativar som -->
+<button class="sound-banner" id="soundBanner" onclick="TTS.activate()">
+  🔊 Toque aqui para ativar o som!
+</button>
+
+<!-- Overlay: travar tela -->
+<div class="mf-overlay" id="lockOverlay">
+  <div class="mf-modal">
+    <div class="mf-modal-icon">🔒</div>
+    <div class="mf-modal-msg">Desbloquear tela?</div>
+    <div class="mf-modal-btns">
+      <button class="mf-btn-yes" onclick="MF._unlock()">✅ Sim</button>
+      <button class="mf-btn-no"  onclick="document.getElementById('lockOverlay').classList.remove('show')">❌ Não</button>
+    </div>
+  </div>
+</div>
+<!-- Overlay: menu home (conteúdo gerado por base.js) -->
+<div class="mf-overlay" id="homeOverlay"></div>
+
+<script src="base.js"></script>
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DADOS
+═══════════════════════════════════════════════════════════════════════ */
+
+/* Array único — índice compartilhado por FlashGame e TocaGame */
+const PARTS = [
+  { id:'cabeca',  pt:'Cabeça',  en:'Head',   gen:'a', zone:{x:28,y:3, w:44,h:26} },
+  { id:'cabelo',  pt:'Cabelo',  en:'Hair',   gen:'o', zone:{x:29,y:0, w:42,h:13} },
+  { id:'olho',    pt:'Olho',    en:'Eye',    gen:'o', zone:{x:32,y:9, w:36,h:10} },
+  { id:'nariz',   pt:'Nariz',   en:'Nose',   gen:'o', zone:{x:37,y:16,w:26,h:10} },
+  { id:'boca',    pt:'Boca',    en:'Mouth',  gen:'a', zone:{x:35,y:22,w:30,h:9}  },
+  { id:'orelha',  pt:'Orelha',  en:'Ear',    gen:'a', zone:{x:15,y:9, w:22,h:16} },
+  { id:'pescoco', pt:'Pescoço', en:'Neck',   gen:'o', zone:{x:36,y:27,w:28,h:9}  },
+  { id:'barriga', pt:'Barriga', en:'Belly',  gen:'a', zone:{x:28,y:35,w:44,h:22} },
+  { id:'braco',   pt:'Braço',   en:'Arm',    gen:'o', zone:{x:7, y:29,w:22,h:32} },
+  { id:'mao',     pt:'Mão',     en:'Hand',   gen:'a', zone:{x:6, y:58,w:20,h:14} },
+  { id:'perna',   pt:'Perna',   en:'Leg',    gen:'a', zone:{x:28,y:57,w:22,h:30} },
+  { id:'pe',      pt:'Pé',      en:'Foot',   gen:'o', zone:{x:26,y:85,w:24,h:11} },
+];
+
+/* Cores do flashcard por índice */
+const COLORS = ['#E53935','#FB8C00','#F9A825','#43A047','#1E88E5','#8E24AA',
+                '#E91E63','#00897B','#FF7043','#607D8B','#795548','#5C6BC0'];
+
+/* Partes para o jogo Montar — layers = posições e espelhamento de cada camada */
+const ASSEMBLY_PARTS = [
+  { id:'cabeca',  pt:'Cabeça', en:'Head',  layers:[{x:27,y:3, w:46,mirror:false}] },
+  { id:'cabelo',  pt:'Cabelo', en:'Hair',  layers:[{x:25,y:0, w:50,mirror:false}] },
+  { id:'barriga', pt:'Corpo',  en:'Body',  layers:[{x:26,y:28,w:48,mirror:false}] },
+  { id:'braco',   pt:'Braços', en:'Arms',
+    layers:[{x:6,y:28,w:22,mirror:false},{x:72,y:28,w:22,mirror:true}] },
+  { id:'perna',   pt:'Pernas', en:'Legs',
+    layers:[{x:27,y:56,w:22,mirror:false},{x:51,y:56,w:22,mirror:true}] },
+];
+
+/* LANG — template functions evitam repetição de strings */
+const LANG = {
+  pt: {
+    tts:'pt-BR', country:'br', navTitle:'Corpo', navBadge:'🇧🇷 PT',
+    este_e:   p => `Est${p.gen==='a'?'a':'e'} é ${p.gen==='a'?'a':'o'} ${p.pt}!`,
+    onde:     p => `Onde está ${p.gen==='a'?'a':'o'} ${p.pt}?`,
+    flashHint: 'O que é isso?', backLabel: 'Corpo',
+    flashCelSub:    'Você conhece todas as partes do corpo!',
+    flashCelSpoken: 'Parabéns! Você conhece todas as partes do corpo! Que incrível!',
+    tocarCelSub:    'Você tocou em todas as partes!',
+    tocarCelSpoken: 'Parabéns! Você sabe onde estão todas as partes! Uau!',
+    montarInst:     'Monte o boneco!',
+    montarCelSub:   'Boneco montado! Que incrível!',
+    montarCelSpoken:'Parabéns! Você montou o boneco inteiro! Fantástico!',
+    hubSub:'Conheça seu corpo!', lblFlash:'Flashcards',
+    lblTocar:'Toque no Corpo', lblMontar:'Monte o Boneco',
+    badgeDone:'Completo ✓', badgeOpen:'Disponível',
+    encourage:[
+      {text:'Muito bem! ⭐', spoken:'Muito bem!'},
+      {text:'Parabéns! 🌟',  spoken:'Parabéns!'},
+      {text:'Que esperto! 🎉',spoken:'Que esperto!'},
+      {text:'Isso mesmo! 👏',spoken:'Isso mesmo!'},
+      {text:'Uau! 🥳',       spoken:'Uau!'},
+    ],
+  },
+  en: {
+    tts:'en-US', country:'ca', navTitle:'Body', navBadge:'🇨🇦 EN',
+    este_e:   p => `This is your ${p.en}!`,
+    onde:     p => `Where is your ${p.en}?`,
+    flashHint: 'What is this?', backLabel: 'Body',
+    flashCelSub:    'You know all body parts!',
+    flashCelSpoken: 'Amazing! You know all the body parts! Incredible!',
+    tocarCelSub:    'You touched all the parts!',
+    tocarCelSpoken: 'Amazing! You know where all the parts are! Wow!',
+    montarInst:     'Build the person!',
+    montarCelSub:   'Person built! Amazing!',
+    montarCelSpoken:'Congratulations! You built the whole person! Fantastic!',
+    hubSub:'Learn your body!', lblFlash:'Flashcards',
+    lblTocar:'Touch the Body', lblMontar:'Build the Person',
+    badgeDone:'Done ✓', badgeOpen:'Available',
+    encourage:[
+      {text:'Great job! ⭐', spoken:'Great job!'},
+      {text:'Amazing! 🌟',   spoken:'Amazing!'},
+      {text:'Well done! 🎉', spoken:'Well done!'},
+      {text:'You got it! 👏',spoken:'You got it!'},
+      {text:'Awesome! 🥳',   spoken:'Awesome!'},
+    ],
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════════════════════════════════ */
+Nav.goLang = function(gameId) {
+  Nav.curGame = gameId;
+  document.getElementById('navLangBadge').style.display = 'none';
+  Nav._show('sLang');
+};
+
+Nav.startGame = function(lang) {
+  Nav.curLang = lang;
+  const L = LANG[lang];
+  document.documentElement.dataset.country = L.country;
+  TTS.setLang(L.tts);
+  localStorage.setItem('mf-lang', lang);
+  /* Atualizar badge e nav */
+  const badge = document.getElementById('navLangBadge');
+  badge.textContent = L.navBadge;
+  badge.style.display = '';
+  document.getElementById('navTitle').textContent = L.navTitle;
+  /* Textos das telas de volta */
+  ['flashBackLabel','tocarBackLabel','montarBackLabel'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = L.backLabel;
+  });
+  /* Dispatcha para o jogo correto */
+  switch (Nav.curGame) {
+    case 'flash':  FlashGame.start(lang);    break;
+    case 'tocar':  TocaGame.start(lang);     break;
+    case 'montar': AssemblyGame.start(lang); break;
+  }
+};
+
+Nav.restartGame = function() { Nav.startGame(Nav.curLang); };
+Nav.curGame = 'flash';
+Nav.curLang = localStorage.getItem('mf-lang') || 'pt';
+
+function _updateHub() {
+  const L = LANG[Nav.curLang];
+  document.getElementById('hubSub').textContent    = L.hubSub;
+  document.getElementById('lblFlash').textContent  = L.lblFlash;
+  document.getElementById('lblTocar').textContent  = L.lblTocar;
+  document.getElementById('lblMontar').textContent = L.lblMontar;
+  const done = k => !!localStorage.getItem(k);
+  const setBadge = (id, isDone) => {
+    const el = document.getElementById(id);
+    el.textContent = isDone ? L.badgeDone : L.badgeOpen;
+    el.className   = 'gc-badge ' + (isDone ? 'badge-done' : 'badge-open');
+  };
+  setBadge('badgeFlash',  done('body_flash_progresso'));
+  setBadge('badgeTocar',  done('body_toca_progresso'));
+  setBadge('badgeMontar', done('body_montar_progresso'));
+}
+
+function _celebrate(storageKey, celSubKey, celSpokenKey) {
+  localStorage.setItem(storageKey, JSON.stringify({completed:true, date:new Date().toISOString()}));
+  _updateHub();
+  const L = LANG[Nav.curLang];
+  document.getElementById('celSub').textContent = L[celSubKey];
+  Nav._show('sCelebrate');
+  setTimeout(() => TTS.speakExcitedAndWait(L[celSpokenKey]), 300);
+}
+
+function _showToast(text) {
+  const t = document.getElementById('encToast');
+  t.textContent = text;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3400);
+}
+
+function _randEnc(lang) {
+  const arr = LANG[lang].encourage;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FLASHGAME
+═══════════════════════════════════════════════════════════════════════ */
+const FlashGame = {
+  lang:'pt', step:0, flipped:false, encCount:0,
+
+  start(lang) {
+    this.lang = lang; this.step = 0; this.flipped = false; this.encCount = 0;
+    TTS.init();
+    document.getElementById('flashHint').textContent = LANG[lang].flashHint;
+    this._render();
+    Nav._show('sFlash');
+  },
+
+  _render() {
+    const p = PARTS[this.step];
+    const name = this.lang === 'pt' ? p.pt : p.en;
+    this.flipped = false;
+    document.getElementById('flashInner').classList.remove('flipped');
+    document.getElementById('flashImg').src = 'img/body/' + p.id + '.png';
+    document.getElementById('flashImg').alt = name;
+    document.getElementById('flashName').textContent = name;
+    document.getElementById('flashBack').style.background  = COLORS[this.step];
+    document.getElementById('flashBar').style.background   = COLORS[this.step];
+    document.getElementById('flashNextBtn').style.background = COLORS[this.step];
+    document.getElementById('flashProg').textContent =
+      (this.step + 1) + ' / ' + PARTS.length;
+    document.getElementById('flashBar').style.width =
+      (((this.step + 1) / PARTS.length) * 100) + '%';
+    setTimeout(() => TTS.speak(LANG[this.lang].este_e(p)), 250);
+  },
+
+  flip() {
+    this.flipped = !this.flipped;
+    document.getElementById('flashInner').classList.toggle('flipped', this.flipped);
+    const p = PARTS[this.step];
+    const name = this.lang === 'pt' ? p.pt : p.en;
+    if (this.flipped) {
+      SFX.playCorrect();
+      TTS.speakExcitedAndWait(name + '!');
+      this.encCount++;
+      if (this.encCount % 3 === 0) {
+        const enc = _randEnc(this.lang);
+        _showToast(enc.text);
+        setTimeout(() => TTS.speak(enc.spoken), 3800);
+      }
+    } else {
+      TTS.speak(LANG[this.lang].este_e(p));
+    }
+  },
+
+  next() {
+    if (this.step >= PARTS.length - 1) {
+      _celebrate('body_flash_progresso', 'flashCelSub', 'flashCelSpoken');
+    } else {
+      this.step++;
+      this._render();
+    }
+  },
+
+  prev() {
+    if (this.step > 0) { this.step--; this._render(); }
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TOCAGAME — figura completa + hotspots invisíveis
+═══════════════════════════════════════════════════════════════════════ */
+const TocaGame = {
+  lang:'pt', totalRounds:5, round:0, sequence:[], _locked:false,
+
+  start(lang) {
+    this.lang = lang; this.round = 0; this._locked = false;
+    this.sequence = shuffle([...Array(PARTS.length).keys()]).slice(0, this.totalRounds);
+    TTS.init();
+    this._render();
+    Nav._show('sTocar');
+  },
+
+  _render() {
+    const targetIdx = this.sequence[this.round];
+    const p = PARTS[targetIdx];
+    const texto = LANG[this.lang].onde(p);
+    document.getElementById('tocarInst').textContent = texto;
+    document.getElementById('tocarRounds').textContent =
+      (this.round + 1) + ' / ' + this.totalRounds;
+    this._buildHotspots(targetIdx);
+    setTimeout(() => TTS.speak(texto.replace('?', '')), 300);
+  },
+
+  _buildHotspots(targetIdx) {
+    const wrap = document.getElementById('tocarBodyWrap');
+    wrap.querySelectorAll('.hotspot, .zone-pulse').forEach(el => el.remove());
+    PARTS.forEach((p, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'hotspot';
+      btn.style.cssText =
+        `left:${p.zone.x}%;top:${p.zone.y}%;` +
+        `width:${p.zone.w}%;height:${p.zone.h}%;`;
+      btn.addEventListener('click', () => { if (!this._locked) this._onTap(i, targetIdx); });
+      wrap.appendChild(btn);
+    });
+  },
+
+  _onTap(idx, targetIdx) {
+    if (this._locked) return;
+    if (idx === targetIdx) {
+      this._locked = true;
+      const p = PARTS[idx];
+      const name = this.lang === 'pt' ? p.pt : p.en;
+      const enc  = _randEnc(this.lang);
+      SFX.playCorrect();
+      this._pulseZone(p);
+      _showToast(enc.text);
+      setTimeout(() => TTS.speakExcitedAndWait(name + '! ' + enc.spoken), 200);
+      setTimeout(() => {
+        this._locked = false;
+        this.round++;
+        if (this.round >= this.totalRounds) {
+          _celebrate('body_toca_progresso', 'tocarCelSub', 'tocarCelSpoken');
+        } else {
+          this._render();
+        }
+      }, 3400);
+    } else {
+      SFX.playWrong();
+      const wrap = document.getElementById('tocarBodyWrap');
+      wrap.style.animation = 'none';
+      void wrap.offsetWidth;
+      wrap.style.animation = 'shake .4s ease-out';
+    }
+  },
+
+  _pulseZone(p) {
+    const wrap = document.getElementById('tocarBodyWrap');
+    const pulse = document.createElement('div');
+    pulse.className = 'zone-pulse';
+    pulse.style.cssText =
+      `left:${p.zone.x}%;top:${p.zone.y}%;` +
+      `width:${p.zone.w}%;height:${p.zone.h}%;`;
+    wrap.appendChild(pulse);
+    pulse.addEventListener('animationend', () => pulse.remove());
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ASSEMBLYGAME — monte o boneco
+═══════════════════════════════════════════════════════════════════════ */
+const AssemblyGame = {
+  lang:'pt', placed:0,
+
+  start(lang) {
+    this.lang = lang; this.placed = 0;
+    TTS.init();
+    document.getElementById('montarInst').textContent = LANG[lang].montarInst;
+    document.getElementById('montarCanvas').innerHTML = '';
+    this._buildChips();
+    Nav._show('sMontar');
+    setTimeout(() => TTS.speak(LANG[lang].montarInst), 300);
+  },
+
+  _buildChips() {
+    const el   = document.getElementById('montarChips');
+    const lang = this.lang;
+    el.innerHTML = '';
+    shuffle(ASSEMBLY_PARTS.map((p, i) => ({p, i}))).forEach(({p, i: origIdx}) => {
+      const chip = document.createElement('div');
+      chip.className = 'asm-chip';
+      chip.id = 'chip_' + p.id;
+      chip.innerHTML =
+        `<img src="img/body/${p.id}.png" alt="${lang==='pt'?p.pt:p.en}">` +
+        `<span>${lang==='pt'?p.pt:p.en}</span>`;
+      chip.addEventListener('click', () => this._place(origIdx, chip));
+      el.appendChild(chip);
+    });
+  },
+
+  _place(partIdx, chipEl) {
+    if (chipEl.classList.contains('used')) return;
+    const p    = ASSEMBLY_PARTS[partIdx];
+    const lang = this.lang;
+    const name = lang === 'pt' ? p.pt : p.en;
+    const canvas = document.getElementById('montarCanvas');
+
+    p.layers.forEach(layer => {
+      const img = document.createElement('img');
+      img.src = 'img/body/' + p.id + '.png';
+      img.className = 'asm-layer placed';
+      img.style.cssText =
+        `left:${layer.x}%;top:${layer.y}%;width:${layer.w}%;height:auto;` +
+        (layer.mirror ? 'transform:scaleX(-1);' : '');
+      canvas.appendChild(img);
+    });
+
+    chipEl.classList.add('used');
+    SFX.playCorrect();
+    TTS.speakExcitedAndWait(name + '!');
+    this.placed++;
+
+    if (this.placed >= ASSEMBLY_PARTS.length) {
+      setTimeout(() =>
+        _celebrate('body_montar_progresso', 'montarCelSub', 'montarCelSpoken'),
+        1200);
+    }
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════════════════════════════════ */
+MF.currentGameId = 'body';
+Nav.boot(['sHub','sLang','sFlash','sTocar','sMontar','sCelebrate']);
+_updateHub();
+</script>
+</body>
+</html>

@@ -218,7 +218,7 @@ Perguntar ao usuário após cada parte antes de continuar.
 
 ## ESTADO ATUAL DO PROJETO (atualizar a cada commit)
 
-**Última atualização:** 22/03/2026
+**Última atualização:** 24/03/2026
 
 | Módulo | Arquivo | Jogos implementados | Status |
 |---|---|---|---|
@@ -227,7 +227,8 @@ Perguntar ao usuário após cada parte antes de continuar.
 | Animals | animals.html | Flashcard + Clicar + Arrastar (silhueta) | COMPLETO |
 | Shapes | shapes.html | Flashcard + Clicar + Encontrar + Pintar | COMPLETO |
 | Letters | letters.html | Flashcard + Pintar + Clicar | COMPLETO |
-| Emotions | emotions.html | Flashcard + Clicar + Encontrar | 3 jogos |
+| Emotions | emotions.html | Flashcard + Clicar + Encontrar | COMPLETO |
+| Body | body.html | Flashcard + Tocar + Montar | EM ANDAMENTO |
 | Objects | — | — | Não iniciado |
 | Days | — | — | Não iniciado |
 
@@ -239,6 +240,7 @@ Perguntar ao usuário após cada parte antes de continuar.
 - base.js `voiceMode` default = `'sistema'`
 - animals.html flashcards usam fundo pastel (SVGs kawaii sobre fundo forte ficam ilegíveis)
 - emotions.html: 2 chars (boy/girl) × 4 emoções = 8 SVGs kawaii standalone
+- body.html: PNG via Gemini API (generate_images.py) — sem SVG; hotspots por coordenadas % sobre full.png
 
 ---
 

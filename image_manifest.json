@@ -1,0 +1,39 @@
+{
+  "animals": [
+    {"id":"dog",      "prompt_name":"puppy dog with floppy ears, golden brown fur"},
+    {"id":"cat",      "prompt_name":"kitten with pointy ears, gray fur"},
+    {"id":"cow",      "prompt_name":"cow with black and white spots, pink snout"},
+    {"id":"horse",    "prompt_name":"brown horse with black mane, noble pose"},
+    {"id":"pig",      "prompt_name":"pink pig with round snout, chubby and happy"},
+    {"id":"chicken",  "prompt_name":"white chicken with red comb, small wings"},
+    {"id":"duck",     "prompt_name":"yellow duck with orange beak, cheerful"},
+    {"id":"lion",     "prompt_name":"golden lion with big fluffy mane, confident"},
+    {"id":"elephant", "prompt_name":"gray elephant with big ears, trunk raised, smiling"},
+    {"id":"monkey",   "prompt_name":"brown monkey with beige face, curvy tail"}
+  ],
+  "shapes": [
+    {"id":"circle",    "prompt_name":"a friendly circle shape character with a cute face, tiny arms and legs, bright red color"},
+    {"id":"square",    "prompt_name":"a friendly square shape character with a cute face, tiny arms and legs, bright blue color"},
+    {"id":"triangle",  "prompt_name":"a friendly triangle shape character with a cute face, tiny arms and legs, bright green color"},
+    {"id":"star",      "prompt_name":"a friendly star shape character with a cute face, tiny arms and legs, bright yellow color"},
+    {"id":"heart",     "prompt_name":"a friendly heart shape character with a cute face, tiny arms and legs, bright pink color"},
+    {"id":"diamond",   "prompt_name":"a friendly diamond/rhombus shape character with a cute face, tiny arms and legs, bright purple color"},
+    {"id":"rectangle", "prompt_name":"a friendly rectangle shape character with a cute face, tiny arms and legs, bright orange color"},
+    {"id":"oval",      "prompt_name":"a friendly oval/ellipse shape character with a cute face, tiny arms and legs, bright teal color"}
+  ],
+  "body": [
+    {"id":"full",     "prompt_name":"kawaii cute cartoon toddler child standing straight, front-facing, arms slightly away from body, full body visible from head to feet, simple white background, flat illustration style, no text"},
+    {"id":"cabeca",   "prompt_name":"kawaii cute cartoon toddler child head and face only, front view, simple white background, flat illustration, no body or neck"},
+    {"id":"cabelo",   "prompt_name":"kawaii cute cartoon toddler child hair only, brown fluffy hair, seen from front, simple white background, flat illustration, isolated hair shape"},
+    {"id":"olho",     "prompt_name":"kawaii cute cartoon toddler child eyes only, big round friendly eyes with eyelashes, simple white background, flat illustration, isolated"},
+    {"id":"nariz",    "prompt_name":"kawaii cute cartoon toddler child nose only, small cute button nose, simple white background, flat illustration, isolated"},
+    {"id":"boca",     "prompt_name":"kawaii cute cartoon toddler child mouth only, happy smiling mouth with rosy cheeks, simple white background, flat illustration, isolated"},
+    {"id":"orelha",   "prompt_name":"kawaii cute cartoon toddler child ear only, round chubby ear with small earlobe, simple white background, flat illustration, isolated"},
+    {"id":"pescoco",  "prompt_name":"kawaii cute cartoon toddler child neck only, short chubby neck, simple white background, flat illustration, isolated"},
+    {"id":"barriga",  "prompt_name":"kawaii cute cartoon toddler child belly and torso only, round chubby tummy with belly button, simple white background, flat illustration, isolated"},
+    {"id":"braco",    "prompt_name":"kawaii cute cartoon toddler child arm only, chubby arm with round shoulder, simple white background, flat illustration, isolated"},
+    {"id":"mao",      "prompt_name":"kawaii cute cartoon toddler child hand only, chubby hand with five fingers spread, simple white background, flat illustration, isolated"},
+    {"id":"perna",    "prompt_name":"kawaii cute cartoon toddler child leg only, chubby leg, simple white background, flat illustration, isolated"},
+    {"id":"pe",       "prompt_name":"kawaii cute cartoon toddler child foot only, chubby foot with toes visible, simple white background, flat illustration, isolated"}
+  ]
+}
