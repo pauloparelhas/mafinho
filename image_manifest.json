@@ -1,15 +1,15 @@
 {
   "animals": [
-    {"id":"dog",      "prompt_name":"golden retriever puppy sitting, big floppy ears, warm golden fur, tongue out, happy expression, soft pastel blue background"},
-    {"id":"cat",      "prompt_name":"fluffy orange tabby kitten sitting, big sparkling green eyes, tiny pink nose, puffy tail curled around paws, soft pastel yellow background"},
-    {"id":"cow",      "prompt_name":"chubby dairy cow standing, classic black and white spots, large gentle brown eyes, rosy pink snout, soft pastel green background"},
-    {"id":"horse",    "prompt_name":"friendly brown pony standing, flowing chestnut mane and tail, big kind eyes, one hoof raised playfully, soft pastel orange background"},
-    {"id":"pig",      "prompt_name":"round pink piglet standing, adorable curly tail, chubby rosy cheeks, big round snout with nostrils, bright playful eyes, soft pastel pink background"},
-    {"id":"chicken",  "prompt_name":"fluffy white baby chick standing, bright red comb, small rounded wings spread slightly, cheerful beak open, soft pastel yellow background"},
-    {"id":"duck",     "prompt_name":"cute yellow duckling standing, bright orange beak and feet, fluffy round body, one wing raised waving, soft pastel blue background"},
-    {"id":"lion",     "prompt_name":"adorable lion cub sitting, fluffy golden mane starting to grow, big amber eyes, tiny roar mouth, chubby paws, soft pastel yellow background"},
-    {"id":"elephant", "prompt_name":"baby elephant standing, big round floppy ears, long trunk curled upward happily, chunky legs, warm gray skin, soft pastel purple background"},
-    {"id":"monkey",   "prompt_name":"playful brown monkey sitting, long curly tail, big round dark eyes, cream-colored face and belly, arms outstretched, soft pastel orange background"}
+    {"id":"butterfly", "prompt_name":"cute cartoon butterfly with big colorful wings spread open, vibrant blue and orange pattern, big round eyes, tiny smiling face, centered on white background"},
+    {"id":"alligator", "prompt_name":"cute cartoon alligator standing upright, friendly wide smile showing small teeth, bright green scaly skin, chubby body, big round eyes, centered on white background"},
+    {"id":"turtle",    "prompt_name":"cute cartoon turtle with colorful shell, green skin, big round friendly eyes, tiny smile, stubby legs, centered on white background"},
+    {"id":"shark",     "prompt_name":"cute cartoon baby shark swimming, big friendly smile, light blue skin, white belly, round eyes, little fins, centered on white background"},
+    {"id":"whale",     "prompt_name":"cute cartoon blue whale, big round friendly eyes, happy smile, water spout on top, chubby rounded body, centered on white background"},
+    {"id":"dinosaur",  "prompt_name":"cute cartoon baby T-rex dinosaur standing, tiny arms, big round eyes, happy open mouth, green scaly skin, chubby body, centered on white background"},
+    {"id":"rabbit",    "prompt_name":"cute cartoon white rabbit sitting, very long upright ears, big pink inner ears, fluffy round tail, big sparkling eyes, pink nose, centered on white background"},
+    {"id":"fish",      "prompt_name":"cute cartoon tropical fish, bright orange with white stripes, big round eyes, smiling, colorful fins and tail, centered on white background"},
+    {"id":"koala",     "prompt_name":"cute cartoon koala sitting on branch, round fluffy gray ears, big round black nose, large gentle eyes, soft gray fur, chubby arms, centered on white background"},
+    {"id":"bear",      "prompt_name":"cute cartoon brown bear cub sitting, round fluffy ears, big friendly eyes, small round nose, chubby paws raised, soft brown fur, centered on white background"}
   ],
   "shapes": [
     {"id":"circle",    "prompt_name":"a friendly circle shape character with a cute face, tiny arms and legs, bright red color"},

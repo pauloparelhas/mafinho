@@ -315,29 +315,28 @@
 /* ═══════════════════════════════════════════════
    DADOS — Animais
 ═══════════════════════════════════════════════ */
-const ANIMAL_COLORS = [
-  '#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA',
-  '#00897B','#F06292','#F9A825','#E53935','#1E88E5'
-];
-/* Pastéis discretos para fundo do flashcard — não competem com o SVG */
-const ANIMAL_PASTELS = [
-  '#FFEBEE','#E3F2FD','#E8F5E9','#FFF3E0','#F3E5F5',
-  '#E0F2F1','#FCE4EC','#FFFDE7','#FFEBEE','#E3F2FD'
-];
-
 function animalSrc(id) { return 'img/animals/' + id + '.png'; }
 
 const ANIMALS = [
-  { id:'dog',      pt:'Cachorro', en:'Dog',      gen:'o' },
-  { id:'cat',      pt:'Gato',     en:'Cat',      gen:'o' },
-  { id:'cow',      pt:'Vaca',     en:'Cow',      gen:'a' },
-  { id:'horse',    pt:'Cavalo',   en:'Horse',    gen:'o' },
-  { id:'pig',      pt:'Porco',    en:'Pig',      gen:'o' },
-  { id:'chicken',  pt:'Galinha',  en:'Chicken',  gen:'a' },
-  { id:'duck',     pt:'Pato',     en:'Duck',     gen:'o' },
-  { id:'lion',     pt:'Leão',     en:'Lion',     gen:'o' },
-  { id:'elephant', pt:'Elefante', en:'Elephant', gen:'o' },
-  { id:'monkey',   pt:'Macaco',   en:'Monkey',   gen:'o' },
+  { id:'dog',       pt:'Cachorro',   en:'Dog',       gen:'o' },
+  { id:'cat',       pt:'Gato',       en:'Cat',       gen:'o' },
+  { id:'cow',       pt:'Vaca',       en:'Cow',       gen:'a' },
+  { id:'horse',     pt:'Cavalo',     en:'Horse',     gen:'o' },
+  { id:'pig',       pt:'Porco',      en:'Pig',       gen:'o' },
+  { id:'duck',      pt:'Pato',       en:'Duck',      gen:'o' },
+  { id:'lion',      pt:'Leão',       en:'Lion',      gen:'o' },
+  { id:'elephant',  pt:'Elefante',   en:'Elephant',  gen:'o' },
+  { id:'monkey',    pt:'Macaco',     en:'Monkey',    gen:'o' },
+  { id:'butterfly', pt:'Borboleta',  en:'Butterfly', gen:'a' },
+  { id:'alligator', pt:'Jacaré',     en:'Alligator', gen:'o' },
+  { id:'turtle',    pt:'Tartaruga',  en:'Turtle',    gen:'a' },
+  { id:'shark',     pt:'Tubarão',    en:'Shark',     gen:'o' },
+  { id:'whale',     pt:'Baleia',     en:'Whale',     gen:'a' },
+  { id:'dinosaur',  pt:'Dinossauro', en:'Dinosaur',  gen:'o' },
+  { id:'rabbit',    pt:'Coelho',     en:'Rabbit',    gen:'o' },
+  { id:'fish',      pt:'Peixe',      en:'Fish',      gen:'o' },
+  { id:'koala',     pt:'Koala',      en:'Koala',     gen:'o' },
+  { id:'bear',      pt:'Urso',       en:'Bear',      gen:'o' },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -497,7 +496,7 @@ const FlashGame = {
 
     const src = animalSrc(a.id);
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
-    document.getElementById('flashFront').style.background = ANIMAL_PASTELS[this.step];
+    document.getElementById('flashFront').style.background = '';
     document.getElementById('flashEmoji').src = src;
     document.getElementById('flashBackEmoji').src = src;
     document.getElementById('flashName').textContent = name;
