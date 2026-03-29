@@ -166,6 +166,17 @@
 .drag-card.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
 .drag-round-badge { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
 
+/* ── PAINT GAME ── */
+#sPaint { flex:1; display:none; flex-direction:column; align-items:center; padding:16px 12px 8px; gap:14px; }
+.paint-instruction { font-size:var(--lg); font-weight:900; text-align:center; }
+.paint-wrap { position:relative; width:240px; height:240px; border-radius:var(--radlg); overflow:hidden; box-shadow:0 6px 24px var(--shadow); background:var(--sur2); }
+.paint-reveal-img { width:100%; height:100%; object-fit:contain; display:block; }
+.paint-grid { position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(2,1fr); gap:3px; touch-action:none; }
+.paint-tile { border-radius:8px; cursor:pointer; transition:opacity .4s ease; -webkit-tap-highlight-color:transparent; }
+.paint-tile:active { opacity:0.7; }
+.paint-tile.removed { opacity:0 !important; pointer-events:none; }
+.paint-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+
 </style>
 </head>
 <body>
@@ -208,6 +219,11 @@
       <span class="g-icon">🖐️</span>
       <span class="g-title" id="hubDrag">Arrastar</span>
       <span class="g-badge badge-ready" id="badgeDrag">Disponível</span>
+    </div>
+    <div class="game-card ready" onclick="Nav.goLang('paint')">
+      <span class="g-icon">🎨</span>
+      <span class="g-title" id="hubPaint">Pintar</span>
+      <span class="g-badge badge-ready" id="badgePaint">Disponível</span>
     </div>
   </div>
 </div>
@@ -276,6 +292,16 @@
   <div class="drag-silhouettes" id="dragSilhouettes"></div>
   <div class="drag-cards" id="dragCards"></div>
   <p class="drag-round-badge" id="dragRoundBadge"></p>
+</div>
+
+<div id="sPaint">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="paintBackLabel">Animais</span></button>
+  <p class="paint-instruction" id="paintInstruction">Passe o dedo!</p>
+  <div class="paint-wrap">
+    <img id="paintImg" src="" alt="" class="paint-reveal-img">
+    <div class="paint-grid" id="paintGrid"></div>
+  </div>
+  <p class="paint-round" id="paintRoundBadge"></p>
 </div>
 
 <!-- ═══ TELA F: Celebração ═══ -->
@@ -364,6 +390,11 @@ const LANG = {
     dragRound:'Rodada',
     dragCelSub:'Você encontrou todas as sombras!',
     dragCelSpoken:'Parabéns! Você encontrou todas as sombras! Que esperto!',
+    hubPaint:'Pintar', badgePaint:'Disponível',
+    paintBackLabel:'Animais',
+    paintInstruction:'Passe o dedo e descubra o animal!',
+    paintCelSub:'Você descobriu todos os animais!',
+    paintCelSpoken:'Incrível! Você descobriu todos os animais! Parabéns!',
     celTitle:'Muito bem!',
     restart:'Recomeçar 🔄', backHub:'← Animais',
     encourage:[
@@ -401,6 +432,11 @@ const LANG = {
     dragRound:'Round',
     dragCelSub:'You found all the shadows!',
     dragCelSpoken:'Hooray! You found all the shadows! Amazing!',
+    hubPaint:'Paint', badgePaint:'Available',
+    paintBackLabel:'Animals',
+    paintInstruction:'Swipe and discover the animal!',
+    paintCelSub:'You discovered all the animals!',
+    paintCelSpoken:'Amazing! You discovered all the animals! Great job!',
     celTitle:'Well done!',
     restart:'Restart 🔄', backHub:'← Animals',
     encourage:[
@@ -433,6 +469,9 @@ Nav.startGame = function(lang) {
   } else if (this.currentGame === 'drag') {
     this._show('sDrag');
     DragGame.start(lang);
+  } else if (this.currentGame === 'paint') {
+    this._show('sPaint');
+    PaintGame.start(lang);
   }
 };
 
@@ -447,6 +486,9 @@ Nav.restartGame = function() {
   } else if (this.currentGame === 'drag') {
     this._show('sDrag');
     DragGame.start(DragGame.lang);
+  } else if (this.currentGame === 'paint') {
+    this._show('sPaint');
+    PaintGame.start(PaintGame.lang);
   }
 };
 
@@ -462,14 +504,18 @@ Nav._applyLang = function(lang) {
   set('badgeFlash',     L.badgeFlash);
   set('hubClicar',      L.hubClicar);
   set('badgeClicar',    L.badgeClicar);
-  set('hubDrag',        L.hubDrag);
-  set('badgeDrag',      L.badgeDrag);
-  set('dragBackLabel',  L.dragBackLabel);
-  set('flashBackLabel', L.flashBackLabel);
-  set('flashTapHint',   L.flashTapHint);
-  set('clickBackLabel', L.clickBackLabel);
-  set('btnRestart',     L.restart);
-  set('btnBackHub',     L.backHub);
+  set('hubDrag',          L.hubDrag);
+  set('badgeDrag',        L.badgeDrag);
+  set('dragBackLabel',    L.dragBackLabel);
+  set('hubPaint',         L.hubPaint);
+  set('badgePaint',       L.badgePaint);
+  set('paintBackLabel',   L.paintBackLabel);
+  set('paintInstruction', L.paintInstruction);
+  set('flashBackLabel',   L.flashBackLabel);
+  set('flashTapHint',     L.flashTapHint);
+  set('clickBackLabel',   L.clickBackLabel);
+  set('btnRestart',       L.restart);
+  set('btnBackHub',       L.backHub);
   this._setCorners(L.corners);
   TTS.setLang(L.tts);
 };
@@ -887,8 +933,84 @@ Nav._onLeave = function() {
 };
 
 /* ── BOOT ── */
+/* ═══════════════════════════════════════════════
+   PAINT GAME — Toque os quadrados para descobrir
+═══════════════════════════════════════════════ */
+const PAINT_COLORS = ['#E53935','#1E88E5','#43A047','#F9A825'];
+
+const PaintGame = {
+  lang:'pt', step:0, sequence:[], _locked:false,
+
+  start(lang) {
+    this.lang = lang;
+    this.step = 0;
+    this._locked = false;
+    this.sequence = shuffle([...ANIMALS]).slice(0, 6);
+    TTS.init();
+    this._render();
+  },
+
+  _render() {
+    const a = this.sequence[this.step];
+    const img = document.getElementById('paintImg');
+    img.src = animalSrc(a.id);
+    img.alt = this.lang === 'pt' ? a.pt : a.en;
+
+    const total = this.sequence.length;
+    document.getElementById('paintRoundBadge').textContent = (this.step + 1) + ' / ' + total;
+
+    const grid = document.getElementById('paintGrid');
+    grid.innerHTML = '';
+    const colors = shuffle([...PAINT_COLORS]);
+    let removed = 0;
+    colors.forEach(color => {
+      const tile = document.createElement('div');
+      tile.className = 'paint-tile';
+      tile.style.background = color;
+      const onTap = () => {
+        if (tile.classList.contains('removed') || this._locked) return;
+        tile.classList.add('removed');
+        removed++;
+        if (removed >= 4) { this._locked = true; this._onReveal(a); }
+      };
+      tile.addEventListener('click', onTap);
+      tile.addEventListener('touchstart', e => { e.preventDefault(); onTap(); }, {passive:false});
+      grid.appendChild(tile);
+    });
+
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(LANG[this.lang].paintInstruction), 300);
+  },
+
+  _onReveal(a) {
+    const name = this.lang === 'pt' ? a.pt : a.en;
+    SFX.playCorrect();
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(name + '!'), 400);
+    setTimeout(() => {
+      this.step++;
+      if (this.step >= this.sequence.length) this._celebrate();
+      else { this._locked = false; this._render(); }
+    }, 2800);
+  },
+
+  _celebrate() {
+    const L = LANG[this.lang];
+    speechSynthesis && speechSynthesis.cancel();
+    document.getElementById('celTitle').textContent   = L.celTitle;
+    document.getElementById('celSub').textContent     = L.paintCelSub;
+    document.getElementById('btnRestart').textContent = L.restart;
+    document.getElementById('btnBackHub').textContent = L.backHub;
+    localStorage.setItem('animals_paint_progresso', JSON.stringify({
+      completed:true, date:new Date().toISOString()
+    }));
+    Nav._show('sCelebrate');
+    setTimeout(() => TTS.speak(L.paintCelSpoken), 600);
+  },
+};
+
 MF.currentGameId = 'animals';
-Nav.boot(['sHub','sLang','sFlash','sClick','sDrag','sCelebrate']);
+Nav.boot(['sHub','sLang','sFlash','sClick','sDrag','sPaint','sCelebrate']);
 </script>
 </body>
 </html>

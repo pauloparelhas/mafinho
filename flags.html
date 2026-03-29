@@ -174,6 +174,17 @@
 @media (min-width:600px) {
   .find-item { width:120px; height:82px; }
 }
+
+/* ── PAINT GAME ── */
+#sPaint { flex:1; display:none; flex-direction:column; align-items:center; padding:16px 12px 8px; gap:14px; }
+.paint-instruction { font-size:var(--lg); font-weight:900; text-align:center; }
+.paint-wrap { position:relative; width:260px; height:174px; border-radius:var(--radlg); overflow:hidden; box-shadow:0 6px 24px var(--shadow); background:var(--sur2); }
+.paint-reveal-img { width:100%; height:100%; object-fit:contain; display:block; }
+.paint-grid { position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(2,1fr); gap:3px; touch-action:none; }
+.paint-tile { border-radius:6px; cursor:pointer; transition:opacity .4s ease; -webkit-tap-highlight-color:transparent; }
+.paint-tile:active { opacity:0.7; }
+.paint-tile.removed { opacity:0 !important; pointer-events:none; }
+.paint-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 </style>
 </head>
 <body>
@@ -211,10 +222,10 @@
       <span class="g-title" id="hubClicar">Clicar</span>
       <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
     </div>
-    <div class="game-card ready" onclick="Nav.goLang('find')">
-      <span class="g-icon">🔍</span>
-      <span class="g-title" id="hubFind">Encontrar</span>
-      <span class="g-badge badge-ready" id="badgeFind">Disponível</span>
+    <div class="game-card ready" onclick="Nav.goLang('paint')">
+      <span class="g-icon">🎨</span>
+      <span class="g-title" id="hubPaint">Pintar</span>
+      <span class="g-badge badge-ready" id="badgePaint">Disponível</span>
     </div>
   </div>
 </div>
@@ -278,11 +289,14 @@
 </div>
 
 <!-- ENCONTRAR -->
-<div id="sFind">
-  <button class="back-link" onclick="Nav.backToHub()">← <span id="findBackLabel">Bandeiras</span></button>
-  <p class="find-instruction" id="findInstruction"></p>
-  <div class="find-grid" id="findGrid"></div>
-  <p class="find-round" id="findRoundBadge"></p>
+<div id="sPaint">
+  <button class="back-link" onclick="Nav.backToHub()">← <span id="paintBackLabel">Bandeiras</span></button>
+  <p class="paint-instruction" id="paintInstruction">Passe o dedo!</p>
+  <div class="paint-wrap">
+    <img id="paintImg" src="" alt="" class="paint-reveal-img">
+    <div class="paint-grid" id="paintGrid"></div>
+  </div>
+  <p class="paint-round" id="paintRoundBadge"></p>
 </div>
 
 <!-- CELEBRAÇÃO -->
@@ -365,10 +379,10 @@ const LANG = {
     clickCmd:'Qual é a bandeira d',
     clickCelSub:'Você acertou todas as bandeiras!',
     clickCelSpoken:'Parabéns! Você acertou todas as bandeiras! Incrível!',
-    findBackLabel:'Bandeiras',
-    findCmd:'Encontre a bandeira d',
-    findCelSub:'Você encontrou todas as bandeiras!',
-    findCelSpoken:'Parabéns! Você encontrou todas as bandeiras! Que olhão!',
+    paintBackLabel:'Bandeiras',
+    paintInstruction:'Pinte e descubra que bandeira é essa!',
+    paintCelSub:'Você descobriu todas as bandeiras!',
+    paintCelSpoken:'Parabéns! Você descobriu todas as bandeiras! Que inteligente!',
     celTitle:'Muito bem!',
     restart:'Recomeçar 🔄',
     backHub:'← Bandeiras',
@@ -400,10 +414,10 @@ const LANG = {
     clickCmd:'Which flag is ',
     clickCelSub:'You got all the flags right!',
     clickCelSpoken:'Hooray! You got all the flags right! Incredible!',
-    findBackLabel:'Flags',
-    findCmd:'Find the flag of ',
-    findCelSub:'You found all the flags!',
-    findCelSpoken:'Hooray! You found all the flags! Great eyes!',
+    paintBackLabel:'Flags',
+    paintInstruction:'Paint and discover which flag this is!',
+    paintCelSub:'You discovered all the flags!',
+    paintCelSpoken:'Hooray! You discovered all the flags! So clever!',
     celTitle:'Well done!',
     restart:'Restart 🔄',
     backHub:'← Flags',
@@ -437,8 +451,8 @@ Nav.startGame = function(lang) {
     this._show('sFlash'); FlashGame.start(lang);
   } else if (this.currentGame === 'click') {
     this._show('sClick'); ClickGame.start(lang);
-  } else if (this.currentGame === 'find') {
-    this._show('sFind'); FindGame.start(lang);
+  } else if (this.currentGame === 'paint') {
+    this._show('sPaint'); PaintGame.start(lang);
   }
 };
 
@@ -448,8 +462,8 @@ Nav.restartGame = function() {
     this._show('sFlash'); FlashGame.start(FlashGame.lang);
   } else if (this.currentGame === 'click') {
     this._show('sClick'); ClickGame.start(ClickGame.lang);
-  } else if (this.currentGame === 'find') {
-    this._show('sFind'); FindGame.start(FindGame.lang);
+  } else if (this.currentGame === 'paint') {
+    this._show('sPaint'); PaintGame.start(PaintGame.lang);
   }
 };
 
@@ -470,7 +484,8 @@ Nav._applyLang = function(lang) {
   set('flashBackLabel', L.flashBackLabel);
   set('flashTapHint',   L.flashTapHint);
   set('clickBackLabel', L.clickBackLabel);
-  set('findBackLabel',  L.findBackLabel);
+  set('paintBackLabel',   L.paintBackLabel);
+  set('paintInstruction', L.paintInstruction);
   set('btnRestart',     L.restart);
   set('btnBackHub',     L.backHub);
   this._setCorners(L.corners);
@@ -679,98 +694,84 @@ const ClickGame = {
    6 bandeiras na grade, 1 correta
    (dificuldade maior que Clicar — mais distratores)
 ═══════════════════════════════════════════════ */
-const FindGame = {
-  lang:'pt', step:0, totalSteps:6, _locked:false, _seq:[],
+const PAINT_COLORS = ['#E53935','#1E88E5','#43A047','#F9A825'];
+
+const PaintGame = {
+  lang:'pt', step:0, sequence:[], _locked:false,
 
   start(lang) {
     this.lang = lang;
     this.step = 0;
     this._locked = false;
-    this._seq = shuffle(FLAGS.map((_, i) => i)).slice(0, this.totalSteps);
+    this.sequence = shuffle(FLAGS.map((_, i) => i)).slice(0, 6);
     TTS.init();
     this._render();
   },
 
   _render() {
-    const fi = this._seq[this.step];
+    const fi = this.sequence[this.step];
     const f  = FLAGS[fi];
-    const L  = LANG[this.lang];
-    const name = this.lang === 'pt' ? f.pt : f.en;
+    const img = document.getElementById('paintImg');
+    img.src = flagSrc(f.id);
+    img.alt = this.lang === 'pt' ? f.pt : f.en;
 
-    document.getElementById('findRoundBadge').textContent = (this.step + 1) + ' / ' + this.totalSteps;
-    document.getElementById('findInstruction').innerHTML =
-      L.findCmd + f.art + ' <span class="find-target-word">' + name + '</span>?';
+    const total = this.sequence.length;
+    document.getElementById('paintRoundBadge').textContent = (this.step + 1) + ' / ' + total;
 
-    /* 1 correta + 5 distratoras (6 total) */
-    const distractors = shuffle(FLAGS.map((_, i) => i).filter(i => i !== fi)).slice(0, 5);
-    const items = shuffle([fi, ...distractors]);
-
-    const grid = document.getElementById('findGrid');
+    const grid = document.getElementById('paintGrid');
     grid.innerHTML = '';
-    items.forEach(itemFi => {
-      const el = document.createElement('div');
-      el.className = 'find-item';
-      el.dataset.fi = itemFi;
-
-      const img = document.createElement('img');
-      img.className = 'find-flag';
-      img.src = flagSrc(FLAGS[itemFi].id);
-      img.alt = FLAGS[itemFi].pt;
-      el.appendChild(img);
-
-      el.addEventListener('click', () => {
-        if (this._locked) return;
-        parseInt(el.dataset.fi) === fi ? this._onCorrect(el, fi) : this._onWrong(el);
-      });
-      grid.appendChild(el);
+    const colors = shuffle([...PAINT_COLORS]);
+    let removed = 0;
+    colors.forEach(color => {
+      const tile = document.createElement('div');
+      tile.className = 'paint-tile';
+      tile.style.background = color;
+      const onTap = () => {
+        if (tile.classList.contains('removed') || this._locked) return;
+        tile.classList.add('removed');
+        removed++;
+        if (removed >= 4) { this._locked = true; this._onReveal(fi); }
+      };
+      tile.addEventListener('click', onTap);
+      tile.addEventListener('touchstart', e => { e.preventDefault(); onTap(); }, {passive:false});
+      grid.appendChild(tile);
     });
 
-    setTimeout(() => TTS.speak(L.findCmd + f.art + ' ' + name), 250);
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(LANG[this.lang].paintInstruction), 300);
   },
 
-  _onCorrect(el, fi) {
-    this._locked = true;
-    el.classList.add('found');
+  _onReveal(fi) {
+    const f = FLAGS[fi];
+    const name = this.lang === 'pt' ? f.pt : f.en;
     SFX.playCorrect();
-    const L = LANG[this.lang];
-    const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
-    const t = document.getElementById('encToast');
-    t.textContent = enc.text;
-    t.classList.add('show');
-    setTimeout(() => TTS.speak(enc.spoken), 300);
-    setTimeout(() => t.classList.remove('show'), 3200);
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(name + '!'), 400);
     setTimeout(() => {
-      this._locked = false;
       this.step++;
-      if (this.step >= this.totalSteps) this._celebrate();
-      else                              this._render();
+      if (this.step >= this.sequence.length) this._celebrate();
+      else { this._locked = false; this._render(); }
     }, 2800);
-  },
-
-  _onWrong(el) {
-    SFX.playWrong();
-    el.classList.add('wrong');
-    setTimeout(() => el.classList.remove('wrong'), 450);
   },
 
   _celebrate() {
     const L = LANG[this.lang];
     speechSynthesis && speechSynthesis.cancel();
-    setTimeout(() => TTS.speak(L.findCelSpoken), 400);
     document.getElementById('celTitle').textContent   = L.celTitle;
-    document.getElementById('celSub').textContent     = L.findCelSub;
+    document.getElementById('celSub').textContent     = L.paintCelSub;
     document.getElementById('btnRestart').textContent = L.restart;
     document.getElementById('btnBackHub').textContent = L.backHub;
-    localStorage.setItem('flags_find_progresso', JSON.stringify({
+    localStorage.setItem('flags_paint_progresso', JSON.stringify({
       completed:true, date:new Date().toISOString()
     }));
     Nav._show('sCelebrate');
+    setTimeout(() => TTS.speak(L.paintCelSpoken), 600);
   },
 };
 
 /* ── BOOT ── */
 MF.currentGameId = 'flags';
-Nav.boot(['sHub','sLang','sFlash','sClick','sFind','sCelebrate']);
+Nav.boot(['sHub','sLang','sFlash','sClick','sPaint','sCelebrate']);
 </script>
 </body>
 </html>

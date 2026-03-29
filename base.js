@@ -98,6 +98,7 @@ const MF = {
     { id:'emotions', icon:'😊', pt:'Emoções',   en:'Emotions', href:'emotions.html' },
     { id:'body',     icon:'🫀', pt:'Corpo',     en:'Body',     href:'body.html'     },
     { id:'flags',    icon:'🚩', pt:'Bandeiras', en:'Flags',    href:'flags.html'    },
+    { id:'fruits',   icon:'🍎', pt:'Frutas',    en:'Fruits',   href:'fruits.html'   },
   ],
   currentGameId: null,
 
