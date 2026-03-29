@@ -245,6 +245,12 @@ function buildPhrase(ci, ei, lang) {
   return 'The ' + c.en + ' is ' + e.en;
 }
 
+function buildQuestion(ci, lang) {
+  const c = CHARS[ci];
+  if (lang === 'pt') return 'Como ' + c.art.toLowerCase() + ' ' + c.pt + ' está se sentindo?';
+  return 'How is the ' + c.en + ' feeling?';
+}
+
 /* ═══════════════════════════════════════════════
    TEXTOS PT / EN
 ═══════════════════════════════════════════════ */
@@ -389,8 +395,8 @@ const FlashGame = {
     document.getElementById('flashBar').style.width = (((this.step + 1) / total) * 100) + '%';
     document.getElementById('flashPrev').disabled = this.step === 0;
 
-    /* Fala a frase descritiva logo ao mostrar o card */
-    TTS.speak(phrase);
+    /* Frente do card: faz a pergunta sem entregar a resposta */
+    TTS.speak(buildQuestion(ci, this.lang));
   },
 
   flip() {
@@ -409,7 +415,7 @@ const FlashGame = {
       }
     } else {
       const [ci, ei] = this.sequence[this.step];
-      TTS.speak(buildPhrase(ci, ei, this.lang));
+      TTS.speak(buildQuestion(ci, this.lang));
     }
   },
 
