@@ -33,20 +33,20 @@
   align-items:center; justify-content:center; gap:14px; padding:24px;
 }
 .card-back  { transform:rotateY(180deg); background:var(--surface); border:5px solid var(--border); }
-.card-emoji      { font-size:7rem; line-height:1; user-select:none; }
-.card-emoji svg  { width:140px; height:140px; }
-.click-opt svg   { width:80px; height:80px; }
+.card-emoji      { display:flex; align-items:center; justify-content:center; user-select:none; }
+.card-emoji img  { width:140px; height:140px; object-fit:contain; }
+.click-opt img   { width:80px; height:80px; object-fit:contain; pointer-events:none; }
 
 @media (min-width:600px) {
-  .card-emoji svg  { width:200px; height:200px; }
+  .card-emoji img  { width:200px; height:200px; }
   .click-opt       { width:140px; height:140px; }
-  .click-opt svg   { width:100px; height:100px; }
+  .click-opt img   { width:100px; height:100px; }
 }
 @media (min-width:1024px) {
-  .card-emoji svg  { width:240px; height:240px; }
+  .card-emoji img  { width:240px; height:240px; }
   .card-scene      { height:400px; }
   .click-opt       { width:170px; height:170px; }
-  .click-opt svg   { width:120px; height:120px; }
+  .click-opt img   { width:120px; height:120px; }
 }
 .card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; color:inherit; }
 .card-back-name  { font-size:2rem; font-weight:900; text-align:center; line-height:1.2; }
@@ -97,52 +97,6 @@
 .click-opt.wrong .x-overlay { opacity:1; animation:xShake .7s ease; }
 .click-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
 
-#sFind {
-  flex:1; display:none; flex-direction:column;
-  align-items:center; padding:12px 12px 8px; gap:10px;
-}
-#sFind .back-link { margin-bottom:0; }
-.find-instruction { font-size:var(--lg); font-weight:900; text-align:center; color:var(--text); line-height:1.4; }
-.find-target-word { display:inline-block; padding:2px 14px; border-radius:12px; background:var(--c-pink); color:white; font-weight:900; }
-.find-target-word svg { width:26px; height:26px; vertical-align:middle; display:inline-block; }
-.find-grid {
-  display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
-  gap:12px; max-width:360px; padding:8px; flex:1; align-content:center;
-}
-.find-item {
-  width:80px; height:80px; border-radius:var(--radlg);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; background:var(--surface); border:3px solid var(--border);
-  box-shadow:0 3px 12px var(--shadow);
-  transition:transform .15s, opacity .25s;
-  -webkit-tap-highlight-color:transparent;
-}
-.find-item svg { width:60px; height:60px; }
-.find-item:active { transform:scale(0.92); }
-@keyframes findPop {
-  0%   { transform:scale(1); opacity:1; }
-  40%  { transform:scale(1.3); opacity:1; }
-  100% { transform:scale(0); opacity:0; }
-}
-.find-item.found { animation:findPop .45s ease forwards; pointer-events:none; }
-@keyframes findShake {
-  0%,100% { transform:translateX(0); }
-  20%     { transform:translateX(-6px); }
-  40%     { transform:translateX(6px); }
-  60%     { transform:translateX(-4px); }
-  80%     { transform:translateX(4px); }
-}
-.find-item.wrong { animation:findShake .4s ease; }
-.find-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
-
-@media (min-width:600px) {
-  .find-item     { width:100px; height:100px; }
-  .find-item svg { width:76px; height:76px; }
-}
-@media (min-width:1024px) {
-  .find-item     { width:110px; height:110px; }
-  .find-item svg { width:86px; height:86px; }
-}
 </style>
 </head>
 <body>
@@ -179,11 +133,6 @@
       <span class="g-title" id="hubClicar">Clicar</span>
       <span class="g-badge badge-ready" id="badgeClicar">Disponível</span>
     </div>
-    <div class="game-card ready" onclick="Nav.goLang('find')">
-      <span class="g-icon">🔍</span>
-      <span class="g-title" id="hubFind">Encontrar</span>
-      <span class="g-badge badge-ready" id="badgeFind">Disponível</span>
-    </div>
   </div>
 </div>
 
@@ -212,11 +161,11 @@
     <div class="card-scene">
       <div class="card-3d" id="flashCard3d" onclick="FlashGame.flip()">
         <div class="card-face" id="flashFront" style="color:var(--text);">
-          <span class="card-emoji" id="flashEmoji"></span>
-          <span class="card-tap-hint" id="flashTapHint">Como está?</span>
+          <div class="card-emoji"><img id="flashEmoji" src="" alt="emoção"/></div>
+          <span class="card-tap-hint" id="flashTapHint">Toque para ver!</span>
         </div>
         <div class="card-face card-back">
-          <span class="card-emoji" id="flashBackEmoji"></span>
+          <div class="card-emoji"><img id="flashBackEmoji" src="" alt="emoção"/></div>
           <span class="card-back-name" id="flashName"></span>
         </div>
       </div>
@@ -240,12 +189,6 @@
   <p class="click-round" id="clickRoundBadge"></p>
 </div>
 
-<div id="sFind">
-  <button class="back-link" onclick="Nav.backToHub()">← <span id="findBackLabel">Emoções</span></button>
-  <p class="find-instruction" id="findInstruction"></p>
-  <div class="find-grid" id="findGrid"></div>
-  <p class="find-round" id="findRoundBadge"></p>
-</div>
 
 <div id="sCelebrate">
   <div class="stars">⭐⭐⭐⭐⭐</div>
@@ -277,239 +220,30 @@
 <script src="base.js"></script>
 <script>
 /* ═══════════════════════════════════════════════
-   DADOS — Emoções  (2 personagens × 4 emoções = 8 SVGs standalone)
+   DADOS — Emoções  (2 personagens × 4 emoções = 8 PNGs)
 ═══════════════════════════════════════════════ */
 
 const CHARS = [
-  { pt:'menino', en:'boy',  art:'O', gen:'m', color:'#1E88E5', pastel:'#E3F2FD' },
-  { pt:'menina', en:'girl', art:'A', gen:'f', color:'#E91E63', pastel:'#FCE4EC' },
+  { pt:'menino', en:'boy',  art:'O', gen:'m', key:'boy' },
+  { pt:'menina', en:'girl', art:'A', gen:'f', key:'girl' },
 ];
 
 const EMOTIONS = [
-  { pt:'feliz',     en:'happy',     pt_m:'feliz',     pt_f:'feliz'     },
-  { pt:'triste',    en:'sad',       pt_m:'triste',    pt_f:'triste'    },
-  { pt:'com raiva', en:'angry',     pt_m:'com raiva', pt_f:'com raiva' },
-  { pt:'surpreso',  en:'surprised', pt_m:'surpreso',  pt_f:'surpresa'  },
+  { id:'happy',     pt:'alegria',   en:'happy',     pt_m:'alegre',    pt_f:'alegre'    },
+  { id:'sad',       pt:'tristeza',  en:'sad',        pt_m:'triste',    pt_f:'triste'    },
+  { id:'angry',     pt:'raiva',     en:'angry',      pt_m:'com raiva', pt_f:'com raiva' },
+  { id:'surprised', pt:'surpresa',  en:'surprised',  pt_m:'surpreso',  pt_f:'surpresa'  },
 ];
+
+function emotionSrc(ci, ei) {
+  return 'img/emotions/' + CHARS[ci].key + '_' + EMOTIONS[ei].id + '.png';
+}
 
 function buildPhrase(ci, ei, lang) {
   const c = CHARS[ci], e = EMOTIONS[ei];
   if (lang === 'pt') return c.art + ' ' + c.pt + ' está ' + (c.gen === 'm' ? e.pt_m : e.pt_f);
   return 'The ' + c.en + ' is ' + e.en;
 }
-
-/* ── Corpos compartilhados (DRY no código, standalone no SVG final) ── */
-const BOY_BODY =
-  '<ellipse cx="100" cy="158" rx="36" ry="26" fill="#1E88E5" stroke="#1565C0" stroke-width="2"/>' +
-  '<path d="M88,134 C92,140 108,140 112,134" fill="#1565C0"/>' +
-  '<ellipse cx="64" cy="155" rx="11" ry="16" fill="#1E88E5" stroke="#1565C0" stroke-width="1.5"/>' +
-  '<ellipse cx="136" cy="155" rx="11" ry="16" fill="#1E88E5" stroke="#1565C0" stroke-width="1.5"/>' +
-  '<circle cx="64" cy="170" r="7" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.2"/>' +
-  '<circle cx="136" cy="170" r="7" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.2"/>' +
-  '<rect x="80" y="180" width="14" height="12" rx="5" fill="#5C6BC0"/>' +
-  '<rect x="106" y="180" width="14" height="12" rx="5" fill="#5C6BC0"/>' +
-  '<ellipse cx="87" cy="194" rx="10" ry="4" fill="#E53935"/>' +
-  '<ellipse cx="113" cy="194" rx="10" ry="4" fill="#E53935"/>' +
-  '<rect x="90" y="122" width="20" height="14" rx="6" fill="#FFD5B8"/>' +
-  '<circle cx="100" cy="78" r="48" fill="#FFD5B8" stroke="#C49A6C" stroke-width="2.5"/>' +
-  '<circle cx="53" cy="80" r="8" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="147" cy="80" r="8" fill="#FFD5B8" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<path d="M55,62 C53,38 72,25 100,23 C128,25 147,38 145,62 L142,52 C138,38 122,28 100,27 C78,28 62,38 58,52 Z" fill="#5D3215" stroke="#3E2009" stroke-width="1.5"/>' +
-  '<path d="M72,30 L68,16 L80,28" fill="#5D3215"/><path d="M92,24 L90,8 L102,22" fill="#5D3215"/><path d="M118,28 L124,14 L110,26" fill="#5D3215"/>';
-
-const GIRL_BODY =
-  '<path d="M64,136 L60,192 Q60,198 72,198 L128,198 Q140,198 140,192 L136,136 Q120,148 100,148 Q80,148 64,136 Z" fill="#E91E63" stroke="#C2185B" stroke-width="2"/>' +
-  '<ellipse cx="58" cy="150" rx="10" ry="14" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>' +
-  '<ellipse cx="142" cy="150" rx="10" ry="14" fill="#E91E63" stroke="#C2185B" stroke-width="1.5"/>' +
-  '<circle cx="58" cy="163" r="7" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.2"/>' +
-  '<circle cx="142" cy="163" r="7" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.2"/>' +
-  '<rect x="90" y="122" width="20" height="14" rx="6" fill="#FFE0C8"/>' +
-  '<circle cx="100" cy="78" r="48" fill="#FFE0C8" stroke="#D4AA80" stroke-width="2.5"/>' +
-  '<circle cx="55" cy="80" r="6" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="145" cy="80" r="6" fill="#FFE0C8" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<path d="M54,65 C52,40 72,26 100,24 C128,26 148,40 146,65 L146,58 C142,38 126,28 100,26 C74,28 58,38 54,58 Z" fill="#8B5A3A" stroke="#5C3A1E" stroke-width="1.5"/>' +
-  '<path d="M54,65 C48,90 46,120 50,155" fill="none" stroke="#8B5A3A" stroke-width="14" stroke-linecap="round"/>' +
-  '<path d="M146,65 C152,90 154,120 150,155" fill="none" stroke="#8B5A3A" stroke-width="14" stroke-linecap="round"/>' +
-  '<circle cx="38" cy="50" r="18" fill="#8B5A3A" stroke="#5C3A1E" stroke-width="1.5"/>' +
-  '<circle cx="162" cy="50" r="18" fill="#8B5A3A" stroke="#5C3A1E" stroke-width="1.5"/>' +
-  '<circle cx="50" cy="36" r="5" fill="#E91E63" stroke="#C2185B" stroke-width="1"/>' +
-  '<circle cx="150" cy="36" r="5" fill="#E91E63" stroke="#C2185B" stroke-width="1"/>' +
-  '<path d="M44,34 L50,38 L56,34" fill="#E91E63"/><path d="M144,34 L150,38 L156,34" fill="#E91E63"/>';
-
-/* Cílios da menina (3 por olho) — usados nas emoções com olhos abertos */
-const LASH_L = '<line x1="70" y1="62" x2="66" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="78" y1="60" x2="78" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="86" y1="62" x2="90" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
-const LASH_R = '<line x1="114" y1="62" x2="110" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="122" y1="60" x2="122" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="130" y1="62" x2="134" y2="56" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
-/* Cílios para olhos fechados (happy squint) */
-const LASH_CLOSED_L = '<line x1="70" y1="72" x2="66" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="80" y1="65" x2="80" y2="58" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="90" y1="72" x2="94" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
-const LASH_CLOSED_R = '<line x1="110" y1="72" x2="106" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="120" y1="65" x2="120" y2="58" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="130" y1="72" x2="134" y2="66" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
-/* Cílios para olhos enormes (surprise) */
-const LASH_BIG_L = '<line x1="68" y1="60" x2="62" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="78" y1="56" x2="78" y2="48" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="88" y1="60" x2="94" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
-const LASH_BIG_R = '<line x1="112" y1="60" x2="106" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="122" y1="56" x2="122" y2="48" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/><line x1="132" y1="60" x2="138" y2="54" stroke="#5C3A1E" stroke-width="1.8" stroke-linecap="round"/>';
-
-const S = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">';
-
-/* ═══════ FELIZ ═══════ */
-const HAPPY_FACE =
-  /* Olhos fechados felizes (^_^) — U invertido */
-  '<path d="M68,76 Q80,62 92,76" stroke="#1A0800" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M108,76 Q120,62 132,76" stroke="#1A0800" stroke-width="3.5" fill="none" stroke-linecap="round"/>' +
-  /* Sobrancelhas suaves */
-  '<path d="M70,64 C76,60 86,60 92,64" stroke="#4A3520" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-  '<path d="M108,64 C114,60 124,60 130,64" stroke="#4A3520" stroke-width="2" fill="none" stroke-linecap="round"/>' +
-  /* Nariz */
-  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#E8B090"/>' +
-  /* Sorriso ENORME aberto — boca, dentes, língua */
-  '<path d="M74,92 Q100,120 126,92 Z" fill="#E85060" stroke="#C04050" stroke-width="2"/>' +
-  '<path d="M78,92 Q100,100 122,92" fill="white"/>' +
-  '<ellipse cx="100" cy="108" rx="12" ry="7" fill="#FF8A98"/>' +
-  /* Blush grande */
-  '<circle cx="58" cy="86" r="12" fill="#FFB6C1" opacity="0.5"/>' +
-  '<circle cx="142" cy="86" r="12" fill="#FFB6C1" opacity="0.5"/>';
-
-/* ═══════ TRISTE ═══════ */
-const SAD_FACE_B =
-  /* Olhos grandes aquosos, pupilas olhando pra baixo */
-  '<ellipse cx="80" cy="72" rx="12" ry="14" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="80" cy="78" r="7" fill="#3E2723"/><circle cx="80" cy="80" r="4.5" fill="#1A0800"/>' +
-  '<circle cx="83" cy="72" r="3.5" fill="white"/><circle cx="78" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
-  '<ellipse cx="120" cy="72" rx="12" ry="14" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="120" cy="78" r="7" fill="#3E2723"/><circle cx="120" cy="80" r="4.5" fill="#1A0800"/>' +
-  '<circle cx="117" cy="72" r="3.5" fill="white"/><circle cx="122" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
-  /* Sobrancelhas preocupadas (cantos internos pra cima) */
-  '<path d="M66,62 C72,66 88,66 94,60" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M106,60 C112,66 128,66 134,62" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#E8B090"/>' +
-  /* Boca: frown grande e trêmulo */
-  '<path d="M78,102 Q88,92 100,96 Q112,92 122,102" stroke="#C0605A" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-  /* Lágrimas caindo dos dois olhos */
-  '<path d="M70,84 C68,90 70,98 72,102" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="72" cy="104" r="3.5" fill="#64B5F6" opacity="0.6"/>' +
-  '<path d="M130,86 C132,92 130,100 128,104" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="128" cy="106" r="3" fill="#64B5F6" opacity="0.6"/>';
-
-const SAD_FACE_G =
-  '<ellipse cx="80" cy="72" rx="12" ry="14" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="80" cy="78" r="7" fill="#3E2723"/><circle cx="80" cy="80" r="4.5" fill="#1A0800"/>' +
-  '<circle cx="83" cy="72" r="3.5" fill="white"/><circle cx="78" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
-  LASH_L +
-  '<ellipse cx="120" cy="72" rx="12" ry="14" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="120" cy="78" r="7" fill="#3E2723"/><circle cx="120" cy="80" r="4.5" fill="#1A0800"/>' +
-  '<circle cx="117" cy="72" r="3.5" fill="white"/><circle cx="122" cy="82" r="1.5" fill="white" opacity="0.5"/>' +
-  LASH_R +
-  '<path d="M66,62 C72,66 88,66 94,60" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M106,60 C112,66 128,66 134,62" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#F0C0A0"/>' +
-  '<path d="M78,102 Q88,92 100,96 Q112,92 122,102" stroke="#C0605A" stroke-width="3" fill="none" stroke-linecap="round"/>' +
-  '<path d="M70,84 C68,90 70,98 72,102" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="72" cy="104" r="3.5" fill="#64B5F6" opacity="0.6"/>' +
-  '<path d="M130,86 C132,92 130,100 128,104" stroke="#64B5F6" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<circle cx="128" cy="106" r="3" fill="#64B5F6" opacity="0.6"/>';
-
-/* ═══════ COM RAIVA ═══════ */
-const ANGRY_FACE_B =
-  /* Olhos com pálpebra reta (ry menor) */
-  '<ellipse cx="80" cy="74" rx="11" ry="9" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="80" cy="76" r="5" fill="#3E2723"/><circle cx="80" cy="77" r="3" fill="#1A0800"/>' +
-  '<circle cx="83" cy="72" r="2" fill="white"/>' +
-  '<ellipse cx="120" cy="74" rx="11" ry="9" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="120" cy="76" r="5" fill="#3E2723"/><circle cx="120" cy="77" r="3" fill="#1A0800"/>' +
-  '<circle cx="117" cy="72" r="2" fill="white"/>' +
-  /* V-brows GROSSAS e agressivas cobrindo topo dos olhos */
-  '<path d="M64,68 L94,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M136,68 L106,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#E8B090"/>' +
-  /* Boca aberta com dentes cerrados */
-  '<path d="M78,94 Q100,108 122,94 Z" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
-  '<path d="M82,96 L88,100 L94,96 L100,100 L106,96 L112,100 L118,96" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>' +
-  /* Blush vermelho (flush de raiva) */
-  '<rect x="54" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
-  '<rect x="130" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
-  /* Marca de veia na testa (十 clássico anime) */
-  '<path d="M120,44 L130,44 M125,39 L125,49" stroke="#E53935" stroke-width="2.5" stroke-linecap="round"/>';
-
-const ANGRY_FACE_G =
-  '<ellipse cx="80" cy="74" rx="11" ry="9" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="80" cy="76" r="5" fill="#3E2723"/><circle cx="80" cy="77" r="3" fill="#1A0800"/>' +
-  '<circle cx="83" cy="72" r="2" fill="white"/>' +
-  LASH_L +
-  '<ellipse cx="120" cy="74" rx="11" ry="9" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="120" cy="76" r="5" fill="#3E2723"/><circle cx="120" cy="77" r="3" fill="#1A0800"/>' +
-  '<circle cx="117" cy="72" r="2" fill="white"/>' +
-  LASH_R +
-  '<path d="M64,68 L94,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M136,68 L106,60" stroke="#3E2009" stroke-width="4.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="84" rx="3" ry="2" fill="#F0C0A0"/>' +
-  '<path d="M78,94 Q100,108 122,94 Z" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
-  '<path d="M82,96 L88,100 L94,96 L100,100 L106,96 L112,100 L118,96" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<rect x="54" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
-  '<rect x="130" y="82" width="16" height="8" rx="3" fill="#FF8A80" opacity="0.5"/>' +
-  '<path d="M120,44 L130,44 M125,39 L125,49" stroke="#E53935" stroke-width="2.5" stroke-linecap="round"/>';
-
-/* ═══════ SURPRESO/A ═══════ */
-const SURPRISED_FACE_B =
-  /* Olhos ENORMES perfeitamente redondos, pupilas minúsculas */
-  '<circle cx="80" cy="72" r="16" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="80" cy="73" r="4" fill="#3E2723"/><circle cx="80" cy="74" r="2.5" fill="#1A0800"/>' +
-  '<circle cx="84" cy="68" r="3.5" fill="white"/><circle cx="77" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
-  '<circle cx="120" cy="72" r="16" fill="white" stroke="#C49A6C" stroke-width="1.5"/>' +
-  '<circle cx="120" cy="73" r="4" fill="#3E2723"/><circle cx="120" cy="74" r="2.5" fill="#1A0800"/>' +
-  '<circle cx="116" cy="68" r="3.5" fill="white"/><circle cx="123" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
-  /* Sobrancelhas levantadas MUITO alto */
-  '<path d="M64,50 C74,42 86,42 96,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M104,50 C114,42 126,42 136,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="86" rx="3" ry="2" fill="#E8B090"/>' +
-  /* Boca O perfeita bem aberta */
-  '<ellipse cx="100" cy="100" rx="11" ry="13" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
-  '<ellipse cx="100" cy="102" rx="7" ry="8" fill="#903030"/>' +
-  /* Blush */
-  '<circle cx="56" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
-  '<circle cx="144" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
-  /* Linhas de choque ao redor */
-  '<line x1="42" y1="50" x2="32" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<line x1="40" y1="64" x2="28" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<line x1="158" y1="50" x2="168" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<line x1="160" y1="64" x2="172" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>';
-
-const SURPRISED_FACE_G =
-  '<circle cx="80" cy="72" r="16" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="80" cy="73" r="4" fill="#3E2723"/><circle cx="80" cy="74" r="2.5" fill="#1A0800"/>' +
-  '<circle cx="84" cy="68" r="3.5" fill="white"/><circle cx="77" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
-  LASH_BIG_L +
-  '<circle cx="120" cy="72" r="16" fill="white" stroke="#D4AA80" stroke-width="1.5"/>' +
-  '<circle cx="120" cy="73" r="4" fill="#3E2723"/><circle cx="120" cy="74" r="2.5" fill="#1A0800"/>' +
-  '<circle cx="116" cy="68" r="3.5" fill="white"/><circle cx="123" cy="77" r="1.5" fill="white" opacity="0.4"/>' +
-  LASH_BIG_R +
-  '<path d="M64,50 C74,42 86,42 96,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<path d="M104,50 C114,42 126,42 136,50" stroke="#4A3520" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-  '<ellipse cx="100" cy="86" rx="3" ry="2" fill="#F0C0A0"/>' +
-  '<ellipse cx="100" cy="100" rx="11" ry="13" fill="#C0605A" stroke="#A04040" stroke-width="2"/>' +
-  '<ellipse cx="100" cy="102" rx="7" ry="8" fill="#903030"/>' +
-  '<circle cx="56" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
-  '<circle cx="144" cy="86" r="10" fill="#FFB6C1" opacity="0.5"/>' +
-  '<line x1="42" y1="50" x2="32" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<line x1="40" y1="64" x2="28" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<line x1="158" y1="50" x2="168" y2="42" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>' +
-  '<line x1="160" y1="64" x2="172" y2="62" stroke="#F9A825" stroke-width="2.5" stroke-linecap="round"/>';
-
-/* ── 8 SVGs completos: CHAR_SVGS[charIdx][emotionIdx] ── */
-const CHAR_SVGS = [
-  /* Boy: happy, sad, angry, surprised */
-  [
-    S + BOY_BODY + HAPPY_FACE + '</svg>',
-    S + BOY_BODY + SAD_FACE_B + '</svg>',
-    S + BOY_BODY + ANGRY_FACE_B + '</svg>',
-    S + BOY_BODY + SURPRISED_FACE_B + '</svg>',
-  ],
-  /* Girl: happy, sad, angry, surprised */
-  [
-    S + GIRL_BODY + HAPPY_FACE + LASH_CLOSED_L + LASH_CLOSED_R + '</svg>',
-    S + GIRL_BODY + SAD_FACE_G + '</svg>',
-    S + GIRL_BODY + ANGRY_FACE_G + '</svg>',
-    S + GIRL_BODY + SURPRISED_FACE_G + '</svg>',
-  ],
-];
-
-function getSvg(ci, ei) { return CHAR_SVGS[ci][ei]; }
 
 /* ═══════════════════════════════════════════════
    TEXTOS PT / EN
@@ -521,18 +255,13 @@ const LANG = {
     hubSub:'Como você está?',
     hubFlash:'Flashcards', badgeFlash:'Disponível',
     hubClicar:'Clicar', badgeClicar:'Disponível',
-    flashBackLabel:'Emoções', flashTapHint:'Como está?',
-    flashQuestion:'Como essa pessoa está?',
+    flashBackLabel:'Emoções', flashTapHint:'Toque para ver!',
     flashCelSub:'Você conhece todas as emoções!',
     flashCelSpoken:'Parabéns! Você conhece todas as emoções! Que esperto!',
     clickBackLabel:'Emoções',
     clickCmd:'Quem está',
     clickCelSub:'Você acertou todas as emoções!',
     clickCelSpoken:'Parabéns! Você acertou todas as emoções! Muito bem!',
-    hubFind:'Encontrar', badgeFind:'Disponível',
-    findBackLabel:'Emoções', findCmd:'Quem está',
-    findCelSub:'Você encontrou todas as emoções!',
-    findCelSpoken:'Parabéns! Você encontrou todas as emoções! Que observador!',
     celTitle:'Muito bem!',
     restart:'Recomeçar 🔄', backHub:'← Emoções',
     encourage:[
@@ -552,18 +281,13 @@ const LANG = {
     hubSub:'How are you feeling?',
     hubFlash:'Flashcards', badgeFlash:'Available',
     hubClicar:'Click', badgeClicar:'Available',
-    flashBackLabel:'Emotions', flashTapHint:'How do they feel?',
-    flashQuestion:'How is this person feeling?',
+    flashBackLabel:'Emotions', flashTapHint:'Tap to see!',
     flashCelSub:'You know all the emotions!',
     flashCelSpoken:'Hooray! You know all the emotions! So smart!',
     clickBackLabel:'Emotions',
     clickCmd:'Who is',
     clickCelSub:'You got all the emotions right!',
     clickCelSpoken:'Hooray! You got all the emotions right! Amazing!',
-    hubFind:'Find', badgeFind:'Available',
-    findBackLabel:'Emotions', findCmd:'Who is',
-    findCelSub:'You found all the emotions!',
-    findCelSpoken:'Hooray! You found all the emotions! Great eyes!',
     celTitle:'Well done!',
     restart:'Restart 🔄', backHub:'← Emotions',
     encourage:[
@@ -591,9 +315,6 @@ Nav.startGame = function(lang) {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(lang);
-  } else if (this.currentGame === 'find') {
-    this._show('sFind');
-    FindGame.start(lang);
   }
 };
 
@@ -605,9 +326,6 @@ Nav.restartGame = function() {
   } else if (this.currentGame === 'click') {
     this._show('sClick');
     ClickGame.start(ClickGame.lang);
-  } else if (this.currentGame === 'find') {
-    this._show('sFind');
-    FindGame.start(FindGame.lang);
   }
 };
 
@@ -626,9 +344,6 @@ Nav._applyLang = function(lang) {
   set('flashBackLabel', L.flashBackLabel);
   set('flashTapHint',   L.flashTapHint);
   set('clickBackLabel', L.clickBackLabel);
-  set('hubFind',        L.hubFind);
-  set('badgeFind',      L.badgeFind);
-  set('findBackLabel',  L.findBackLabel);
   set('btnRestart',     L.restart);
   set('btnBackHub',     L.backHub);
   this._setCorners(L.corners);
@@ -640,7 +355,7 @@ Nav._applyLang = function(lang) {
 ═══════════════════════════════════════════════ */
 const FlashGame = {
   lang:'pt', step:0, flipped:false, encCount:0,
-  sequence:[],
+  sequence:[], _encTimer:null,
 
   start(lang) {
     this.lang = lang;
@@ -658,15 +373,15 @@ const FlashGame = {
 
   _render() {
     const [ci, ei] = this.sequence[this.step];
-    const L     = LANG[this.lang];
     const phrase = buildPhrase(ci, ei, this.lang);
-    const svg   = getSvg(ci, ei);
+    const src    = emotionSrc(ci, ei);
 
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
-    /* Fundo pastel discreto — não compete com a ilustração */
-    document.getElementById('flashFront').style.background = CHARS[ci].pastel;
-    document.getElementById('flashEmoji').innerHTML = svg;
-    document.getElementById('flashBackEmoji').innerHTML = svg;
+    document.getElementById('flashFront').style.background = '';
+    const frontImg = document.getElementById('flashEmoji');
+    frontImg.src = src; frontImg.alt = phrase;
+    const backImg  = document.getElementById('flashBackEmoji');
+    backImg.src = src;  backImg.alt = phrase;
     document.getElementById('flashName').textContent = phrase;
 
     const total = this.sequence.length;
@@ -674,7 +389,8 @@ const FlashGame = {
     document.getElementById('flashBar').style.width = (((this.step + 1) / total) * 100) + '%';
     document.getElementById('flashPrev').disabled = this.step === 0;
 
-    TTS.speak(L.flashQuestion);
+    /* Fala a frase descritiva logo ao mostrar o card */
+    TTS.speak(phrase);
   },
 
   flip() {
@@ -683,6 +399,7 @@ const FlashGame = {
     if (this.flipped) {
       const [ci, ei] = this.sequence[this.step];
       const phrase = buildPhrase(ci, ei, this.lang);
+      speechSynthesis && speechSynthesis.cancel();
       SFX.playCorrect();
       TTS.speakExcitedAndWait(phrase + '!');
       this.encCount++;
@@ -691,12 +408,14 @@ const FlashGame = {
         this._encourage(enc);
       }
     } else {
-      TTS.speak(LANG[this.lang].flashQuestion);
+      const [ci, ei] = this.sequence[this.step];
+      TTS.speak(buildPhrase(ci, ei, this.lang));
     }
   },
 
   next() {
     speechSynthesis && speechSynthesis.cancel();
+    clearTimeout(this._encTimer);
     if (this.step >= this.sequence.length - 1) { this._celebrate(); return; }
     this.step++; this.flipped = false; this._render();
   },
@@ -704,13 +423,14 @@ const FlashGame = {
   prev() {
     if (this.step <= 0) return;
     speechSynthesis && speechSynthesis.cancel();
+    clearTimeout(this._encTimer);
     this.step--; this.flipped = false; this._render();
   },
 
   _celebrate() {
     const L = LANG[this.lang];
+    clearTimeout(this._encTimer);
     speechSynthesis && speechSynthesis.cancel();
-    setTimeout(() => TTS.speak(L.flashCelSpoken), 400);
     document.getElementById('celTitle').textContent   = L.celTitle;
     document.getElementById('celSub').textContent     = L.flashCelSub;
     document.getElementById('btnRestart').textContent = L.restart;
@@ -719,14 +439,19 @@ const FlashGame = {
       completed:true, date:new Date().toISOString()
     }));
     Nav._show('sCelebrate');
+    setTimeout(() => TTS.speak(L.flashCelSpoken), 600);
   },
 
   _encourage(enc) {
     const t = document.getElementById('encToast');
     t.textContent = enc.text;
     t.classList.add('show');
-    setTimeout(() => TTS.speak(enc.spoken), 1400);
-    setTimeout(() => t.classList.remove('show'), 3200);
+    /* Aguarda a frase da emoção terminar (~2s) antes de falar o elogio */
+    this._encTimer = setTimeout(() => {
+      speechSynthesis && speechSynthesis.cancel();
+      TTS.speak(enc.spoken);
+    }, 2200);
+    setTimeout(() => t.classList.remove('show'), 3800);
   }
 };
 
@@ -736,7 +461,7 @@ const FlashGame = {
 ═══════════════════════════════════════════════ */
 const ClickGame = {
   lang:'pt', step:0, totalSteps:5, _locked:false,
-  _rounds:[],
+  _rounds:[], _encTimer:null,
 
   start(lang) {
     this.lang = lang;
@@ -782,7 +507,10 @@ const ClickGame = {
     round.options.forEach((opt, i) => {
       const btn = document.createElement('button');
       btn.className = 'click-opt';
-      btn.innerHTML = getSvg(opt.ci, opt.ei);
+      const img = document.createElement('img');
+      img.src = emotionSrc(opt.ci, opt.ei);
+      img.alt = buildPhrase(opt.ci, opt.ei, this.lang);
+      btn.appendChild(img);
 
       const xOv = document.createElement('span');
       xOv.className = 'x-overlay';
@@ -797,11 +525,14 @@ const ClickGame = {
       optionsEl.appendChild(btn);
     });
 
-    setTimeout(() => TTS.speak(L.clickCmd + ' ' + emoWord), 250);
+    speechSynthesis && speechSynthesis.cancel();
+    setTimeout(() => TTS.speak(L.clickCmd + ' ' + emoWord + '?'), 300);
   },
 
   _onCorrect(ci, ei) {
     this._locked = true;
+    clearTimeout(this._encTimer);
+    speechSynthesis && speechSynthesis.cancel();
     const L = LANG[this.lang];
     const phrase = buildPhrase(ci, ei, this.lang);
     const enc = L.encourage[Math.floor(Math.random() * L.encourage.length)];
@@ -809,14 +540,20 @@ const ClickGame = {
     const t = document.getElementById('encToast');
     t.textContent = enc.text;
     t.classList.add('show');
-    setTimeout(() => TTS.speak(phrase + '! ' + enc.spoken), 200);
+    /* Fala a frase primeiro, depois o elogio sem sobreposição */
+    TTS.speak(phrase + '!');
+    this._encTimer = setTimeout(() => {
+      speechSynthesis && speechSynthesis.cancel();
+      TTS.speak(enc.spoken);
+    }, 2000);
     setTimeout(() => t.classList.remove('show'), 3800);
     setTimeout(() => {
       this._locked = false;
+      clearTimeout(this._encTimer);
       this.step++;
       if (this.step >= this.totalSteps) this._celebrate();
       else                              this._render();
-    }, 3500);
+    }, 3600);
   },
 
   _onWrong(btn) {
@@ -827,8 +564,8 @@ const ClickGame = {
 
   _celebrate() {
     const L = LANG[this.lang];
+    clearTimeout(this._encTimer);
     speechSynthesis && speechSynthesis.cancel();
-    setTimeout(() => TTS.speak(L.clickCelSpoken), 400);
     document.getElementById('celTitle').textContent   = L.celTitle;
     document.getElementById('celSub').textContent     = L.clickCelSub;
     document.getElementById('btnRestart').textContent = L.restart;
@@ -837,89 +574,13 @@ const ClickGame = {
       completed:true, date:new Date().toISOString()
     }));
     Nav._show('sCelebrate');
-  },
-};
-
-/* ═══════════════════════════════════════════════
-   FIND GAME — "Quem está feliz?" (2 corretos + 4 distratores)
-═══════════════════════════════════════════════ */
-const FindGame = {
-  lang:'pt', step:0, totalSteps:4, remaining:0, _locked:false, _seq:[],
-
-  start(lang){
-    this.lang=lang; this.step=0; this._locked=false;
-    this._seq=shuffle([0,1,2,3]);
-    TTS.init(); this._render();
-  },
-
-  _render(){
-    const ei=this._seq[this.step], L=LANG[this.lang];
-    const emo=EMOTIONS[ei];
-    const name=this.lang==='pt'?emo.pt:emo.en;
-    document.getElementById('findRoundBadge').textContent=(this.step+1)+' / '+this.totalSteps;
-
-    const miniSvg='<span style="display:inline-block;width:28px;height:28px;vertical-align:middle;">'+getSvg(0,ei)+'</span>';
-    if(this.lang==='pt'){
-      document.getElementById('findInstruction').innerHTML=
-        L.findCmd+' <span class="find-target-word">'+miniSvg+' '+name+'</span>?';
-    } else {
-      document.getElementById('findInstruction').innerHTML=
-        L.findCmd+' <span class="find-target-word">'+miniSvg+' '+name+'</span>?';
-    }
-
-    /* 2 corretos (menino+menina com emoção alvo) + 4 distratores */
-    const items=[];
-    items.push({ci:0,ei:ei}); items.push({ci:1,ei:ei});
-    const otherEmos=shuffle([0,1,2,3].filter(e=>e!==ei));
-    for(let d=0;d<4;d++) items.push({ci:Math.floor(Math.random()*2),ei:otherEmos[d%otherEmos.length]});
-    const shuffled=shuffle(items);
-    const grid=document.getElementById('findGrid'); grid.innerHTML='';
-    this.remaining=2;
-    shuffled.forEach(item=>{
-      const el=document.createElement('div'); el.className='find-item';
-      el.dataset.emoIdx=item.ei;
-      el.innerHTML=getSvg(item.ci,item.ei);
-      el.addEventListener('click',()=>{
-        if(this._locked)return;
-        parseInt(el.dataset.emoIdx)===ei?this._onCorrect(el):this._onWrong(el);
-      });
-      grid.appendChild(el);
-    });
-    setTimeout(()=>TTS.speak((this.lang==='pt'?'Quem está ':'Who is ')+name),250);
-  },
-
-  _onCorrect(el){
-    el.classList.add('found'); SFX.playCorrect();
-    this.remaining--;
-    if(this.remaining<=0){
-      this._locked=true;
-      setTimeout(()=>{
-        const L=LANG[this.lang],enc=L.encourage[Math.floor(Math.random()*L.encourage.length)];
-        const t=document.getElementById('encToast');t.textContent=enc.text;t.classList.add('show');
-        TTS.speak(enc.spoken);
-        setTimeout(()=>t.classList.remove('show'),3200);
-        setTimeout(()=>{this._locked=false;this.step++;this.step>=this.totalSteps?this._celebrate():this._render();},3000);
-      },500);
-    }
-  },
-
-  _onWrong(el){SFX.playWrong();el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),450);},
-
-  _celebrate(){
-    const L=LANG[this.lang]; speechSynthesis&&speechSynthesis.cancel();
-    setTimeout(()=>TTS.speak(L.findCelSpoken),400);
-    document.getElementById('celTitle').textContent=L.celTitle;
-    document.getElementById('celSub').textContent=L.findCelSub;
-    document.getElementById('btnRestart').textContent=L.restart;
-    document.getElementById('btnBackHub').textContent=L.backHub;
-    localStorage.setItem('emotions_find_progresso',JSON.stringify({completed:true,date:new Date().toISOString()}));
-    Nav._show('sCelebrate');
+    setTimeout(() => TTS.speak(L.clickCelSpoken), 600);
   },
 };
 
 /* ── BOOT ── */
 MF.currentGameId = 'emotions';
-Nav.boot(['sHub','sLang','sFlash','sClick','sFind','sCelebrate']);
+Nav.boot(['sHub','sLang','sFlash','sClick','sCelebrate']);
 </script>
 </body>
 </html>
