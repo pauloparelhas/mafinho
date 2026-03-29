@@ -97,6 +97,7 @@ const MF = {
     { id:'letters',  icon:'🔤', pt:'Letras',    en:'Letters',   href:'letters.html'  },
     { id:'emotions', icon:'😊', pt:'Emoções',   en:'Emotions', href:'emotions.html' },
     { id:'body',     icon:'🫀', pt:'Corpo',     en:'Body',     href:'body.html'     },
+    { id:'flags',    icon:'🚩', pt:'Bandeiras', en:'Flags',    href:'flags.html'    },
   ],
   currentGameId: null,
 
