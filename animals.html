@@ -37,19 +37,19 @@
 }
 .card-back  { transform:rotateY(180deg); background:var(--surface); border:5px solid var(--border); }
 .card-emoji      { font-size:7rem; line-height:1; user-select:none; }
-.card-emoji svg  { width:140px; height:140px; }
-.click-opt svg   { width:80px; height:80px; }
+.card-emoji img  { width:140px; height:140px; object-fit:contain; }
+.click-opt img   { width:80px; height:80px; object-fit:contain; }
 
 @media (min-width:600px) {
-  .card-emoji svg  { width:200px; height:200px; }
+  .card-emoji img  { width:200px; height:200px; object-fit:contain; }
   .click-opt       { width:140px; height:140px; }
-  .click-opt svg   { width:100px; height:100px; }
+  .click-opt img   { width:100px; height:100px; object-fit:contain; }
 }
 @media (min-width:1024px) {
-  .card-emoji svg  { width:240px; height:240px; }
+  .card-emoji img  { width:240px; height:240px; object-fit:contain; }
   .card-scene      { height:400px; }
   .click-opt       { width:170px; height:170px; }
-  .click-opt svg   { width:120px; height:120px; }
+  .click-opt img   { width:120px; height:120px; object-fit:contain; }
 }
 .card-tap-hint   { font-size:var(--sm); font-weight:700; opacity:0.75; text-align:center; color:inherit; }
 .card-back-name  { font-size:3rem; font-weight:900; text-align:center; line-height:1.1; }
@@ -123,10 +123,11 @@
   transition:transform .15s, box-shadow .15s, border-style .1s;
   position:relative; overflow:hidden;
 }
-.drag-sil svg {
+.drag-sil img {
   width:80%; height:80%;
   filter:brightness(0) opacity(0.18);
   transition:filter .3s;
+  object-fit:contain;
 }
 .drag-sil.over {
   transform:scale(1.07);
@@ -137,7 +138,7 @@
   border-style:solid; border-color:var(--c-green);
   background:var(--surface);
 }
-.drag-sil.matched svg {
+.drag-sil.matched img {
   filter:none;
 }
 .drag-cards {
@@ -154,7 +155,7 @@
   -webkit-tap-highlight-color:transparent;
   padding:8px; position:relative; overflow:hidden;
 }
-.drag-card svg { width:72px; height:72px; }
+.drag-card img { width:72px; height:72px; object-fit:contain; }
 .drag-card:hover { box-shadow:0 8px 22px var(--shadow); }
 .drag-card .x-overlay {
   position:absolute; inset:0; background:rgba(0,0,0,0.55);
@@ -238,11 +239,11 @@
     <div class="card-scene">
       <div class="card-3d" id="flashCard3d" onclick="FlashGame.flip()">
         <div class="card-face" id="flashFront" style="color:var(--text);">
-          <span class="card-emoji" id="flashEmoji">🐶</span>
+          <div class="card-emoji"><img id="flashEmoji" src="" alt="animal"/></div>
           <span class="card-tap-hint" id="flashTapHint">Quem é?</span>
         </div>
         <div class="card-face card-back">
-          <span class="card-emoji" id="flashBackEmoji">🐶</span>
+          <div class="card-emoji"><img id="flashBackEmoji" src="" alt="animal"/></div>
           <span class="card-back-name" id="flashName">Cachorro</span>
         </div>
       </div>
@@ -324,41 +325,19 @@ const ANIMAL_PASTELS = [
   '#E0F2F1','#FCE4EC','#FFFDE7','#FFEBEE','#E3F2FD'
 ];
 
-/* SVGs kawaii elaborados — gerados por svg_animals.py */
-const ANIMAL_SVGS = [
-  /* 0: Dog */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <path d="M138,148 C156,138 166,122 158,112" stroke="#C49A5C" stroke-width="8" stroke-linecap="round" fill="none"/> <ellipse cx="100" cy="152" rx="38" ry="28" fill="#D4A56A" stroke="#8B6508" stroke-width="2.5"/> <ellipse cx="100" cy="156" rx="22" ry="16" fill="#F5E6C8" opacity="0.7"/> <ellipse cx="78" cy="180" rx="12" ry="14" fill="#C49A5C" stroke="#8B6508" stroke-width="2"/> <ellipse cx="122" cy="180" rx="12" ry="14" fill="#C49A5C" stroke="#8B6508" stroke-width="2"/> <ellipse cx="78" cy="192" rx="13" ry="6" fill="#F0DCC0" stroke="#8B6508" stroke-width="1.5"/> <ellipse cx="122" cy="192" rx="13" ry="6" fill="#F0DCC0" stroke="#8B6508" stroke-width="1.5"/> <circle cx="100" cy="82" r="55" fill="#D4A56A" stroke="#8B6508" stroke-width="2.5"/> <ellipse cx="90" cy="60" rx="22" ry="14" fill="#E8C48A" opacity="0.5"/> <path d="M50,62 C36,40 28,68 38,95 C42,106 56,100 54,88" fill="#A07528" stroke="#8B6508" stroke-width="2"/> <path d="M48,66 C40,50 34,72 40,90 C44,98 52,94 51,85" fill="#D4A0B0" opacity="0.3"/> <path d="M150,62 C164,40 172,68 162,95 C158,106 144,100 146,88" fill="#A07528" stroke="#8B6508" stroke-width="2"/> <path d="M152,66 C160,50 166,72 160,90 C156,98 148,94 149,85" fill="#D4A0B0" opacity="0.3"/> <ellipse cx="100" cy="98" rx="24" ry="17" fill="#F5E6C8" stroke="#8B6508" stroke-width="1.5"/> <ellipse cx="78" cy="76" rx="14" ry="15" fill="white" stroke="#8B6508" stroke-width="1.5"/> <circle cx="80" cy="78" r="9" fill="#5D3516"/> <circle cx="81" cy="79" r="5.5" fill="#1A0800"/> <circle cx="84" cy="73" r="3.5" fill="white"/> <circle cx="78" cy="80" r="1.5" fill="white" opacity="0.5"/> <ellipse cx="122" cy="76" rx="14" ry="15" fill="white" stroke="#8B6508" stroke-width="1.5"/> <circle cx="120" cy="78" r="9" fill="#5D3516"/> <circle cx="119" cy="79" r="5.5" fill="#1A0800"/> <circle cx="116" cy="73" r="3.5" fill="white"/> <circle cx="122" cy="80" r="1.5" fill="white" opacity="0.5"/> <path d="M65,64 C70,60 78,60 84,63" stroke="#8B6508" stroke-width="2" fill="none" stroke-linecap="round"/> <path d="M116,63 C122,60 130,60 135,64" stroke="#8B6508" stroke-width="2" fill="none" stroke-linecap="round"/> <ellipse cx="100" cy="92" rx="8" ry="6" fill="#2D1B0E"/> <ellipse cx="98" cy="90" rx="2.5" ry="1.5" fill="white" opacity="0.3"/> <path d="M90,100 Q96,108 100,100" stroke="#8B6508" stroke-width="2" fill="none" stroke-linecap="round"/> <path d="M100,100 Q104,108 110,100" stroke="#8B6508" stroke-width="2" fill="none" stroke-linecap="round"/> <ellipse cx="100" cy="106" rx="5" ry="6" fill="#FF7B8F"/> <line x1="100" y1="103" x2="100" y2="110" stroke="#E8607A" stroke-width="0.8"/> <circle cx="58" cy="92" r="10" fill="#FFB6C1" opacity="0.4"/> <circle cx="142" cy="92" r="10" fill="#FFB6C1" opacity="0.4"/> </svg>`,
-  /* 1: Cat */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <path d="M140,155 C165,150 175,130 168,115 C165,108 158,112 162,120 C166,132 155,148 140,150" fill="#8888A0" stroke="#5A5A72" stroke-width="2"/> <ellipse cx="100" cy="152" rx="36" ry="28" fill="#9898B0" stroke="#5A5A72" stroke-width="2.5"/> <ellipse cx="100" cy="156" rx="20" ry="16" fill="#D0D0E0" opacity="0.5"/> <ellipse cx="76" cy="178" rx="12" ry="14" fill="#8888A0" stroke="#5A5A72" stroke-width="2"/> <ellipse cx="124" cy="178" rx="12" ry="14" fill="#8888A0" stroke="#5A5A72" stroke-width="2"/> <ellipse cx="76" cy="190" rx="13" ry="5.5" fill="#D0D0E0" stroke="#5A5A72" stroke-width="1.5"/> <ellipse cx="124" cy="190" rx="13" ry="5.5" fill="#D0D0E0" stroke="#5A5A72" stroke-width="1.5"/> <circle cx="100" cy="80" r="52" fill="#9898B0" stroke="#5A5A72" stroke-width="2.5"/> <ellipse cx="90" cy="58" rx="20" ry="12" fill="#A8A8C0" opacity="0.5"/> <path d="M58,52 L48,14 L80,42 Z" fill="#8888A0" stroke="#5A5A72" stroke-width="2" stroke-linejoin="round"/> <path d="M60,50 L52,22 L76,44 Z" fill="#F0A0B8" opacity="0.5"/> <path d="M142,52 L152,14 L120,42 Z" fill="#8888A0" stroke="#5A5A72" stroke-width="2" stroke-linejoin="round"/> <path d="M140,50 L148,22 L124,44 Z" fill="#F0A0B8" opacity="0.5"/> <ellipse cx="100" cy="95" rx="18" ry="12" fill="#D0D0E0" stroke="#5A5A72" stroke-width="1.2"/> <ellipse cx="78" cy="76" rx="13" ry="14" fill="white" stroke="#5A5A72" stroke-width="1.5"/> <ellipse cx="79" cy="78" rx="6" ry="8" fill="#4CAF50"/> <ellipse cx="79" cy="78" rx="3" ry="7" fill="#1A0A00"/> <circle cx="82" cy="73" r="3" fill="white"/> <ellipse cx="122" cy="76" rx="13" ry="14" fill="white" stroke="#5A5A72" stroke-width="1.5"/> <ellipse cx="121" cy="78" rx="6" ry="8" fill="#4CAF50"/> <ellipse cx="121" cy="78" rx="3" ry="7" fill="#1A0A00"/> <circle cx="118" cy="73" r="3" fill="white"/> <path d="M96,90 L100,94 L104,90 Z" fill="#F08090"/> <path d="M92,97 C96,102 100,102 100,97" stroke="#5A5A72" stroke-width="1.5" fill="none"/> <path d="M100,97 C100,102 104,102 108,97" stroke="#5A5A72" stroke-width="1.5" fill="none"/> <line x1="62" y1="82" x2="40" y2="78" stroke="#5A5A72" stroke-width="1.2"/> <line x1="62" y1="88" x2="38" y2="88" stroke="#5A5A72" stroke-width="1.2"/> <line x1="62" y1="94" x2="40" y2="98" stroke="#5A5A72" stroke-width="1.2"/> <line x1="138" y1="82" x2="160" y2="78" stroke="#5A5A72" stroke-width="1.2"/> <line x1="138" y1="88" x2="162" y2="88" stroke="#5A5A72" stroke-width="1.2"/> <line x1="138" y1="94" x2="160" y2="98" stroke="#5A5A72" stroke-width="1.2"/> <circle cx="58" cy="92" r="9" fill="#FFB6C1" opacity="0.35"/> <circle cx="142" cy="92" r="9" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-  /* 2: Cow */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="100" cy="148" rx="48" ry="32" fill="#F5E8D0" stroke="#8B7355" stroke-width="2.5"/> <ellipse cx="80" cy="140" rx="14" ry="10" fill="#6B4226" opacity="0.7" transform="rotate(-15 80 140)"/> <ellipse cx="120" cy="152" rx="12" ry="9" fill="#6B4226" opacity="0.7" transform="rotate(20 120 152)"/> <rect x="68" y="170" width="16" height="22" rx="5" fill="#F0DDB8" stroke="#8B7355" stroke-width="2"/> <rect x="68" y="185" width="16" height="7" rx="2" fill="#4A3520"/> <rect x="116" y="170" width="16" height="22" rx="5" fill="#F0DDB8" stroke="#8B7355" stroke-width="2"/> <rect x="116" y="185" width="16" height="7" rx="2" fill="#4A3520"/> <circle cx="100" cy="78" r="50" fill="#F5E8D0" stroke="#8B7355" stroke-width="2.5"/> <ellipse cx="75" cy="60" rx="16" ry="12" fill="#6B4226" opacity="0.7" transform="rotate(-10 75 60)"/> <ellipse cx="130" cy="68" rx="10" ry="8" fill="#6B4226" opacity="0.6"/> <ellipse cx="52" cy="62" rx="18" ry="10" fill="#F0DDB8" stroke="#8B7355" stroke-width="2" transform="rotate(-25 52 62)"/> <ellipse cx="52" cy="62" rx="12" ry="6" fill="#F0A8B8" transform="rotate(-25 52 62)"/> <ellipse cx="148" cy="62" rx="18" ry="10" fill="#F0DDB8" stroke="#8B7355" stroke-width="2" transform="rotate(25 148 62)"/> <ellipse cx="148" cy="62" rx="12" ry="6" fill="#F0A8B8" transform="rotate(25 148 62)"/> <path d="M78,34 C74,18 84,12 88,26" fill="#F5E6A0" stroke="#C8B060" stroke-width="1.5"/> <path d="M122,34 C126,18 116,12 112,26" fill="#F5E6A0" stroke="#C8B060" stroke-width="1.5"/> <ellipse cx="82" cy="72" rx="10" ry="11" fill="white" stroke="#8B7355" stroke-width="1.5"/> <circle cx="83" cy="74" r="6" fill="#3E2723"/> <circle cx="84" cy="75" r="3.5" fill="#1A0800"/> <circle cx="86" cy="70" r="3" fill="white"/> <ellipse cx="118" cy="72" rx="10" ry="11" fill="white" stroke="#8B7355" stroke-width="1.5"/> <circle cx="117" cy="74" r="6" fill="#3E2723"/> <circle cx="116" cy="75" r="3.5" fill="#1A0800"/> <circle cx="114" cy="70" r="3" fill="white"/> <ellipse cx="100" cy="98" rx="22" ry="15" fill="#F0A8B8" stroke="#C0808F" stroke-width="2"/> <circle cx="92" cy="96" r="3.5" fill="#C06070"/> <circle cx="108" cy="96" r="3.5" fill="#C06070"/> <path d="M92,105 C96,110 104,110 108,105" stroke="#C06070" stroke-width="2" fill="none" stroke-linecap="round"/> <circle cx="64" cy="90" r="8" fill="#FFB6C1" opacity="0.35"/> <circle cx="136" cy="90" r="8" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-  /* 3: Horse */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <path d="M148,140 C168,130 175,110 165,95" stroke="#3E2723" stroke-width="6" stroke-linecap="round" fill="none"/> <path d="M150,142 C172,128 178,105 170,90" stroke="#3E2723" stroke-width="4" stroke-linecap="round" fill="none"/> <ellipse cx="100" cy="148" rx="45" ry="30" fill="#A0622A" stroke="#5D3A1A" stroke-width="2.5"/> <rect x="65" y="168" width="15" height="24" rx="4" fill="#8B5220" stroke="#5D3A1A" stroke-width="2"/> <rect x="65" y="186" width="15" height="6" rx="2" fill="#3E2723"/> <rect x="120" y="168" width="15" height="24" rx="4" fill="#8B5220" stroke="#5D3A1A" stroke-width="2"/> <rect x="120" y="186" width="15" height="6" rx="2" fill="#3E2723"/> <ellipse cx="100" cy="78" rx="46" ry="52" fill="#A0622A" stroke="#5D3A1A" stroke-width="2.5"/> <ellipse cx="90" cy="56" rx="18" ry="12" fill="#B87A3A" opacity="0.5"/> <path d="M82,30 C78,18 88,12 92,24" stroke="#3E2723" stroke-width="5" stroke-linecap="round" fill="none"/> <path d="M92,28 C90,14 100,10 102,22" stroke="#3E2723" stroke-width="5" stroke-linecap="round" fill="none"/> <path d="M102,30 C102,16 112,14 112,26" stroke="#3E2723" stroke-width="5" stroke-linecap="round" fill="none"/> <path d="M70,42 L62,18 L82,36 Z" fill="#A0622A" stroke="#5D3A1A" stroke-width="2" stroke-linejoin="round"/> <path d="M72,40 L66,22 L80,36 Z" fill="#D4A0B0" opacity="0.35"/> <path d="M130,42 L138,18 L118,36 Z" fill="#A0622A" stroke="#5D3A1A" stroke-width="2" stroke-linejoin="round"/> <path d="M128,40 L134,22 L120,36 Z" fill="#D4A0B0" opacity="0.35"/> <ellipse cx="100" cy="102" rx="20" ry="16" fill="#C8905A" stroke="#5D3A1A" stroke-width="1.5"/> <ellipse cx="80" cy="72" rx="11" ry="12" fill="white" stroke="#5D3A1A" stroke-width="1.5"/> <circle cx="81" cy="74" r="7" fill="#3E2723"/> <circle cx="82" cy="75" r="4" fill="#1A0800"/> <circle cx="84" cy="70" r="3" fill="white"/> <ellipse cx="120" cy="72" rx="11" ry="12" fill="white" stroke="#5D3A1A" stroke-width="1.5"/> <circle cx="119" cy="74" r="7" fill="#3E2723"/> <circle cx="118" cy="75" r="4" fill="#1A0800"/> <circle cx="116" cy="70" r="3" fill="white"/> <circle cx="92" cy="100" r="3.5" fill="#5D3A1A"/> <circle cx="108" cy="100" r="3.5" fill="#5D3A1A"/> <path d="M92,110 C96,114 104,114 108,110" stroke="#5D3A1A" stroke-width="1.8" fill="none" stroke-linecap="round"/> <circle cx="62" cy="88" r="8" fill="#FFB6C1" opacity="0.35"/> <circle cx="138" cy="88" r="8" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-  /* 4: Pig */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <path d="M155,130 C168,125 172,115 165,110 C160,106 155,112 160,116 C165,120 162,128 155,130" stroke="#E0809A" stroke-width="3" fill="none" stroke-linecap="round"/> <ellipse cx="100" cy="145" rx="45" ry="35" fill="#FFB0C4" stroke="#C0607A" stroke-width="2.5"/> <ellipse cx="100" cy="150" rx="25" ry="18" fill="#FFD0DC" opacity="0.5"/> <rect x="68" y="170" width="18" height="18" rx="6" fill="#F098B0" stroke="#C0607A" stroke-width="2"/> <rect x="68" y="182" width="18" height="6" rx="2" fill="#C0607A"/> <rect x="114" y="170" width="18" height="18" rx="6" fill="#F098B0" stroke="#C0607A" stroke-width="2"/> <rect x="114" y="182" width="18" height="6" rx="2" fill="#C0607A"/> <circle cx="100" cy="80" r="52" fill="#FFB0C4" stroke="#C0607A" stroke-width="2.5"/> <ellipse cx="90" cy="58" rx="18" ry="10" fill="#FFC8D8" opacity="0.5"/> <path d="M58,48 C42,28 52,15 68,32 L65,50 Z" fill="#F098B0" stroke="#C0607A" stroke-width="2"/> <path d="M60,46 C48,32 56,22 66,34 L64,48 Z" fill="#D87090" opacity="0.4"/> <path d="M142,48 C158,28 148,15 132,32 L135,50 Z" fill="#F098B0" stroke="#C0607A" stroke-width="2"/> <path d="M140,46 C152,32 144,22 134,34 L136,48 Z" fill="#D87090" opacity="0.4"/> <ellipse cx="80" cy="74" rx="11" ry="12" fill="white" stroke="#C0607A" stroke-width="1.5"/> <circle cx="81" cy="76" r="7" fill="#3E2723"/> <circle cx="82" cy="77" r="4" fill="#1A0800"/> <circle cx="84" cy="72" r="3" fill="white"/> <ellipse cx="120" cy="74" rx="11" ry="12" fill="white" stroke="#C0607A" stroke-width="1.5"/> <circle cx="119" cy="76" r="7" fill="#3E2723"/> <circle cx="118" cy="77" r="4" fill="#1A0800"/> <circle cx="116" cy="72" r="3" fill="white"/> <ellipse cx="100" cy="98" rx="22" ry="16" fill="#F098B0" stroke="#C0607A" stroke-width="2.5"/> <ellipse cx="91" cy="97" rx="5" ry="6" fill="#D06880"/> <ellipse cx="109" cy="97" rx="5" ry="6" fill="#D06880"/> <path d="M90,112 C95,116 105,116 110,112" stroke="#C0607A" stroke-width="2" fill="none" stroke-linecap="round"/> <circle cx="60" cy="92" r="9" fill="#FF8FA0" opacity="0.4"/> <circle cx="140" cy="92" r="9" fill="#FF8FA0" opacity="0.4"/> </svg>`,
-  /* 5: Chicken */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="100" cy="140" rx="42" ry="38" fill="#F5E0A8" stroke="#B8963C" stroke-width="2.5"/> <path d="M60,125 C42,135 45,160 62,160 C70,160 68,145 60,125Z" fill="#E8D090" stroke="#B8963C" stroke-width="2"/> <path d="M140,125 C158,135 155,160 138,160 C130,160 132,145 140,125Z" fill="#E8D090" stroke="#B8963C" stroke-width="2"/> <path d="M82,175 L78,195 M82,175 L82,198 M82,175 L86,195" stroke="#E88020" stroke-width="3.5" stroke-linecap="round"/> <path d="M118,175 L114,195 M118,175 L118,198 M118,175 L122,195" stroke="#E88020" stroke-width="3.5" stroke-linecap="round"/> <circle cx="100" cy="75" r="42" fill="#F5E0A8" stroke="#B8963C" stroke-width="2.5"/> <ellipse cx="92" cy="55" rx="16" ry="10" fill="#FFF0C0" opacity="0.5"/> <path d="M82,38 C76,20 88,12 96,28 C98,14 108,14 108,28 C114,12 126,20 118,38" fill="#E03030" stroke="#B02020" stroke-width="2"/> <ellipse cx="82" cy="72" rx="10" ry="11" fill="white" stroke="#B8963C" stroke-width="1.5"/> <circle cx="83" cy="74" r="6" fill="#3E2723"/> <circle cx="84" cy="75" r="3.5" fill="#1A0800"/> <circle cx="86" cy="70" r="2.5" fill="white"/> <ellipse cx="118" cy="72" rx="10" ry="11" fill="white" stroke="#B8963C" stroke-width="1.5"/> <circle cx="117" cy="74" r="6" fill="#3E2723"/> <circle cx="116" cy="75" r="3.5" fill="#1A0800"/> <circle cx="114" cy="70" r="2.5" fill="white"/> <path d="M100,84 L88,94 L100,98 L112,94 Z" fill="#F0A020" stroke="#D08018" stroke-width="1.5"/> <path d="M95,98 C92,108 98,114 100,108 C102,114 108,108 105,98" fill="#E03030" opacity="0.8"/> <circle cx="66" cy="86" r="7" fill="#FFB6C1" opacity="0.35"/> <circle cx="134" cy="86" r="7" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-  /* 6: Duck */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="100" cy="148" rx="45" ry="32" fill="#F0C820" stroke="#C8A018" stroke-width="2.5"/> <ellipse cx="100" cy="155" rx="28" ry="18" fill="#FFF0A0" opacity="0.5"/> <path d="M55,135 C38,145 42,168 60,168 C68,168 65,152 55,135Z" fill="#E0B818" stroke="#C8A018" stroke-width="2"/> <path d="M145,135 C162,145 158,168 140,168 C132,168 135,152 145,135Z" fill="#E0B818" stroke="#C8A018" stroke-width="2"/> <path d="M80,178 C75,188 68,192 80,195 L88,190 Z" fill="#E87020" stroke="#C86018" stroke-width="1.5"/> <path d="M120,178 C125,188 132,192 120,195 L112,190 Z" fill="#E87020" stroke="#C86018" stroke-width="1.5"/> <circle cx="100" cy="78" r="48" fill="#FFD830" stroke="#C8A018" stroke-width="2.5"/> <ellipse cx="90" cy="56" rx="18" ry="12" fill="#FFE860" opacity="0.5"/> <path d="M95,32 C90,22 100,18 102,28" stroke="#E0B818" stroke-width="4" stroke-linecap="round" fill="none"/> <path d="M102,30 C104,20 112,22 108,32" stroke="#E0B818" stroke-width="4" stroke-linecap="round" fill="none"/> <ellipse cx="80" cy="72" rx="12" ry="13" fill="white" stroke="#C8A018" stroke-width="1.5"/> <circle cx="82" cy="74" r="7" fill="#3E2723"/> <circle cx="83" cy="75" r="4" fill="#1A0800"/> <circle cx="85" cy="70" r="3" fill="white"/> <ellipse cx="120" cy="72" rx="12" ry="13" fill="white" stroke="#C8A018" stroke-width="1.5"/> <circle cx="118" cy="74" r="7" fill="#3E2723"/> <circle cx="117" cy="75" r="4" fill="#1A0800"/> <circle cx="115" cy="70" r="3" fill="white"/> <path d="M100,88 C80,88 72,100 100,108 C128,100 120,88 100,88Z" fill="#E87020" stroke="#C86018" stroke-width="2"/> <circle cx="60" cy="88" r="8" fill="#FFB6C1" opacity="0.35"/> <circle cx="140" cy="88" r="8" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-  /* 7: Lion */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="100" cy="155" rx="35" ry="26" fill="#E8C450" stroke="#8B6914" stroke-width="2.5"/> <ellipse cx="76" cy="178" rx="12" ry="14" fill="#DDB840" stroke="#8B6914" stroke-width="2"/> <ellipse cx="124" cy="178" rx="12" ry="14" fill="#DDB840" stroke="#8B6914" stroke-width="2"/> <ellipse cx="76" cy="190" rx="13" ry="5.5" fill="#F0DCA0" stroke="#8B6914" stroke-width="1.5"/> <ellipse cx="124" cy="190" rx="13" ry="5.5" fill="#F0DCA0" stroke="#8B6914" stroke-width="1.5"/> <circle cx="100" cy="82" r="62" fill="#C07828" stroke="#8B5A10" stroke-width="2.5"/> <path d="M100,18 L104,30 L96,30 Z" fill="#A06018"/> <path d="M68,24 L76,34 L66,36 Z" fill="#A06018"/> <path d="M132,24 L124,34 L134,36 Z" fill="#A06018"/> <path d="M42,48 L52,54 L44,60 Z" fill="#A06018"/> <path d="M158,48 L148,54 L156,60 Z" fill="#A06018"/> <path d="M36,80 L46,82 L40,90 Z" fill="#A06018"/> <path d="M164,80 L154,82 L160,90 Z" fill="#A06018"/> <path d="M40,110 L50,108 L46,116 Z" fill="#A06018"/> <path d="M160,110 L150,108 L154,116 Z" fill="#A06018"/> <circle cx="100" cy="82" r="48" fill="#F0D060" stroke="#8B6914" stroke-width="2"/> <ellipse cx="90" cy="60" rx="18" ry="10" fill="#F8E080" opacity="0.5"/> <ellipse cx="80" cy="76" rx="12" ry="13" fill="white" stroke="#8B6914" stroke-width="1.5"/> <circle cx="82" cy="78" r="7" fill="#8B5A2B"/> <circle cx="83" cy="79" r="4" fill="#1A0800"/> <circle cx="85" cy="74" r="3" fill="white"/> <ellipse cx="120" cy="76" rx="12" ry="13" fill="white" stroke="#8B6914" stroke-width="1.5"/> <circle cx="118" cy="78" r="7" fill="#8B5A2B"/> <circle cx="117" cy="79" r="4" fill="#1A0800"/> <circle cx="115" cy="74" r="3" fill="white"/> <path d="M95,90 L100,96 L105,90 Z" fill="#8B4513"/> <path d="M100,96 L100,102" stroke="#8B6914" stroke-width="2" stroke-linecap="round"/> <path d="M92,104 C96,108 100,108 100,104" stroke="#8B6914" stroke-width="2" fill="none" stroke-linecap="round"/> <path d="M100,104 C100,108 104,108 108,104" stroke="#8B6914" stroke-width="2" fill="none" stroke-linecap="round"/> <circle cx="62" cy="95" r="9" fill="#FF9060" opacity="0.4"/> <circle cx="138" cy="95" r="9" fill="#FF9060" opacity="0.4"/> </svg>`,
-  /* 8: Elephant */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <ellipse cx="100" cy="148" rx="50" ry="32" fill="#8898A8" stroke="#4A5A6A" stroke-width="2.5"/> <rect x="60" y="168" width="22" height="24" rx="6" fill="#788898" stroke="#4A5A6A" stroke-width="2"/> <rect x="118" y="168" width="22" height="24" rx="6" fill="#788898" stroke="#4A5A6A" stroke-width="2"/> <circle cx="100" cy="82" r="52" fill="#8898A8" stroke="#4A5A6A" stroke-width="2.5"/> <ellipse cx="88" cy="58" rx="20" ry="12" fill="#98A8B8" opacity="0.5"/> <ellipse cx="46" cy="82" rx="32" ry="42" fill="#788898" stroke="#4A5A6A" stroke-width="2" transform="rotate(-8 46 82)"/> <ellipse cx="48" cy="82" rx="22" ry="32" fill="#E0A0B0" opacity="0.4" transform="rotate(-8 48 82)"/> <ellipse cx="154" cy="82" rx="32" ry="42" fill="#788898" stroke="#4A5A6A" stroke-width="2" transform="rotate(8 154 82)"/> <ellipse cx="152" cy="82" rx="22" ry="32" fill="#E0A0B0" opacity="0.4" transform="rotate(8 152 82)"/> <ellipse cx="80" cy="72" rx="10" ry="8" fill="white" stroke="#4A5A6A" stroke-width="1.5"/> <circle cx="81" cy="73" r="5" fill="#3E2723"/> <circle cx="82" cy="73" r="3" fill="#1A0800"/> <circle cx="83" cy="70" r="2.5" fill="white"/> <ellipse cx="120" cy="72" rx="10" ry="8" fill="white" stroke="#4A5A6A" stroke-width="1.5"/> <circle cx="119" cy="73" r="5" fill="#3E2723"/> <circle cx="118" cy="73" r="3" fill="#1A0800"/> <circle cx="117" cy="70" r="2.5" fill="white"/> <path d="M70,62 C75,58 82,58 88,62" stroke="#4A5A6A" stroke-width="2.5" fill="none" stroke-linecap="round"/> <path d="M112,62 C118,58 125,58 130,62" stroke="#4A5A6A" stroke-width="2.5" fill="none" stroke-linecap="round"/> <path d="M100,85 C100,95 95,108 88,118 C82,126 78,128 74,125 C70,122 72,118 76,118 C80,118 84,115 88,108 C92,100 95,92 98,86" fill="#8898A8" stroke="#4A5A6A" stroke-width="2.5"/> <path d="M90,100 L96,98" stroke="#4A5A6A" stroke-width="1" opacity="0.5"/> <path d="M86,108 L92,106" stroke="#4A5A6A" stroke-width="1" opacity="0.5"/> <path d="M82,116 L87,114" stroke="#4A5A6A" stroke-width="1" opacity="0.5"/> <circle cx="60" cy="90" r="8" fill="#FFB6C1" opacity="0.35"/> <circle cx="140" cy="90" r="8" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-  /* 9: Monkey */
-  `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"> <path d="M140,150 C160,145 170,125 160,110 C155,100 145,105 150,112 C155,120 148,138 140,145" fill="none" stroke="#6B4420" stroke-width="4" stroke-linecap="round"/> <ellipse cx="100" cy="150" rx="34" ry="28" fill="#8B5830" stroke="#4A2C10" stroke-width="2.5"/> <ellipse cx="100" cy="153" rx="20" ry="18" fill="#F0D8B0" opacity="0.7"/> <ellipse cx="76" cy="178" rx="12" ry="12" fill="#7A4C28" stroke="#4A2C10" stroke-width="2"/> <ellipse cx="124" cy="178" rx="12" ry="12" fill="#7A4C28" stroke="#4A2C10" stroke-width="2"/> <circle cx="100" cy="78" r="50" fill="#8B5830" stroke="#4A2C10" stroke-width="2.5"/> <circle cx="50" cy="72" r="16" fill="#7A4C28" stroke="#4A2C10" stroke-width="2"/> <circle cx="50" cy="72" r="10" fill="#F0D8B0"/> <circle cx="150" cy="72" r="16" fill="#7A4C28" stroke="#4A2C10" stroke-width="2"/> <circle cx="150" cy="72" r="10" fill="#F0D8B0"/> <ellipse cx="100" cy="85" rx="35" ry="32" fill="#F0D8B0" stroke="#4A2C10" stroke-width="1.5"/> <ellipse cx="82" cy="74" rx="12" ry="13" fill="white" stroke="#4A2C10" stroke-width="1.5"/> <circle cx="84" cy="76" r="7" fill="#3E2723"/> <circle cx="85" cy="77" r="4" fill="#1A0800"/> <circle cx="87" cy="72" r="3" fill="white"/> <ellipse cx="118" cy="74" rx="12" ry="13" fill="white" stroke="#4A2C10" stroke-width="1.5"/> <circle cx="116" cy="76" r="7" fill="#3E2723"/> <circle cx="115" cy="77" r="4" fill="#1A0800"/> <circle cx="113" cy="72" r="3" fill="white"/> <ellipse cx="100" cy="90" rx="6" ry="4" fill="#6B4420"/> <path d="M90,98 C95,104 105,104 110,98" stroke="#4A2C10" stroke-width="2" fill="none" stroke-linecap="round"/> <circle cx="68" cy="92" r="7" fill="#FFB6C1" opacity="0.35"/> <circle cx="132" cy="92" r="7" fill="#FFB6C1" opacity="0.35"/> </svg>`,
-];
+function animalSrc(id) { return 'img/animals/' + id + '.png'; }
 
 const ANIMALS = [
-  { pt:'Cachorro', en:'Dog',      gen:'o' },
-  { pt:'Gato',     en:'Cat',      gen:'o' },
-  { pt:'Vaca',     en:'Cow',      gen:'a' },
-  { pt:'Cavalo',   en:'Horse',    gen:'o' },
-  { pt:'Porco',    en:'Pig',      gen:'o' },
-  { pt:'Galinha',  en:'Chicken',  gen:'a' },
-  { pt:'Pato',     en:'Duck',     gen:'o' },
-  { pt:'Leão',     en:'Lion',     gen:'o' },
-  { pt:'Elefante', en:'Elephant', gen:'o' },
-  { pt:'Macaco',   en:'Monkey',   gen:'o' },
+  { id:'dog',      pt:'Cachorro', en:'Dog',      gen:'o' },
+  { id:'cat',      pt:'Gato',     en:'Cat',      gen:'o' },
+  { id:'cow',      pt:'Vaca',     en:'Cow',      gen:'a' },
+  { id:'horse',    pt:'Cavalo',   en:'Horse',    gen:'o' },
+  { id:'pig',      pt:'Porco',    en:'Pig',      gen:'o' },
+  { id:'chicken',  pt:'Galinha',  en:'Chicken',  gen:'a' },
+  { id:'duck',     pt:'Pato',     en:'Duck',     gen:'o' },
+  { id:'lion',     pt:'Leão',     en:'Lion',     gen:'o' },
+  { id:'elephant', pt:'Elefante', en:'Elephant', gen:'o' },
+  { id:'monkey',   pt:'Macaco',   en:'Monkey',   gen:'o' },
 ];
 
 /* ═══════════════════════════════════════════════
@@ -513,15 +492,14 @@ const FlashGame = {
 
   _render() {
     const a     = ANIMALS[this.step];
-    const color = ANIMAL_COLORS[this.step];
     const L     = LANG[this.lang];
     const name  = this.lang === 'pt' ? a.pt : a.en;
 
-    const svg = ANIMAL_SVGS[this.step];
+    const src = animalSrc(a.id);
     document.getElementById('flashCard3d').classList.toggle('flipped', this.flipped);
     document.getElementById('flashFront').style.background = ANIMAL_PASTELS[this.step];
-    document.getElementById('flashEmoji').innerHTML = svg;
-    document.getElementById('flashBackEmoji').innerHTML = svg;
+    document.getElementById('flashEmoji').src = src;
+    document.getElementById('flashBackEmoji').src = src;
     document.getElementById('flashName').textContent = name;
 
     const total = ANIMALS.length;
@@ -628,7 +606,10 @@ const ClickGame = {
     opts.forEach(ai => {
       const btn = document.createElement('button');
       btn.className = 'click-opt';
-      btn.innerHTML = ANIMAL_SVGS[ai];
+      const img = document.createElement('img');
+      img.src = animalSrc(ANIMALS[ai].id);
+      img.alt = ANIMALS[ai].pt;
+      btn.appendChild(img);
 
       const xOv = document.createElement('span');
       xOv.className = 'x-overlay';
@@ -718,7 +699,10 @@ const DragGame = {
       const sil = document.createElement('div');
       sil.className = 'drag-sil';
       sil.dataset.animalIdx = ai;
-      sil.innerHTML = ANIMAL_SVGS[ai];
+      const silImg = document.createElement('img');
+      silImg.src = animalSrc(ANIMALS[ai].id);
+      silImg.alt = ANIMALS[ai].pt;
+      sil.appendChild(silImg);
       silEl.appendChild(sil);
     });
 
@@ -729,7 +713,10 @@ const DragGame = {
       const el = document.createElement('div');
       el.className = 'drag-card';
       el.dataset.animalIdx = ai;
-      el.innerHTML = ANIMAL_SVGS[ai];
+      const cardImg = document.createElement('img');
+      cardImg.src = animalSrc(ANIMALS[ai].id);
+      cardImg.alt = ANIMALS[ai].pt;
+      el.appendChild(cardImg);
       const xOv = document.createElement('span');
       xOv.className = 'x-overlay';
       xOv.textContent = '✖';
