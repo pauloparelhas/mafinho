@@ -167,15 +167,34 @@
 .drag-round-badge { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
 
 /* ── PAINT GAME ── */
-#sPaint { flex:1; display:none; flex-direction:column; align-items:center; padding:16px 12px 8px; gap:14px; }
-.paint-instruction { font-size:var(--lg); font-weight:900; text-align:center; }
-.paint-wrap { position:relative; width:240px; height:240px; border-radius:var(--radlg); overflow:hidden; box-shadow:0 6px 24px var(--shadow); background:var(--sur2); }
-.paint-reveal-img { width:100%; height:100%; object-fit:contain; display:block; }
-.paint-grid { position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(2,1fr); gap:3px; touch-action:none; }
-.paint-tile { border-radius:8px; cursor:pointer; transition:opacity .4s ease; -webkit-tap-highlight-color:transparent; }
-.paint-tile:active { opacity:0.7; }
-.paint-tile.removed { opacity:0 !important; pointer-events:none; }
-.paint-round { font-size:var(--sm); font-weight:800; color:var(--muted); }
+#sPaint { flex:1; display:none; flex-direction:column; align-items:center; padding:4px 12px 4px; gap:4px; }
+#sPaint .back-link { min-height:52px; margin-bottom:0; }
+.paint-area {
+  position:relative; width:100%; max-width:340px; height:320px;
+  border-radius:var(--radlg); background:var(--surface);
+  border:3px solid var(--border); box-shadow:0 4px 16px var(--shadow);
+  overflow:hidden; touch-action:none;
+}
+.paint-area canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
+#outlineCanvas { z-index:1; }
+#paintCanvas   { z-index:2; cursor:crosshair; }
+.paint-palette { display:flex; gap:8px; justify-content:center; padding:4px 0; }
+.paint-swatch {
+  width:64px; height:64px; border-radius:50%;
+  border:4px solid transparent; cursor:pointer; margin:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .12s, border-color .15s;
+  box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+.paint-swatch:active { transform:scale(0.91); }
+.paint-swatch.active {
+  border-color:white;
+  box-shadow:0 0 0 3px var(--text), 0 4px 14px rgba(0,0,0,0.35);
+  transform:scale(1.15);
+}
+#sPaint .card-nav { max-width:340px; }
+#sPaint .progress-bar-wrap { max-width:340px; }
+.paint-progress { font-size:var(--sm); font-weight:800; color:var(--muted); text-align:center; }
 
 </style>
 </head>
@@ -296,12 +315,19 @@
 
 <div id="sPaint">
   <button class="back-link" onclick="Nav.backToHub()">← <span id="paintBackLabel">Animais</span></button>
-  <p class="paint-instruction" id="paintInstruction">Passe o dedo!</p>
-  <div class="paint-wrap">
-    <img id="paintImg" src="" alt="" class="paint-reveal-img">
-    <div class="paint-grid" id="paintGrid"></div>
+  <div class="paint-area" id="paintArea">
+    <canvas id="outlineCanvas"></canvas>
+    <canvas id="paintCanvas"></canvas>
   </div>
-  <p class="paint-round" id="paintRoundBadge"></p>
+  <div class="paint-palette" id="paintPalette"></div>
+  <div class="card-nav">
+    <button class="btn-nav btn-prev" id="paintPrev" onclick="PaintGame.prev()">◀</button>
+    <button class="btn-nav btn-next" id="paintNext" onclick="PaintGame.next()">▶</button>
+  </div>
+  <div class="paint-progress" id="paintProgress">1 / 6</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="paintBar" style="width:16%"></div>
+  </div>
 </div>
 
 <!-- ═══ TELA F: Celebração ═══ -->
@@ -392,7 +418,7 @@ const LANG = {
     dragCelSpoken:'Parabéns! Você encontrou todas as sombras! Que esperto!',
     hubPaint:'Pintar', badgePaint:'Disponível',
     paintBackLabel:'Animais',
-    paintInstruction:'Passe o dedo e descubra o animal!',
+    paintInstruction:'Pinte o animal!',
     paintCelSub:'Você descobriu todos os animais!',
     paintCelSpoken:'Incrível! Você descobriu todos os animais! Parabéns!',
     celTitle:'Muito bem!',
@@ -434,7 +460,7 @@ const LANG = {
     dragCelSpoken:'Hooray! You found all the shadows! Amazing!',
     hubPaint:'Paint', badgePaint:'Available',
     paintBackLabel:'Animals',
-    paintInstruction:'Swipe and discover the animal!',
+    paintInstruction:'Paint the animal!',
     paintCelSub:'You discovered all the animals!',
     paintCelSpoken:'Amazing! You discovered all the animals! Great job!',
     celTitle:'Well done!',
@@ -930,68 +956,206 @@ Nav._onLeave = function() {
   document.body.style.touchAction = '';
   document.body.style.overflow    = '';
   if (DragGame.activeGhost) { DragGame.activeGhost.remove(); DragGame.activeGhost = null; }
+  PaintGame.abort();
+  speechSynthesis && speechSynthesis.cancel();
 };
 
 /* ── BOOT ── */
 /* ═══════════════════════════════════════════════
    PAINT GAME — Toque os quadrados para descobrir
 ═══════════════════════════════════════════════ */
-const PAINT_COLORS = ['#E53935','#1E88E5','#43A047','#F9A825'];
-
 const PaintGame = {
-  lang:'pt', step:0, sequence:[], _locked:false,
+  lang:'pt', sequence:[], step:0,
+  currentColor:'#E53935',
+  _aborted:false, _painting:false,
+  _lastX:0, _lastY:0, _w:0, _h:0, _dpr:1,
+  _oCanvas:null, _pCanvas:null, _oCtx:null, _pCtx:null,
+  _grid:null, _paintedCells:0, _neededCells:0, _done:false,
+  _bound:false,
+
+  BRUSH: 44,
+  GRID_SIZE: 7,
+  THRESHOLD: 0.32,
+  PALETTE: ['#E53935','#1E88E5','#43A047','#F9A825','#8E24AA'],
 
   start(lang) {
-    this.lang = lang;
-    this.step = 0;
-    this._locked = false;
+    this.lang     = lang;
+    this.step     = 0;
+    this._aborted = false;
     this.sequence = shuffle([...ANIMALS]).slice(0, 6);
     TTS.init();
-    this._render();
+    requestAnimationFrame(() => {
+      this._initCanvases();
+      this._buildPalette();
+      this._setupAnimal();
+    });
   },
 
-  _render() {
-    const a = this.sequence[this.step];
-    const img = document.getElementById('paintImg');
-    img.src = animalSrc(a.id);
-    img.alt = this.lang === 'pt' ? a.pt : a.en;
+  abort() { this._aborted = true; this._painting = false; },
 
-    const total = this.sequence.length;
-    document.getElementById('paintRoundBadge').textContent = (this.step + 1) + ' / ' + total;
-
-    const grid = document.getElementById('paintGrid');
-    grid.innerHTML = '';
-    const colors = shuffle([...PAINT_COLORS]);
-    let removed = 0;
-    colors.forEach(color => {
-      const tile = document.createElement('div');
-      tile.className = 'paint-tile';
-      tile.style.background = color;
-      const onTap = () => {
-        if (tile.classList.contains('removed') || this._locked) return;
-        tile.classList.add('removed');
-        removed++;
-        if (removed >= 4) { this._locked = true; this._onReveal(a); }
-      };
-      tile.addEventListener('click', onTap);
-      tile.addEventListener('touchstart', e => { e.preventDefault(); onTap(); }, {passive:false});
-      grid.appendChild(tile);
+  _initCanvases() {
+    const area = document.getElementById('paintArea');
+    const w = area.clientWidth, h = area.clientHeight;
+    this._dpr = window.devicePixelRatio || 1;
+    this._w = w; this._h = h;
+    this._oCanvas = document.getElementById('outlineCanvas');
+    this._pCanvas = document.getElementById('paintCanvas');
+    [this._oCanvas, this._pCanvas].forEach(c => {
+      c.width  = w * this._dpr; c.height = h * this._dpr;
+      c.style.width = w + 'px'; c.style.height = h + 'px';
     });
+    this._oCtx = this._oCanvas.getContext('2d');
+    this._oCtx.scale(this._dpr, this._dpr);
+    this._pCtx = this._pCanvas.getContext('2d');
+    this._pCtx.scale(this._dpr, this._dpr);
+    if (!this._bound) {
+      this._bound = true;
+      const pc = this._pCanvas;
+      pc.addEventListener('pointerdown',   e => this._onDown(e));
+      pc.addEventListener('pointermove',   e => this._onMove(e));
+      pc.addEventListener('pointerup',     () => { this._painting = false; });
+      pc.addEventListener('pointercancel', () => { this._painting = false; });
+    }
+  },
+
+  _buildPalette() {
+    const pal = document.getElementById('paintPalette');
+    pal.innerHTML = '';
+    this.PALETTE.forEach((color, i) => {
+      const sw = document.createElement('button');
+      sw.className = 'paint-swatch' + (i === 0 ? ' active' : '');
+      sw.style.background = color;
+      sw.addEventListener('click', () => {
+        this.currentColor = color;
+        pal.querySelectorAll('.paint-swatch').forEach(s => s.classList.remove('active'));
+        sw.classList.add('active');
+      });
+      pal.appendChild(sw);
+    });
+    this.currentColor = this.PALETTE[0];
+  },
+
+  _setupAnimal() {
+    if (this._aborted) return;
+    this._done     = false;
+    this._painting = false;
+    this._paintedCells = 0;
+    const gs = this.GRID_SIZE;
+    this._grid = new Uint8Array(gs * gs);
+    this._neededCells = Math.ceil(gs * gs * this.THRESHOLD);
+    this._oCtx.clearRect(0, 0, this._w, this._h);
+    this._pCtx.clearRect(0, 0, this._w, this._h);
+
+    const a = this.sequence[this.step];
+    const total = this.sequence.length;
+    document.getElementById('paintProgress').textContent = (this.step + 1) + ' / ' + total;
+    document.getElementById('paintBar').style.width = ((this.step + 1) / total * 100) + '%';
+    document.getElementById('paintPrev').disabled = this.step === 0;
+
+    const img = new Image();
+    img.onload = () => {
+      if (this._aborted) return;
+      const scale = Math.min(this._w / img.naturalWidth, this._h / img.naturalHeight) * 0.82;
+      const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
+      const dx = (this._w - dw) / 2,      dy = (this._h - dh) / 2;
+      this._oCtx.globalAlpha = 0.22;
+      this._oCtx.drawImage(img, dx, dy, dw, dh);
+      this._oCtx.globalAlpha = 1;
+    };
+    img.src = animalSrc(a.id);
 
     speechSynthesis && speechSynthesis.cancel();
     setTimeout(() => TTS.speak(LANG[this.lang].paintInstruction), 300);
   },
 
-  _onReveal(a) {
+  _pos(e) {
+    const r = this._pCanvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  },
+
+  _onDown(e) {
+    if (this._done) return;
+    e.preventDefault();
+    this._painting = true;
+    const p = this._pos(e);
+    this._lastX = p.x; this._lastY = p.y;
+    this._stroke(p.x, p.y);
+  },
+
+  _onMove(e) {
+    if (!this._painting || this._done) return;
+    e.preventDefault();
+    const p = this._pos(e);
+    const dx = p.x - this._lastX, dy = p.y - this._lastY;
+    const dist = Math.hypot(dx, dy);
+    const steps = Math.max(1, Math.floor(dist / (this.BRUSH * 0.4)));
+    for (let i = 1; i <= steps; i++) {
+      this._stroke(this._lastX + dx * i / steps, this._lastY + dy * i / steps);
+    }
+    this._lastX = p.x; this._lastY = p.y;
+  },
+
+  _stroke(x, y) {
+    const ctx = this._pCtx, r = this.BRUSH / 2;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = this.currentColor;
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    this._markGrid(x, y);
+  },
+
+  _markGrid(x, y) {
+    const gs = this.GRID_SIZE;
+    const col = Math.floor(x / this._w * gs);
+    const row = Math.floor(y / this._h * gs);
+    if (col < 0 || col >= gs || row < 0 || row >= gs) return;
+    const idx = row * gs + col;
+    if (!this._grid[idx]) {
+      this._grid[idx] = 1;
+      this._paintedCells++;
+      if (this._paintedCells >= this._neededCells) this._onComplete();
+    }
+  },
+
+  _onComplete() {
+    if (this._done) return;
+    this._done = true;
+    this._painting = false;
+    const a = this.sequence[this.step];
     const name = this.lang === 'pt' ? a.pt : a.en;
+    const img = new Image();
+    img.onload = () => {
+      this._oCtx.clearRect(0, 0, this._w, this._h);
+      const scale = Math.min(this._w / img.naturalWidth, this._h / img.naturalHeight) * 0.82;
+      const dw = img.naturalWidth * scale, dh = img.naturalHeight * scale;
+      const dx = (this._w - dw) / 2,      dy = (this._h - dh) / 2;
+      this._oCtx.drawImage(img, dx, dy, dw, dh);
+    };
+    img.src = animalSrc(a.id);
     SFX.playCorrect();
     speechSynthesis && speechSynthesis.cancel();
     setTimeout(() => TTS.speak(name + '!'), 400);
     setTimeout(() => {
       this.step++;
       if (this.step >= this.sequence.length) this._celebrate();
-      else { this._locked = false; this._render(); }
+      else this._setupAnimal();
     }, 2800);
+  },
+
+  prev() {
+    if (this.step <= 0) return;
+    speechSynthesis && speechSynthesis.cancel();
+    this.step--;
+    this._setupAnimal();
+  },
+
+  next() {
+    speechSynthesis && speechSynthesis.cancel();
+    if (this.step >= this.sequence.length - 1) { this._celebrate(); return; }
+    this.step++;
+    this._setupAnimal();
   },
 
   _celebrate() {
