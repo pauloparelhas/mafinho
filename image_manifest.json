@@ -21,6 +21,20 @@
     {"id":"rectangle", "prompt_name":"a friendly rectangle shape character with a cute face, tiny arms and legs, bright orange color"},
     {"id":"oval",      "prompt_name":"a friendly oval/ellipse shape character with a cute face, tiny arms and legs, bright teal color"}
   ],
+  "fruits": [
+    {"id":"banana",     "prompt_name":"whole yellow crescent-shaped banana with cute kawaii face, big round sparkling eyes, tiny smile, centered on white background"},
+    {"id":"apple",      "prompt_name":"whole round bright red apple with short green stem and tiny leaf on top, cute kawaii face on the apple, big round eyes, happy smile, centered on white background"},
+    {"id":"pineapple",  "prompt_name":"whole pineapple with golden diamond-pattern skin and spiky green crown of leaves, cute kawaii face, big round eyes, tiny smile, centered on white background"},
+    {"id":"strawberry", "prompt_name":"whole heart-shaped bright red strawberry with tiny yellow seeds and green leafy crown, cute kawaii face, big round eyes, happy smile, centered on white background"},
+    {"id":"grape",      "prompt_name":"bunch of round juicy purple grapes with small green leaf at top, cute kawaii face on the bunch, big round eyes, happy smile, centered on white background"},
+    {"id":"pear",       "prompt_name":"whole green-yellow pear with short brown stem and tiny leaf, classic pear shape, cute kawaii face, big round eyes, tiny smile, centered on white background"},
+    {"id":"watermelon", "prompt_name":"whole round watermelon with dark green skin and lighter green stripes, cute kawaii face, big round eyes, happy smile, centered on white background"},
+    {"id":"melon",      "prompt_name":"whole round cantaloupe melon with golden-orange netted skin, cute kawaii face, big round eyes, tiny smile, centered on white background"},
+    {"id":"avocado",    "prompt_name":"whole pear-shaped avocado with dark green bumpy skin, cute kawaii face, big round eyes, happy smile, centered on white background"},
+    {"id":"guava",      "prompt_name":"whole round guava fruit with light green to yellow skin, cute kawaii face, big round eyes, tiny smile, centered on white background"},
+    {"id":"mango",      "prompt_name":"whole oval mango with smooth yellow-orange skin, cute kawaii face, big round eyes, happy smile, centered on white background"},
+    {"id":"cherry",     "prompt_name":"two round bright red cherries connected by green stem with small leaves, cute kawaii faces, big round eyes, happy smiles, centered on white background"}
+  ],
   "body": [
     {"id":"full",     "prompt_name":"kawaii cute cartoon toddler child standing straight, front-facing, arms slightly away from body, full body visible from head to feet, simple white background, flat illustration style, no text"},
     {"id":"cabeca",   "prompt_name":"kawaii cute cartoon toddler child head and face only, front view, simple white background, flat illustration, no body or neck"},
